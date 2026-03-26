@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 import {
     spaces,
     tenants,
@@ -110,27 +110,27 @@ describe('DB migration — all tables exist', () => {
 
 describe('DB invariant — contract immutability trigger', () => {
     let pool: Pool;
+    let client: PoolClient;
     let tenantId: string;
-    let spaceId: string;
     let contractId: string;
 
     beforeAll(async () => {
         if (!hasDatabaseUrl) return;
         pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        client = await pool.connect();
+        await client.query('BEGIN');
 
-        // Insert prerequisite tenant and space
-        const tenant = await pool.query(
+        const tenant = await client.query(
             `INSERT INTO tenants (first_name, last_name) VALUES ('Test', 'Tenant') RETURNING id`,
         );
         tenantId = tenant.rows[0].id;
 
-        const space = await pool.query(
+        const space = await client.query(
             `INSERT INTO spaces (name) VALUES ('Test Space Immut') RETURNING id`,
         );
-        spaceId = space.rows[0].id;
+        const spaceId = space.rows[0].id;
 
-        // Insert a posted contract
-        const contract = await pool.query(
+        const contract = await client.query(
             `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
              VALUES ($1, $2, '2024-01-01', '2024-12-31', 5000.00, 'monthly', 1, 'posted') RETURNING id`,
             [tenantId, spaceId],
@@ -139,11 +139,10 @@ describe('DB invariant — contract immutability trigger', () => {
     });
 
     afterAll(async () => {
-        if (!pool) return;
-        if (contractId) await pool.query(`DELETE FROM contracts WHERE id = $1`, [contractId]);
-        if (spaceId) await pool.query(`DELETE FROM spaces WHERE id = $1`, [spaceId]);
-        if (tenantId) await pool.query(`DELETE FROM tenants WHERE id = $1`, [tenantId]);
-        await pool.end();
+        if (!client) return;
+        await client.query('ROLLBACK');
+        client.release();
+        if (pool) await pool.end();
     });
 
     const protectedFields: Array<[string, string]> = [
@@ -156,15 +155,115 @@ describe('DB invariant — contract immutability trigger', () => {
 
     for (const [field, value] of protectedFields) {
         (hasDatabaseUrl ? it : it.skip)(`blocks UPDATE of "${field}" on a posted contract`, async () => {
+            await client.query('SAVEPOINT sp_immut');
             await expect(
-                pool.query(`UPDATE contracts SET ${field} = ${value} WHERE id = $1`, [contractId]),
+                client.query(`UPDATE contracts SET ${field} = ${value} WHERE id = $1`, [contractId]),
             ).rejects.toThrow();
+            await client.query('ROLLBACK TO SAVEPOINT sp_immut');
         });
     }
 
     (hasDatabaseUrl ? it : it.skip)('allows UPDATE of non-protected field (metadata) on a posted contract', async () => {
         await expect(
-            pool.query(`UPDATE contracts SET metadata = '{"note":"ok"}' WHERE id = $1`, [contractId]),
+            client.query(`UPDATE contracts SET metadata = '{"note":"ok"}' WHERE id = $1`, [contractId]),
         ).resolves.toBeDefined();
     });
+});
+
+describe('DB invariant — no hard delete triggers', () => {
+    let pool: Pool;
+    let client: PoolClient;
+    let tenantId: string;
+    let contractId: string;
+    let payableId: string;
+    let paymentId: string;
+    let fundId: string;
+    let publicAccessCodeId: string;
+    let auditId: string;
+
+    beforeAll(async () => {
+        if (!hasDatabaseUrl) return;
+        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        client = await pool.connect();
+        await client.query('BEGIN');
+
+        const tenant = await client.query(
+            `INSERT INTO tenants (first_name, last_name) VALUES ('NoDelete', 'Test') RETURNING id`,
+        );
+        tenantId = tenant.rows[0].id;
+
+        const space = await client.query(
+            `INSERT INTO spaces (name) VALUES ('NoDelete Space') RETURNING id`,
+        );
+        const spaceId = space.rows[0].id;
+
+        const contract = await client.query(
+            `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
+             VALUES ($1, $2, '2024-01-01', '2024-12-31', 3000.00, 'monthly', 1, 'draft') RETURNING id`,
+            [tenantId, spaceId],
+        );
+        contractId = contract.rows[0].id;
+
+        const payable = await client.query(
+            `INSERT INTO payables (contract_id, period_start, period_end, amount, due_date)
+             VALUES ($1, '2024-01-01', '2024-01-31', 3000.00, '2024-01-05') RETURNING id`,
+            [contractId],
+        );
+        payableId = payable.rows[0].id;
+
+        const payment = await client.query(
+            `INSERT INTO payments (contract_id, amount, date)
+             VALUES ($1, 3000.00, '2024-01-10') RETURNING id`,
+            [contractId],
+        );
+        paymentId = payment.rows[0].id;
+
+        const fundEntry = await client.query(
+            `INSERT INTO fund (contract_id, type, amount)
+             VALUES ($1, 'deposit', 3000.00) RETURNING id`,
+            [contractId],
+        );
+        fundId = fundEntry.rows[0].id;
+
+        const pac = await client.query(
+            `INSERT INTO public_access_codes (contract_id, code)
+             VALUES ($1, gen_random_uuid()) RETURNING id`,
+            [contractId],
+        );
+        publicAccessCodeId = pac.rows[0].id;
+
+        const auditRow = await client.query(
+            `INSERT INTO audit (entity_type, entity_id, action)
+             VALUES ('payment', $1, 'void') RETURNING id`,
+            [paymentId],
+        );
+        auditId = auditRow.rows[0].id;
+    });
+
+    afterAll(async () => {
+        if (!client) return;
+        await client.query('ROLLBACK');
+        client.release();
+        if (pool) await pool.end();
+    });
+
+    const protectedTables: Array<{ name: string; getId: () => string }> = [
+        { name: 'tenants', getId: () => tenantId },
+        { name: 'contracts', getId: () => contractId },
+        { name: 'payments', getId: () => paymentId },
+        { name: 'fund', getId: () => fundId },
+        { name: 'payables', getId: () => payableId },
+        { name: 'public_access_codes', getId: () => publicAccessCodeId },
+        { name: 'audit', getId: () => auditId },
+    ];
+
+    for (const { name, getId } of protectedTables) {
+        (hasDatabaseUrl ? it : it.skip)(`blocks DELETE on "${name}"`, async () => {
+            await client.query(`SAVEPOINT sp_del`);
+            await expect(
+                client.query(`DELETE FROM ${name} WHERE id = $1`, [getId()]),
+            ).rejects.toThrow();
+            await client.query('ROLLBACK TO SAVEPOINT sp_del');
+        });
+    }
 });
