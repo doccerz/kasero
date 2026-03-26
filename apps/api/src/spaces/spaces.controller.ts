@@ -1,4 +1,6 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@Controller('spaces')
+@UseGuards(JwtAuthGuard)
+@Controller('admin/spaces')
 export class SpacesController {}

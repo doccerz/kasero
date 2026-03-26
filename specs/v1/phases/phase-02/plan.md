@@ -164,6 +164,8 @@ Mark group done → git commit
 
 ---
 
+<promise>COMPLETE</promise>
+
 ## Verification
 
 ```bash

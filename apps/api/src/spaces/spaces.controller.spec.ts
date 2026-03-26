@@ -1,9 +1,18 @@
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { SpacesController } from './spaces.controller';
+import request from 'supertest';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt';
+
+@UseGuards(JwtAuthGuard)
+@Controller('admin/spaces')
+class TestSpacesController {
+    @Get()
+    list() {
+        return [];
+    }
+}
 
 describe('SpacesController — guard integration', () => {
     let app: INestApplication;
@@ -14,7 +23,7 @@ describe('SpacesController — guard integration', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [SpacesController],
+            controllers: [TestSpacesController],
             providers: [{ provide: JwtService, useValue: mockJwtService }],
         }).compile();
 

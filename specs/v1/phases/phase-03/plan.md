@@ -159,6 +159,19 @@ export class JwtAuthGuard implements CanActivate {
 - `apps/api/src/audit/audit.controller.ts`
 
 ---
+### Group 3.1 - Fix github action issues
+#17 [builder 6/6] RUN npm run build
+#17 0.453 
+#17 0.453 > kasero-api@0.0.1 build
+#17 0.453 > nest build
+#17 0.453 
+#17 3.934 src/auth/auth.module.ts:11:28 - error TS2322: Type 'string' is not assignable to type 'number | StringValue | undefined'.
+#17 3.934 
+#17 3.934 11             signOptions: { expiresIn: appConfig.jwtExpiresIn },
+#17 3.934                               ~~~~~~~~~
+#17 3.934 
+#17 3.934 Found 1 error(s).
+---
 
 ### Group 4 — Integration Verification + PR
 
