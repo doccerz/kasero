@@ -41,7 +41,7 @@ const mockDb = {
 };
 ```
 
-### Step 2 — Implement SettingsService
+### ✅ Step 2 — Implement SettingsService
 **File:** `apps/api/src/settings/settings.service.ts`
 
 ```typescript
