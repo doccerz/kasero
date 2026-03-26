@@ -145,3 +145,5 @@ Extend existing compile test to verify `SettingsService` is exported and injecta
    - `npm run db:seed --workspace=apps/api` — verify `tenant.hide_expired` row is present
    - Run DB-backed tests: tenant filtering works as expected
 3. Confirm `SettingsService` is available as a dependency in TenantsModule without circular dependencies
+
+<promise>COMPLETE</promise>
