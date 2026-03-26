@@ -1,0 +1,1 @@
+Step 1 DONE — wrote failing unit tests for SettingsService in apps/api/src/settings/settings.service.spec.ts (TDD: tests cover onApplicationBootstrap cache load, get, getBoolean, and a DB-backed bootstrap test). Tests are intentionally failing — implementation pending.
