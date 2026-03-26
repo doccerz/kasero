@@ -1,0 +1,54 @@
+Phase 1 Progress
+================
+Branch: feat/phase-01-foundation
+
+## Completed
+
+### Group 1 — NestJS API Skeleton ✅
+- RED: test(api): add failing health check tests before NestJS scaffold
+- GREEN: feat(api): scaffold NestJS application skeleton
+  - AppController.getHealth() returns { status: 'ok' }
+  - main.ts uses process.env.API_PORT ?? 3001
+  - package.json name set to kasero-api
+- VERIFY: all tests pass (2/2)
+
+### Group 2 — Next.js Web Skeleton ✅
+- RED: test(web): add failing root layout smoke test before Next.js scaffold
+- GREEN: feat(web): scaffold Next.js application skeleton
+  - Next.js 16.2.1 with App Router, TypeScript, Tailwind, ESLint
+  - package.json name set to kasero-web
+  - Jest configured with next/jest preset + @testing-library/jest-dom
+- VERIFY: all tests pass (1/1)
+
+### Group 3 — Root Workspace Scripts ✅
+- chore(root): wire workspace scripts and test delegation
+  - npm test runs both api and web tests
+  - dev, dev:api, dev:web, db:*, test:* scripts all wired
+
+### Group 4 — NestJS Module Scaffolding ✅
+- RED: test(api): add failing module compilation tests for all 8 modules
+- GREEN: feat(api): scaffold all 8 NestJS modules
+  - Modules: auth, settings, spaces, tenants, contracts, ledgers, public-access, audit
+  - All imported in AppModule
+- VERIFY: all 10 tests pass (10/10)
+
+### Group 5 — Drizzle ORM Setup 🔄 IN PROGRESS
+- RED: test(api): add failing DB connection and schema export tests ✅ committed
+- GREEN: feat(api): add Drizzle schema, database module, migration config ✅ committed
+  - Installed: drizzle-orm, pg, drizzle-kit, @types/pg
+  - schema.ts: 11 tables + 5 enums (tenantStatus, billingFrequency, contractStatus, fundType, auditAction)
+  - database.ts: Pool + drizzle db instance
+  - database.module.ts: @Global() module with DB_TOKEN, pool.end() on shutdown
+  - drizzle.config.ts: schema path, migrations out, postgresql dialect
+  - drizzle/migrations/: .gitkeep + 0001_constraints_and_triggers.sql
+  - Added db:generate, db:migrate, db:studio, db:seed scripts to package.json
+  - Fixed .gitignore to allow drizzle/migrations to be tracked
+  - All 23 tests pass (1 self-skipped DB connection test without DATABASE_URL)
+- VERIFY: pending
+
+## Pending
+
+### Group 6 — Config Module
+### Group 7 — Next.js Route Structure
+### Group 8 — Seed and Startup Migration
+### Group 9 — Dockerfile and Final Integration
