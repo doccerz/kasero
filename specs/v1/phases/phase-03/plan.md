@@ -104,13 +104,13 @@ login(@Body() body: { username: string; password: string }) {
 **Goal:** All `/admin/*` controllers return 401 without a valid Bearer token.
 
 **Failing tests first** (`jwt-auth.guard.spec.ts`):
-- Request with no `Authorization` header → `canActivate` returns false (or throws 401)
-- Request with invalid/expired token → `canActivate` returns false
-- Request with valid token → `canActivate` returns true
+- [x] Request with no `Authorization` header → `canActivate` returns false (or throws 401)
+- [x] Request with invalid/expired token → `canActivate` returns false
+- [x] Request with valid token → `canActivate` returns true
 
 **Also add e2e-style guard tests** in existing controller spec files (or a dedicated `auth.e2e.spec.ts`):
-- `GET /admin/spaces` without token → 401
-- `GET /admin/spaces` with valid token → not 401
+- [x] `GET /admin/spaces` without token → 401
+- [x] `GET /admin/spaces` with valid token → not 401
 
 **Implementation:**
 
@@ -149,14 +149,14 @@ export class JwtAuthGuard implements CanActivate {
 - `AppController` (health check)
 
 **Critical files:**
-- `apps/api/src/auth/jwt-auth.guard.ts` (new)
-- `apps/api/src/auth/jwt-auth.guard.spec.ts` (new)
-- `apps/api/src/spaces/spaces.controller.ts`
-- `apps/api/src/tenants/tenants.controller.ts`
-- `apps/api/src/contracts/contracts.controller.ts`
-- `apps/api/src/ledgers/ledgers.controller.ts`
-- `apps/api/src/settings/settings.controller.ts`
-- `apps/api/src/audit/audit.controller.ts`
+- [x] `apps/api/src/auth/jwt-auth.guard.ts` (new)
+- [x] `apps/api/src/auth/jwt-auth.guard.spec.ts` (new)
+- [x] `apps/api/src/spaces/spaces.controller.ts`
+- [x] `apps/api/src/tenants/tenants.controller.ts`
+- [x] `apps/api/src/contracts/contracts.controller.ts`
+- [x] `apps/api/src/ledgers/ledgers.controller.ts`
+- [x] `apps/api/src/settings/settings.controller.ts`
+- [x] `apps/api/src/audit/audit.controller.ts`
 
 ---
 ### Group 3.1 - Fix github action issues
