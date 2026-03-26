@@ -104,13 +104,13 @@ login(@Body() body: { username: string; password: string }) {
 **Goal:** All `/admin/*` controllers return 401 without a valid Bearer token.
 
 **Failing tests first** (`jwt-auth.guard.spec.ts`):
-- Request with no `Authorization` header → `canActivate` returns false (or throws 401)
-- Request with invalid/expired token → `canActivate` returns false
-- Request with valid token → `canActivate` returns true
+- [x] Request with no `Authorization` header → `canActivate` returns false (or throws 401)
+- [x] Request with invalid/expired token → `canActivate` returns false
+- [x] Request with valid token → `canActivate` returns true
 
 **Also add e2e-style guard tests** in existing controller spec files (or a dedicated `auth.e2e.spec.ts`):
-- `GET /admin/spaces` without token → 401
-- `GET /admin/spaces` with valid token → not 401
+- [x] `GET /admin/spaces` without token → 401
+- [x] `GET /admin/spaces` with valid token → not 401
 
 **Implementation:**
 
@@ -149,26 +149,39 @@ export class JwtAuthGuard implements CanActivate {
 - `AppController` (health check)
 
 **Critical files:**
-- `apps/api/src/auth/jwt-auth.guard.ts` (new)
-- `apps/api/src/auth/jwt-auth.guard.spec.ts` (new)
-- `apps/api/src/spaces/spaces.controller.ts`
-- `apps/api/src/tenants/tenants.controller.ts`
-- `apps/api/src/contracts/contracts.controller.ts`
-- `apps/api/src/ledgers/ledgers.controller.ts`
-- `apps/api/src/settings/settings.controller.ts`
-- `apps/api/src/audit/audit.controller.ts`
+- [x] `apps/api/src/auth/jwt-auth.guard.ts` (new)
+- [x] `apps/api/src/auth/jwt-auth.guard.spec.ts` (new)
+- [x] `apps/api/src/spaces/spaces.controller.ts`
+- [x] `apps/api/src/tenants/tenants.controller.ts`
+- [x] `apps/api/src/contracts/contracts.controller.ts`
+- [x] `apps/api/src/ledgers/ledgers.controller.ts`
+- [x] `apps/api/src/settings/settings.controller.ts`
+- [x] `apps/api/src/audit/audit.controller.ts`
 
 ---
+### Group 3.1 - Fix github action issues [COMPLETE]
+#17 [builder 6/6] RUN npm run build
+#17 0.453 
+#17 0.453 > kasero-api@0.0.1 build
+#17 0.453 > nest build
+#17 0.453 
+#17 3.934 src/auth/auth.module.ts:11:28 - error TS2322: Type 'string' is not assignable to type 'number | StringValue | undefined'.
+#17 3.934 
+#17 3.934 11             signOptions: { expiresIn: appConfig.jwtExpiresIn },
+#17 3.934                               ~~~~~~~~~
+#17 3.934 
+#17 3.934 Found 1 error(s).
+---
 
-### Group 4 — Integration Verification + PR
+### Group 4 — Integration Verification + PR [COMPLETE]
 
 **Tasks:**
-- `npm test` — all tests pass (DB tests self-skip without `DATABASE_URL`)
-- Verify login → use token → access protected route flow manually if DB available
-- Update `specs/v1/phases/phase-03/progress.txt`
-- Update `service-workflows.md` with any new patterns learned
-- Update `README.md` if relevant
-- Create PR: `feat/phase-03-authentication-admin-access` → `staging`
+- [x] `npm test` — all tests pass (DB tests self-skip without `DATABASE_URL`)
+- [x] Verify login → use token → access protected route flow manually if DB available
+- [x] Update `specs/v1/phases/phase-03/progress.txt`
+- [x] Update `service-workflows.md` with any new patterns learned
+- [x] Update `README.md` if relevant
+- [x] Create PR: `feat/phase-03-authentication-admin-access` → `staging`
 
 ---
 

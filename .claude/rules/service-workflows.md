@@ -17,3 +17,14 @@
 - Apply manual SQL migrations via pipe to Docker: `cat migration.sql | docker exec -i <container> psql -U <user> -d <db>` — the `-f /dev/stdin` form does not work reliably
 - Migration journal tracking: `drizzle-kit migrate` and the runtime `migrate()` both use `_journal.json` — manual SQL migration files must be added to the journal (idx, tag, when, breakpoints) or they won't run on fresh DBs
 - Idempotent migration pattern: use `CREATE UNIQUE INDEX IF NOT EXISTS` for indexes; use `DROP TRIGGER IF EXISTS ... ON table` before `CREATE TRIGGER` to ensure re-runnable migrations; `CREATE OR REPLACE FUNCTION` is already idempotent
+- DatabaseModule is `@Global()` but must be explicitly imported in `AppModule` — forgetting this means `DB_TOKEN` is not available to any feature module
+- JWT auth pattern (v1 single-role): use `@nestjs/jwt` directly (no Passport) — custom `JwtAuthGuard implements CanActivate` extracts Bearer token from `Authorization` header, verifies with `jwtService.verify()`, throws `UnauthorizedException` on failure
+- AuthModule exports `JwtModule` so `JwtService` can be injected into `JwtAuthGuard` across the app
+- Guard placement: apply `@UseGuards(JwtAuthGuard)` at controller class level for all `/admin/*` controllers; do NOT guard `AuthController`, `PublicAccessController`, or `AppController`
+- Auth unit test pattern: use `@nestjs/testing` with a mocked `DB_TOKEN` provider (plain object with `select` returning fake rows) — no real DB needed for login/guard tests
+- Local postgres container: name=`postgres`, user=`admin`, password=`admin`, default db=`devdb`; `kasero_test` and `kasero_scratch` already exist for local testing
+- psql DROP/CREATE DATABASE must connect via `-d postgres` (maintenance db) — using `-d devdb` raises "cannot run inside a transaction block"
+- Seed skips `admin_users` insert silently when `ADMIN_PASSWORD` is unset — always pass `ADMIN_USERNAME` + `ADMIN_PASSWORD` env vars to `db:seed` for a complete seed
+- Feature module spec isolation with nested AuthModule dependency: `overrideProvider(DB_TOKEN)` alone is insufficient — must also import `DatabaseModule` explicitly in `createTestingModule({ imports: [DatabaseModule, FeatureModule] })` so the `@Global()` DB_TOKEN is part of the module tree; then override it with a mock
+- E2e-style guard tests with empty controllers: use an inline `@Controller` + `@Get()` in the spec file to create a test-only route — guards only run when a matching route exists; 404 is returned before guard evaluation if no route matches
+- Admin controller routing: all admin feature controllers use `@Controller('admin/<resource>')` path prefix (e.g., `admin/spaces`, `admin/tenants`) — matches the API endpoint design `/admin/*`

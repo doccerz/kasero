@@ -133,6 +133,14 @@ When `DATABASE_URL` is set, the API automatically on startup:
 
 ## API Endpoints
 
+### Authentication (public)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/auth/login` | Authenticate admin — returns `{ access_token }` |
+
+Pass the token as `Authorization: Bearer <token>` to access admin endpoints.
+
 ### Admin (JWT required)
 
 | Method | Path | Purpose |
