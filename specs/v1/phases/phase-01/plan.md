@@ -184,11 +184,11 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
 
 ### Group 7 — Next.js Route Structure
 
-- [ ] **RED** `test(web): add failing route layout tests for admin, public, and entry sections`
+- [x] **RED** `test(web): add failing route layout tests for admin, public, and entry sections`
   - `apps/web/__tests__/admin-layout.test.tsx`, `public-layout.test.tsx`, `entry-layout.test.tsx`
   - Mock `next/navigation` and `next/headers` to isolate server components
 
-- [ ] **GREEN** `feat(web): scaffold full App Router directory structure`
+- [x] **GREEN** `feat(web): scaffold full App Router directory structure`
 
   Create stub pages/layouts (each returns a minimal `<main>` element):
   ```
@@ -209,7 +209,7 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
       └── [token]/page.tsx
   ```
 
-- [ ] **VERIFY** `test(web): verify all web route layout tests pass`
+- [x] **VERIFY** `test(web): verify all web route layout tests pass`
 
 ---
 
