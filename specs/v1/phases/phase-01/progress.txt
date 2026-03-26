@@ -82,6 +82,15 @@ Branch: feat/phase-01-foundation
   - main.ts: calls runMigrations(), seedDefaultSettings(), seedAdminUser() when DATABASE_URL is set
 - VERIFY: 33 api tests (4 self-skip) + 4 web tests — all pass ✅
 
-## Pending
+### Group 9 — Dockerfile and Final Integration ✅
+- GREEN: chore(docker): implement multi-stage Dockerfile for NestJS API ✅ committed
+  - Multi-stage build: deps (alpine + python3/make/g++ + npm install), builder (nest build), runner (production image)
+  - Separate COPY commands for package.json files to preserve workspace directory structure
+  - ENV NODE_ENV=production, TZ=Asia/Manila in runner stage
+  - Copies dist/ and drizzle/ (migrations) into runner image
+- FINAL: chore(phase-1): integration verification ✅
+  - npm install --no-package-lock — succeeds
+  - npm test — 33 api tests (4 self-skip) + 4 web tests — all pass ✅
+  - docker build -t kasero . — succeeds ✅
 
-### Group 9 — Dockerfile and Final Integration
+## Completed (All Groups)

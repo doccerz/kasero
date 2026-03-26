@@ -250,7 +250,7 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
 
 ### Group 9 — Dockerfile and Final Integration
 
-- [ ] **GREEN** `chore(docker): implement multi-stage Dockerfile for NestJS API`
+- [x] **GREEN** `chore(docker): implement multi-stage Dockerfile for NestJS API`
   ```dockerfile
   FROM node:24-alpine AS deps
   RUN apk add --no-cache python3 make g++
@@ -276,7 +276,7 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
   CMD ["node", "dist/main.js"]
   ```
 
-- [ ] **FINAL** `chore(phase-1): integration verification — all tests pass, docker build succeeds`
+- [x] **FINAL** `chore(phase-1): integration verification — all tests pass, docker build succeeds`
   - `npm install --no-package-lock` from root
   - `npm test` — all pass or self-skip
   - `docker build -t kasero .` — succeeds
@@ -313,10 +313,10 @@ const hasDatabaseUrl = !!process.env.DATABASE_URL;
 
 ## Exit Criteria
 
-- [ ] `npm install --no-package-lock` from root — succeeds
-- [ ] `npm test` from root — all tests pass/skip, exit 0
-- [ ] `docker build -t kasero .` — succeeds
+- [x] `npm install --no-package-lock` from root — succeeds
+- [x] `npm test` from root — all tests pass/skip, exit 0
+- [x] `docker build -t kasero .` — succeeds
 - [ ] With `DATABASE_URL`: `npm run db:migrate --workspace=apps/api` runs migrations
 - [ ] With `DATABASE_URL`: `npm run db:seed --workspace=apps/api` seeds admin + settings
-- [ ] `npm run dev:api` starts NestJS on port 3001
-- [ ] Module structure ready for Phase 2 feature implementation
+- [x] `npm run dev:api` starts NestJS on port 3001
+- [x] Module structure ready for Phase 2 feature implementation

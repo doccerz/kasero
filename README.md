@@ -180,10 +180,25 @@ See `.claude/rules/ci-cd-workflows.md` for the full pipeline diagram.
 
 ---
 
+## Database Invariants
+
+Enforced at the PostgreSQL level via triggers and constraints:
+
+| Invariant | Mechanism | Migration |
+|-----------|-----------|-----------|
+| One active contract per space | Partial unique index | `0001_constraints_and_triggers.sql` |
+| Tenant expiration date auto-set on status change | `BEFORE UPDATE` trigger | `0001_constraints_and_triggers.sql` |
+| Posted contract core fields immutable | `BEFORE UPDATE` trigger | `0002_contract_immutability.sql` |
+| No hard deletes on core records | `BEFORE DELETE` triggers | `0003_no_hard_delete.sql` |
+
+Protected tables (no hard delete): `tenants`, `contracts`, `payments`, `fund`, `payables`, `public_access_codes`, `audit`. Spaces use soft-delete via `deleted_at`.
+
+---
+
 ## Security
 
 - All secrets must be in `.env` (never committed — see `.gitignore`)
 - The NestJS API is never directly reachable from the internet
 - Admin routes require JWT authentication
 - Public tenant access is read-only and resolved via non-guessable codes
-- No hard deletes on any core record
+- No hard deletes on any core record — enforced at the database level by triggers
