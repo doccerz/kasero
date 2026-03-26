@@ -112,7 +112,7 @@ export class TenantsService {
 
 **File:** `apps/api/src/tenants/tenants.module.ts` — add `imports: [AuthModule, SettingsModule]`
 
-### Step 5 — Update settings.module.spec.ts
+### ✅ Step 5 — Update settings.module.spec.ts
 Extend existing compile test to verify `SettingsService` is exported and injectable:
 - verify `SettingsService` can be retrieved from the compiled module
 
