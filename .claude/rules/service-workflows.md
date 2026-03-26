@@ -25,3 +25,6 @@
 - Local postgres container: name=`postgres`, user=`admin`, password=`admin`, default db=`devdb`; `kasero_test` and `kasero_scratch` already exist for local testing
 - psql DROP/CREATE DATABASE must connect via `-d postgres` (maintenance db) — using `-d devdb` raises "cannot run inside a transaction block"
 - Seed skips `admin_users` insert silently when `ADMIN_PASSWORD` is unset — always pass `ADMIN_USERNAME` + `ADMIN_PASSWORD` env vars to `db:seed` for a complete seed
+- Feature module spec isolation with nested AuthModule dependency: `overrideProvider(DB_TOKEN)` alone is insufficient — must also import `DatabaseModule` explicitly in `createTestingModule({ imports: [DatabaseModule, FeatureModule] })` so the `@Global()` DB_TOKEN is part of the module tree; then override it with a mock
+- E2e-style guard tests with empty controllers: use an inline `@Controller` + `@Get()` in the spec file to create a test-only route — guards only run when a matching route exists; 404 is returned before guard evaluation if no route matches
+- Admin controller routing: all admin feature controllers use `@Controller('admin/<resource>')` path prefix (e.g., `admin/spaces`, `admin/tenants`) — matches the API endpoint design `/admin/*`
