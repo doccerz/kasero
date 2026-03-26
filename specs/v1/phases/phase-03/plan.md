@@ -185,6 +185,8 @@ export class JwtAuthGuard implements CanActivate {
 
 ---
 
+<promise>COMPLETE</promise>
+
 ## Verification
 
 ```bash
