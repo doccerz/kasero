@@ -33,3 +33,11 @@
 - Root cause: appConfig.jwtExpiresIn is typed as string but jsonwebtoken's signOptions.expiresIn requires ms.StringValue | number
 - Fix: import type { StringValue } from 'ms' and cast appConfig.jwtExpiresIn as StringValue
 - Build now passes (nest build succeeds); all 17 API + 4 web test suites still pass
+
+### Group 4 — Integration Verification + PR [COMPLETE]
+
+- Ran full test suite: 17 API test suites pass (34 skipped DB tests, 42 pass) + 4 web test suites pass
+- All DB tests self-skip without DATABASE_URL as expected (CI-safe)
+- No new service-workflows.md patterns needed — all auth patterns were already captured in Groups 1–3
+- README.md already reflects the auth endpoints and JWT flow from earlier groups
+- Created PR: feat/phase-03-authentication-admin-access → staging

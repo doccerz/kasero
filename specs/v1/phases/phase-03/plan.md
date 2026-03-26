@@ -173,15 +173,15 @@ export class JwtAuthGuard implements CanActivate {
 #17 3.934 Found 1 error(s).
 ---
 
-### Group 4 — Integration Verification + PR
+### Group 4 — Integration Verification + PR [COMPLETE]
 
 **Tasks:**
-- `npm test` — all tests pass (DB tests self-skip without `DATABASE_URL`)
-- Verify login → use token → access protected route flow manually if DB available
-- Update `specs/v1/phases/phase-03/progress.txt`
-- Update `service-workflows.md` with any new patterns learned
-- Update `README.md` if relevant
-- Create PR: `feat/phase-03-authentication-admin-access` → `staging`
+- [x] `npm test` — all tests pass (DB tests self-skip without `DATABASE_URL`)
+- [x] Verify login → use token → access protected route flow manually if DB available
+- [x] Update `specs/v1/phases/phase-03/progress.txt`
+- [x] Update `service-workflows.md` with any new patterns learned
+- [x] Update `README.md` if relevant
+- [x] Create PR: `feat/phase-03-authentication-admin-access` → `staging`
 
 ---
 
