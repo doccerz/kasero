@@ -256,6 +256,109 @@ describe('DB invariant — payment void audit trigger', () => {
     });
 });
 
+describe('DB function — expire_contract_tenants()', () => {
+    let pool: Pool;
+    let client: PoolClient;
+
+    beforeAll(async () => {
+        if (!hasDatabaseUrl) return;
+        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        client = await pool.connect();
+        await client.query('BEGIN');
+    });
+
+    afterAll(async () => {
+        if (!client) return;
+        await client.query('ROLLBACK');
+        client.release();
+        if (pool) await pool.end();
+    });
+
+    (hasDatabaseUrl ? it : it.skip)('inactivates tenant whose contract end_date is in the past', async () => {
+        const tenant = await client.query(
+            `INSERT INTO tenants (first_name, last_name, status) VALUES ('Expire', 'Me', 'active') RETURNING id`,
+        );
+        const tenantId = tenant.rows[0].id;
+
+        const space = await client.query(
+            `INSERT INTO spaces (name) VALUES ('Expire Space') RETURNING id`,
+        );
+        const spaceId = space.rows[0].id;
+
+        await client.query(
+            `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
+             VALUES ($1, $2, '2020-01-01', '2020-12-31', 5000.00, 'monthly', 1, 'posted')`,
+            [tenantId, spaceId],
+        );
+
+        await client.query(`SELECT expire_contract_tenants()`);
+
+        const result = await client.query(
+            `SELECT status, expiration_date FROM tenants WHERE id = $1`,
+            [tenantId],
+        );
+
+        expect(result.rows[0].status).toBe('inactive');
+        expect(result.rows[0].expiration_date).not.toBeNull();
+    });
+
+    (hasDatabaseUrl ? it : it.skip)('does NOT inactivate tenant with future contract end_date', async () => {
+        const tenant = await client.query(
+            `INSERT INTO tenants (first_name, last_name, status) VALUES ('Future', 'Tenant', 'active') RETURNING id`,
+        );
+        const tenantId = tenant.rows[0].id;
+
+        const space = await client.query(
+            `INSERT INTO spaces (name) VALUES ('Future Space') RETURNING id`,
+        );
+        const spaceId = space.rows[0].id;
+
+        await client.query(
+            `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
+             VALUES ($1, $2, CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', 5000.00, 'monthly', 1, 'posted')`,
+            [tenantId, spaceId],
+        );
+
+        await client.query(`SELECT expire_contract_tenants()`);
+
+        const result = await client.query(
+            `SELECT status FROM tenants WHERE id = $1`,
+            [tenantId],
+        );
+
+        expect(result.rows[0].status).toBe('active');
+    });
+
+    (hasDatabaseUrl ? it : it.skip)('returns count of inactivated tenants', async () => {
+        const tenant1 = await client.query(
+            `INSERT INTO tenants (first_name, last_name, status) VALUES ('Count', 'One', 'active') RETURNING id`,
+        );
+        const tenant2 = await client.query(
+            `INSERT INTO tenants (first_name, last_name, status) VALUES ('Count', 'Two', 'active') RETURNING id`,
+        );
+
+        const space1 = await client.query(`INSERT INTO spaces (name) VALUES ('Count Space 1') RETURNING id`);
+        const space2 = await client.query(`INSERT INTO spaces (name) VALUES ('Count Space 2') RETURNING id`);
+
+        await client.query(
+            `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
+             VALUES ($1, $2, '2019-01-01', '2019-12-31', 5000.00, 'monthly', 1, 'posted')`,
+            [tenant1.rows[0].id, space1.rows[0].id],
+        );
+        await client.query(
+            `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
+             VALUES ($1, $2, '2019-01-01', '2019-12-31', 5000.00, 'monthly', 1, 'posted')`,
+            [tenant2.rows[0].id, space2.rows[0].id],
+        );
+
+        const result = await client.query(`SELECT expire_contract_tenants() AS count`);
+        const count = parseInt(result.rows[0].count, 10);
+
+        // Count should be >= 2 (includes the tenant from the first test + these 2)
+        expect(count).toBeGreaterThanOrEqual(2);
+    });
+});
+
 describe('DB invariant — no hard delete triggers', () => {
     let pool: Pool;
     let client: PoolClient;
