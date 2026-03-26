@@ -1,0 +1,58 @@
+name: CI
+
+on:
+    pull_request:
+        branches:
+            - main
+            - staging
+
+concurrency:
+    group: ci-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+
+            - name: Install dependencies
+              run: npm install --no-package-lock
+
+            - name: Run tests
+              run: npm test
+
+    docker-build:
+        name: Docker Build (Smoke Test)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Build Docker image
+              run: docker build -t kasero .
+
+    auto-merge:
+        name: Auto Merge to Staging
+        if: github.base_ref == 'staging'
+        needs:
+            - test
+            - docker-build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Approve PR
+              run: gh pr review "${{ github.event.pull_request.number }}" --approve
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Merge PR
+              run: gh pr merge "${{ github.event.pull_request.number }}" --merge --delete-branch
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
