@@ -156,7 +156,7 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
   BEFORE UPDATE ON tenants FOR EACH ROW EXECUTE FUNCTION set_tenant_expiration();
   ```
 
-- [ ] **VERIFY** `test(api): verify schema export tests pass, DB connection test self-skips`
+- [x] **VERIFY** `test(api): verify schema export tests pass, DB connection test self-skips`
 
 ---
 
