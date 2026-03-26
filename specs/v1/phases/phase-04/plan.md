@@ -75,7 +75,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
 **File:** `apps/api/src/settings/settings.module.ts` — add `exports: [SettingsService]`
 
-### Step 3 — Write failing tests for TenantsService
+### ✅ Step 3 — Write failing tests for TenantsService
 **File:** `apps/api/src/tenants/tenants.service.spec.ts` (new)
 
 Tests to write:
@@ -86,7 +86,7 @@ Tests to write:
   - insert inactive tenant with past expiration → hidden when setting is true
   - insert inactive tenant with future expiration → visible when setting is true
 
-### Step 4 — Implement TenantsService
+### ✅ Step 4 — Implement TenantsService
 **File:** `apps/api/src/tenants/tenants.service.ts`
 
 ```typescript

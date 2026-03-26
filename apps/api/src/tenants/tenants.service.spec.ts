@@ -14,12 +14,16 @@ const expiredTenant = { id: '2', firstName: 'Bob', lastName: 'Jones', expiration
 const nullExpiryTenant = { id: '3', firstName: 'Carol', lastName: 'Doe', expirationDate: null };
 
 function buildMockDb(rows: object[]) {
-    const whereMock = jest.fn().mockResolvedValue(rows.filter((r: any) => {
+    const filteredRows = rows.filter((r: any) => {
         if (r.expirationDate === null) return true;
         return r.expirationDate > today;
-    }));
-    const fromMock = jest.fn().mockReturnValue({ where: whereMock });
-    fromMock.mockResolvedValue(rows);
+    });
+    const whereMock = jest.fn().mockResolvedValue(filteredRows);
+    const queryObj = {
+        where: whereMock,
+        then: (resolve: any, reject: any) => Promise.resolve(rows).then(resolve, reject),
+    };
+    const fromMock = jest.fn().mockReturnValue(queryObj);
     return {
         select: jest.fn().mockReturnValue({ from: fromMock }),
         _fromMock: fromMock,
