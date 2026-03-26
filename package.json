@@ -1,0 +1,17 @@
+{
+    "name": "kasero",
+    "version": "0.1.0",
+    "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
+    "scripts": {
+        "dev": "echo \"No apps yet\"",
+        "test": "echo \"No tests yet\" && exit 0",
+        "test:watch": "echo \"No tests yet\"",
+        "test:coverage": "echo \"No tests yet\""
+    },
+    "engines": {
+        "node": ">=24"
+    }
+}
