@@ -1,0 +1,5 @@
+Group 1 — COMPLETE
+- Generated 0000_lively_electro.sql via `npm run db:generate` (11 tables, 5 enums)
+- Verified migration applies cleanly against kasero_test DB
+- Extended schema.spec.ts with DB-backed tests for all 11 tables + 5 enums (self-skip without DATABASE_URL)
+- All 45 tests pass with DATABASE_URL; 16 skip without
