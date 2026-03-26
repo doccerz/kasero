@@ -107,3 +107,64 @@ describe('DB migration — all tables exist', () => {
         );
     });
 });
+
+describe('DB invariant — contract immutability trigger', () => {
+    let pool: Pool;
+    let tenantId: string;
+    let spaceId: string;
+    let contractId: string;
+
+    beforeAll(async () => {
+        if (!hasDatabaseUrl) return;
+        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+        // Insert prerequisite tenant and space
+        const tenant = await pool.query(
+            `INSERT INTO tenants (first_name, last_name) VALUES ('Test', 'Tenant') RETURNING id`,
+        );
+        tenantId = tenant.rows[0].id;
+
+        const space = await pool.query(
+            `INSERT INTO spaces (name) VALUES ('Test Space Immut') RETURNING id`,
+        );
+        spaceId = space.rows[0].id;
+
+        // Insert a posted contract
+        const contract = await pool.query(
+            `INSERT INTO contracts (tenant_id, space_id, start_date, end_date, rent_amount, billing_frequency, due_date_rule, status)
+             VALUES ($1, $2, '2024-01-01', '2024-12-31', 5000.00, 'monthly', 1, 'posted') RETURNING id`,
+            [tenantId, spaceId],
+        );
+        contractId = contract.rows[0].id;
+    });
+
+    afterAll(async () => {
+        if (!pool) return;
+        if (contractId) await pool.query(`DELETE FROM contracts WHERE id = $1`, [contractId]);
+        if (spaceId) await pool.query(`DELETE FROM spaces WHERE id = $1`, [spaceId]);
+        if (tenantId) await pool.query(`DELETE FROM tenants WHERE id = $1`, [tenantId]);
+        await pool.end();
+    });
+
+    const protectedFields: Array<[string, string]> = [
+        ['start_date', "'2025-01-01'"],
+        ['end_date', "'2025-12-31'"],
+        ['rent_amount', '9999.00'],
+        ['billing_frequency', "'quarterly'"],
+        ['due_date_rule', '15'],
+    ];
+
+    for (const [field, value] of protectedFields) {
+        (hasDatabaseUrl ? it : it.skip)(`blocks UPDATE of "${field}" on a posted contract`, async () => {
+            await expect(
+                pool.query(`UPDATE contracts SET ${field} = ${value} WHERE id = $1`, [contractId]),
+            ).rejects.toThrow();
+        });
+    }
+
+    (hasDatabaseUrl ? it : it.skip)('allows UPDATE of non-protected field (metadata) on a posted contract', async () => {
+        await expect(
+            pool.query(`UPDATE contracts SET metadata = '{"note":"ok"}' WHERE id = $1`, [contractId]),
+        ).resolves.toBeDefined();
+    });
+});
