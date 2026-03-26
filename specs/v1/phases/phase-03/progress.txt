@@ -1,0 +1,18 @@
+## Phase 03 Progress
+
+### Group 1 — Fix DatabaseModule + Install @nestjs/jwt [COMPLETE]
+
+- Created branch: feat/phase-03-authentication-admin-access
+- Installed @nestjs/jwt inside apps/api (added 50 packages)
+- Added DatabaseModule to AppModule imports (fixes @Global() provider not available bug)
+- Updated AuthModule to import JwtModule.register() with jwtSecret/jwtExpiresIn from appConfig, and exports JwtModule so JwtService is available to guards in other modules
+- Updated auth.module.spec.ts to verify JwtService is resolvable from AuthModule
+- All 14 API test suites pass (34 skipped DB tests, 30 pass)
+
+### Group 2 — Auth Service + Login Endpoint (TDD) [COMPLETE]
+
+- Wrote failing tests in auth.controller.spec.ts: 6 tests covering controller delegation and service logic (user not found, wrong password, valid credentials)
+- Implemented AuthService.login(): queries admin_users by username, bcryptjs compare, throws UnauthorizedException on mismatch, returns { access_token } via JwtService.sign()
+- Implemented AuthController.login(): POST /auth/login delegates to AuthService
+- Fixed auth.module.spec.ts: tests now provide DB_TOKEN mock directly (overrideProvider doesn't work for providers not declared in the tested module — must use providers array)
+- All 15 API test suites pass (34 skipped DB tests, 36 pass)
