@@ -162,7 +162,7 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
 
 ### Group 6 — Config Module
 
-- [ ] **RED** `test(api): add failing config module tests`
+- [x] **RED** `test(api): add failing config module tests`
   - `apps/api/src/config/config.spec.ts` — tests `appConfig.apiPort` reads from env
 
 - [ ] **GREEN** `feat(api): add flat config module`
