@@ -46,14 +46,17 @@ Branch: feat/phase-01-foundation
   - All 23 tests pass (1 self-skipped DB connection test without DATABASE_URL)
 - VERIFY: 23 tests pass, 1 DB connection test self-skips (no DATABASE_URL) ✅
 
-### Group 6 — Config Module (in progress)
+### Group 6 — Config Module ✅
 - RED: test(api): add failing config module tests ✅ committed
   - Created apps/api/src/config/config.spec.ts — tests appConfig.apiPort, jwtExpiresIn, nodeEnv, adminUsername
   - Tests fail with module not found error (config.ts doesn't exist yet)
+- GREEN: feat(api): add flat config module ✅ committed
+  - Created apps/api/src/config/config.ts — flat object with apiPort, jwtSecret, jwtExpiresIn, databaseUrl, adminUsername, adminPassword, nodeEnv
+  - Updated main.ts to use appConfig.apiPort
+- VERIFY: 28 tests pass, 1 DB connection test self-skips ✅
 
 ## Pending
 
-### Group 6 — Config Module (GREEN + VERIFY remaining)
 ### Group 7 — Next.js Route Structure
 ### Group 8 — Seed and Startup Migration
 ### Group 9 — Dockerfile and Final Integration

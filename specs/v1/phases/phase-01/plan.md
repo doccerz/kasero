@@ -165,7 +165,7 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
 - [x] **RED** `test(api): add failing config module tests`
   - `apps/api/src/config/config.spec.ts` — tests `appConfig.apiPort` reads from env
 
-- [ ] **GREEN** `feat(api): add flat config module`
+- [x] **GREEN** `feat(api): add flat config module`
   - `apps/api/src/config/config.ts` — flat object, no `@nestjs/config`, no class:
     ```typescript
     export const appConfig = {
