@@ -1,0 +1,10 @@
+## Phase 03 Progress
+
+### Group 1 — Fix DatabaseModule + Install @nestjs/jwt [COMPLETE]
+
+- Created branch: feat/phase-03-authentication-admin-access
+- Installed @nestjs/jwt inside apps/api (added 50 packages)
+- Added DatabaseModule to AppModule imports (fixes @Global() provider not available bug)
+- Updated AuthModule to import JwtModule.register() with jwtSecret/jwtExpiresIn from appConfig, and exports JwtModule so JwtService is available to guards in other modules
+- Updated auth.module.spec.ts to verify JwtService is resolvable from AuthModule
+- All 14 API test suites pass (34 skipped DB tests, 30 pass)
