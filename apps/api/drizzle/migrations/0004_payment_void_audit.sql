@@ -21,6 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_payment_void_audit ON payments;
 CREATE TRIGGER trg_payment_void_audit
 AFTER UPDATE ON payments
 FOR EACH ROW

@@ -31,3 +31,13 @@ Group 5 — COMPLETE
 - The existing trg_tenant_expiration BEFORE UPDATE trigger fires automatically on the status transition, setting expiration_date = CURRENT_DATE + 10 years
 - Migration applied via psql pipe to Docker container
 - All 63 tests pass with DATABASE_URL
+
+Group 6 — COMPLETE
+- Full test suite passes: 63 tests with DATABASE_URL, 34 skip without (CI-safe)
+- Discovered gap: migrations 0001-0005 were missing from _journal.json — drizzle-kit migrate and runtime migrator both use the journal, so fresh DBs only got 0000 (tables, no triggers/functions)
+- Made SQL migrations idempotent: added `IF NOT EXISTS` to CREATE UNIQUE INDEX; added `DROP TRIGGER IF EXISTS` before each CREATE TRIGGER; CREATE OR REPLACE FUNCTION was already idempotent
+- Added entries for 0001-0005 to _journal.json with sequential idx/when values
+- Verified kasero_scratch (fresh DB): all 11 tables, 10 triggers, 5 functions created via db:migrate
+- Verified kasero_test (existing DB): db:migrate re-applied 0001-0005 idempotently, all 63 tests still pass
+- Verified seed idempotency: ran db:seed twice, no duplicate admin/settings/app_version rows
+- Created PR to staging

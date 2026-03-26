@@ -15,3 +15,5 @@
 - Transaction-based test cleanup: when no-hard-delete triggers block DELETE in afterAll, use `pool.connect()` to get a dedicated client, run `BEGIN` in beforeAll, and `ROLLBACK` in afterAll — no DELETE needed; all inserts are undone by rollback
 - SAVEPOINT pattern for blocked-operation tests: before each expected-to-fail DELETE, run `SAVEPOINT sp_name`; after the rejection, run `ROLLBACK TO SAVEPOINT sp_name` to recover the transaction for subsequent tests
 - Apply manual SQL migrations via pipe to Docker: `cat migration.sql | docker exec -i <container> psql -U <user> -d <db>` — the `-f /dev/stdin` form does not work reliably
+- Migration journal tracking: `drizzle-kit migrate` and the runtime `migrate()` both use `_journal.json` — manual SQL migration files must be added to the journal (idx, tag, when, breakpoints) or they won't run on fresh DBs
+- Idempotent migration pattern: use `CREATE UNIQUE INDEX IF NOT EXISTS` for indexes; use `DROP TRIGGER IF EXISTS ... ON table` before `CREATE TRIGGER` to ensure re-runnable migrations; `CREATE OR REPLACE FUNCTION` is already idempotent
