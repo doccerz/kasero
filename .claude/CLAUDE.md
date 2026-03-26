@@ -9,6 +9,8 @@
 - [Service workflows](./rules/service-workflows.md)
 - [CI/CD workflows](./rules/ci-cd-workflows.md)
 
+# Input specs location
+
 ## **IMPORTANT**: CLAUDE.md management
 - Always use mermaid.js syntax for workflows
 

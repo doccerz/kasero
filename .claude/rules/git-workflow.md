@@ -6,7 +6,7 @@
 - Don't push directly to main or staging; only PRs should merge the changes to these branches
 - **CRITICAL**: Always create a NEW branch for EACH plan execution (e.g., `feat/task-1.4-seed-script`). 
 - Commit messages should be descriptive and follow conventional commit style
-- Update .gitignore and .dockerignore
+
 
 ## PR merge strategy
 - PRs to `staging`: use `--merge` (not `--squash` or `--rebase`) in `gh pr merge` / CI auto-merge

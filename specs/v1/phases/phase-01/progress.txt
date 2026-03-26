@@ -32,7 +32,7 @@ Branch: feat/phase-01-foundation
   - All imported in AppModule
 - VERIFY: all 10 tests pass (10/10)
 
-### Group 5 — Drizzle ORM Setup 🔄 IN PROGRESS
+### Group 5 — Drizzle ORM Setup ✅
 - RED: test(api): add failing DB connection and schema export tests ✅ committed
 - GREEN: feat(api): add Drizzle schema, database module, migration config ✅ committed
   - Installed: drizzle-orm, pg, drizzle-kit, @types/pg
@@ -44,7 +44,7 @@ Branch: feat/phase-01-foundation
   - Added db:generate, db:migrate, db:studio, db:seed scripts to package.json
   - Fixed .gitignore to allow drizzle/migrations to be tracked
   - All 23 tests pass (1 self-skipped DB connection test without DATABASE_URL)
-- VERIFY: pending
+- VERIFY: 23 tests pass, 1 DB connection test self-skips (no DATABASE_URL) ✅
 
 ## Pending
 
