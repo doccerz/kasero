@@ -5,3 +5,4 @@
 - Drizzle schema table constraints use array syntax: `(t) => [unique().on(t.col)]` — object form is deprecated and will error
 - Install workspace-specific packages inside `apps/api/` or `apps/web/`, not the monorepo root
 - DB self-skip pattern confirmed working: tests using `(hasDatabaseUrl ? it : it.skip)` produce exit code 0 in CI without `DATABASE_URL`; 1 skipped test does not fail the suite
+- Config pattern: use a flat `appConfig` object (no `@nestjs/config`, no class) in `apps/api/src/config/config.ts`; import it wherever env values are needed (e.g., `main.ts`)
