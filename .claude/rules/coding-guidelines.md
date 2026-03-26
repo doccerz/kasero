@@ -12,7 +12,7 @@
 - You must not pull or download packages that we don't need yet
 
 ### Use test driven development
-> **IMPORTANT**: MUST follow strictly
+> **IMPORTANT**: MUST follow strictly — applies unconditionally, even when Claude is invoked non-interactively via a prompt parameter
 
 ```mermaid
 graph TD
