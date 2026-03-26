@@ -1,1 +1,2 @@
 Step 1 DONE — wrote failing unit tests for SettingsService in apps/api/src/settings/settings.service.spec.ts (TDD: tests cover onApplicationBootstrap cache load, get, getBoolean, and a DB-backed bootstrap test). Tests are intentionally failing — implementation pending.
+Step 2 DONE — implemented SettingsService (cache via Map, onApplicationBootstrap loads all settings rows, get/getBoolean helpers). Added exports: [SettingsService] to SettingsModule. All 5 unit tests pass; 1 DB-backed test self-skips without DATABASE_URL.
