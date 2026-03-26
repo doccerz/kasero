@@ -17,3 +17,10 @@ Group 3 — COMPLETE
 - Created 0003_no_hard_delete.sql: prevent_hard_delete() function + 7 BEFORE DELETE triggers (one per protected table); spaces excluded
 - Migration applied via psql pipe to Docker container (docker exec -i postgres psql ...)
 - All 58 tests pass with DATABASE_URL
+
+Group 4 — COMPLETE
+- Added failing tests: UPDATE payments SET voided_at → audit row inserted with entity_type='payment', action='void', metadata with amount and contract_id
+- Added test: double-void does NOT insert a second audit row (trigger guards OLD.voided_at IS NULL)
+- Created 0004_payment_void_audit.sql: record_payment_void() AFTER UPDATE trigger on payments
+- Migration applied via psql pipe to Docker container (docker exec -i postgres psql -U admin -d kasero_test)
+- All 60 tests pass with DATABASE_URL
