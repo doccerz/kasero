@@ -120,6 +120,14 @@ Copy `.env.example` to `.env` and fill in values. Never commit `.env`.
 | `INTERNAL_API_URL` | API base URL for Next.js server-side calls (e.g. `http://localhost:3001`) |
 | `NODE_ENV` | `development` / `production` / `test` |
 | `TZ` | Timezone — must be `Asia/Manila` |
+| `MIGRATIONS_PATH` | Override path to Drizzle migrations folder (optional; defaults to `apps/api/drizzle/migrations`) |
+
+### Startup Behavior
+
+When `DATABASE_URL` is set, the API automatically on startup:
+1. Runs pending Drizzle migrations
+2. Seeds default settings (`tenant.hide_expired=true`)
+3. Seeds the admin user (idempotent — skips if already exists)
 
 ---
 

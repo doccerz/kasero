@@ -55,8 +55,33 @@ Branch: feat/phase-01-foundation
   - Updated main.ts to use appConfig.apiPort
 - VERIFY: 28 tests pass, 1 DB connection test self-skips ✅
 
+### Group 7 — Next.js Route Structure ✅
+- RED: test(web): add failing route layout tests for admin, public, and entry sections ✅ committed
+  - Created apps/web/__tests__/admin-layout.test.tsx — mocks next/navigation + next/headers, imports AdminLayout
+  - Created apps/web/__tests__/public-layout.test.tsx — imports PublicLayout
+  - Created apps/web/__tests__/entry-layout.test.tsx — imports EntryLayout
+  - All 3 tests fail (modules don't exist yet)
+- GREEN: feat(web): scaffold full App Router directory structure ✅ committed
+  - app/page.tsx: root page (code entry for tenant status)
+  - app/admin/layout.tsx: auth guard — checks auth_token cookie, redirects to /admin/login if absent
+  - app/admin/login/page.tsx, dashboard/page.tsx
+  - app/admin/spaces/page.tsx + [id]/page.tsx
+  - app/admin/tenants/page.tsx + [id]/page.tsx
+  - app/admin/contracts/page.tsx + [id]/page.tsx
+  - app/public/layout.tsx + [code]/page.tsx
+  - app/entry/layout.tsx + [token]/page.tsx
+- VERIFY: 4 web tests pass, 32 total (1 DB self-skip) ✅
+
+### Group 8 — Seed and Startup Migration ✅
+- RED: test(api): add failing seed function tests ✅ committed
+  - Created apps/api/src/database/seed.spec.ts — exports test always runs; DB idempotency tests self-skip without DATABASE_URL
+- GREEN: feat(api): add idempotent seed functions and startup migration runner ✅ committed
+  - Installed: bcryptjs, @types/bcryptjs (pure-JS, no native bindings)
+  - seed.ts: seedDefaultSettings() (onConflictDoNothing), seedAdminUser() (bcryptjs hash), seedAppVersion() (insert if not exists), entry point guard
+  - migrate.ts: runMigrations() using MIGRATIONS_PATH env or relative path fallback
+  - main.ts: calls runMigrations(), seedDefaultSettings(), seedAdminUser() when DATABASE_URL is set
+- VERIFY: 33 api tests (4 self-skip) + 4 web tests — all pass ✅
+
 ## Pending
 
-### Group 7 — Next.js Route Structure
-### Group 8 — Seed and Startup Migration
 ### Group 9 — Dockerfile and Final Integration

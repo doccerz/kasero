@@ -184,11 +184,11 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
 
 ### Group 7 — Next.js Route Structure
 
-- [ ] **RED** `test(web): add failing route layout tests for admin, public, and entry sections`
+- [x] **RED** `test(web): add failing route layout tests for admin, public, and entry sections`
   - `apps/web/__tests__/admin-layout.test.tsx`, `public-layout.test.tsx`, `entry-layout.test.tsx`
   - Mock `next/navigation` and `next/headers` to isolate server components
 
-- [ ] **GREEN** `feat(web): scaffold full App Router directory structure`
+- [x] **GREEN** `feat(web): scaffold full App Router directory structure`
 
   Create stub pages/layouts (each returns a minimal `<main>` element):
   ```
@@ -209,16 +209,16 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
       └── [token]/page.tsx
   ```
 
-- [ ] **VERIFY** `test(web): verify all web route layout tests pass`
+- [x] **VERIFY** `test(web): verify all web route layout tests pass`
 
 ---
 
 ### Group 8 — Seed and Startup Migration
 
-- [ ] **RED** `test(api): add failing seed function tests`
+- [x] **RED** `test(api): add failing seed function tests`
   - `apps/api/src/database/seed.spec.ts` — self-skips without `DATABASE_URL`; tests idempotency of `seedDefaultSettings` and `seedAdminUser`
 
-- [ ] **GREEN** `feat(api): add idempotent seed functions and startup migration runner`
+- [x] **GREEN** `feat(api): add idempotent seed functions and startup migration runner`
 
   **Install:** `bcryptjs`, `@types/bcryptjs` (pure-JS, avoids native binding issues in Alpine)
 
