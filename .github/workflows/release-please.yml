@@ -1,0 +1,154 @@
+name: Release Please
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        types:
+            - closed
+        branches:
+            - main
+
+jobs:
+    release-please:
+        name: Release Please
+        if: github.event_name == 'push'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+        outputs:
+            release_created: ${{ steps.release.outputs.release_created }}
+            tag_name: ${{ steps.release.outputs.tag_name }}
+        steps:
+            - name: Run release-please
+              id: release
+              uses: googleapis/release-please-action@v4
+              with:
+                  release-type: node
+
+    build-and-push:
+        name: Build and Push Docker Image
+        needs: release-please
+        if: needs.release-please.outputs.release_created == 'true'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+                  tags: |
+                      type=semver,pattern={{version}},value=${{ needs.release-please.outputs.tag_name }}
+                      type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.tag_name }}
+                      type=sha,prefix=sha-,format=short
+                      type=raw,value=latest
+
+            - name: Build and push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+
+    sync-staging:
+        name: Sync main to staging
+        if: github.event_name == 'push'
+        needs: release-please
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Merge main into staging
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git checkout staging
+                  git merge origin/main --no-edit
+                  git push origin staging
+
+    release-on-label:
+        name: Release on Label
+        if: |
+            github.event_name == 'pull_request' &&
+            github.event.action == 'closed' &&
+            github.event.pull_request.merged == true &&
+            contains(github.event.pull_request.labels.*.name, 'release')
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            packages: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+
+            - name: Configure git
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            - name: Bump version and tag
+              id: version
+              run: |
+                  npm version patch --no-git-tag-version
+                  VERSION=$(node -p "require('./package.json').version")
+                  git add package.json package-lock.json
+                  git commit -m "chore: release v${VERSION}"
+                  git tag "v${VERSION}"
+                  git push origin main --follow-tags
+                  echo "tag_name=v${VERSION}" >> "$GITHUB_OUTPUT"
+
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+                  tags: |
+                      type=semver,pattern={{version}},value=${{ steps.version.outputs.tag_name }}
+                      type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.tag_name }}
+                      type=sha,prefix=sha-,format=short
+                      type=raw,value=latest
+
+            - name: Build and push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
