@@ -215,10 +215,10 @@ Follow strictly: write failing tests → commit (RED) → implement → commit �
 
 ### Group 8 — Seed and Startup Migration
 
-- [ ] **RED** `test(api): add failing seed function tests`
+- [x] **RED** `test(api): add failing seed function tests`
   - `apps/api/src/database/seed.spec.ts` — self-skips without `DATABASE_URL`; tests idempotency of `seedDefaultSettings` and `seedAdminUser`
 
-- [ ] **GREEN** `feat(api): add idempotent seed functions and startup migration runner`
+- [x] **GREEN** `feat(api): add idempotent seed functions and startup migration runner`
 
   **Install:** `bcryptjs`, `@types/bcryptjs` (pure-JS, avoids native binding issues in Alpine)
 

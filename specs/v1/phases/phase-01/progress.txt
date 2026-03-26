@@ -72,7 +72,16 @@ Branch: feat/phase-01-foundation
   - app/entry/layout.tsx + [token]/page.tsx
 - VERIFY: 4 web tests pass, 32 total (1 DB self-skip) ✅
 
+### Group 8 — Seed and Startup Migration ✅
+- RED: test(api): add failing seed function tests ✅ committed
+  - Created apps/api/src/database/seed.spec.ts — exports test always runs; DB idempotency tests self-skip without DATABASE_URL
+- GREEN: feat(api): add idempotent seed functions and startup migration runner ✅ committed
+  - Installed: bcryptjs, @types/bcryptjs (pure-JS, no native bindings)
+  - seed.ts: seedDefaultSettings() (onConflictDoNothing), seedAdminUser() (bcryptjs hash), seedAppVersion() (insert if not exists), entry point guard
+  - migrate.ts: runMigrations() using MIGRATIONS_PATH env or relative path fallback
+  - main.ts: calls runMigrations(), seedDefaultSettings(), seedAdminUser() when DATABASE_URL is set
+- VERIFY: 33 api tests (4 self-skip) + 4 web tests — all pass ✅
+
 ## Pending
 
-### Group 8 — Seed and Startup Migration
 ### Group 9 — Dockerfile and Final Integration
