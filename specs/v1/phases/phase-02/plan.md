@@ -44,40 +44,40 @@ Phase 2 completes the database-level correctness. Three gaps remain:
 
 ---
 
-### Group 2 — Contract Immutability Trigger
+### Group 2 — Contract Immutability Trigger ✅ COMPLETE
 
 **Goal:** Enforce at the DB level that posted contracts' protected fields cannot be changed.
 
 **Protected fields:** `start_date`, `end_date`, `rent_amount`, `billing_frequency`, `due_date_rule`
 
 **Tasks:**
-- Write failing DB-backed tests: attempt to UPDATE a protected field on a posted contract → DB raises exception
-- Add migration `0002_contract_immutability.sql` with:
+- [x] Write failing DB-backed tests: attempt to UPDATE a protected field on a posted contract → DB raises exception
+- [x] Add migration `0002_contract_immutability.sql` with:
   - PL/pgSQL function `prevent_posted_contract_mutation()`
   - Trigger `trg_contract_immutability` — BEFORE UPDATE ON contracts — raises `EXCEPTION` if any protected field changes when `OLD.status = 'posted'`
-- Make tests pass
-- Commit at each TDD step
+- [x] Make tests pass
+- [x] Commit at each TDD step
 
 **Files:**
 - `apps/api/drizzle/migrations/0002_contract_immutability.sql` ← new
-- `apps/api/src/database/schema.spec.ts` or `contracts.module.spec.ts`
+- `apps/api/src/database/schema.spec.ts`
 
 ---
 
-### Group 3 — No-Hard-Delete Protection
+### Group 3 — No-Hard-Delete Protection ✅ COMPLETE
 
 **Goal:** Prevent hard deletes of core records at the DB level.
 
 **Protected tables:** `tenants`, `contracts`, `payments`, `fund`, `payables`, `public_access_codes`, `audit`
 
 **Tasks:**
-- Write failing DB-backed tests: attempt DELETE on each protected table → DB raises exception
-- Add migration `0003_no_hard_delete.sql` with:
-  - PL/pgSQL function `prevent_hard_delete()`
-  - One trigger per protected table: `trg_no_delete_<table>` — BEFORE DELETE — raises `EXCEPTION` with descriptive message
-- Spaces are excluded (soft-delete via `deleted_at` is the intentional mechanism)
-- Make tests pass
-- Commit at each TDD step
+- [x] Write failing DB-backed tests: attempt DELETE on each protected table → DB raises exception
+- [x] Add migration `0003_no_hard_delete.sql` with:
+  - [x] PL/pgSQL function `prevent_hard_delete()`
+  - [x] One trigger per protected table: `trg_no_delete_<table>` — BEFORE DELETE — raises `EXCEPTION` with descriptive message
+- [x] Spaces are excluded (soft-delete via `deleted_at` is the intentional mechanism)
+- [x] Make tests pass
+- [x] Commit at each TDD step
 
 **Files:**
 - `apps/api/drizzle/migrations/0003_no_hard_delete.sql` ← new
