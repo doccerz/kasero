@@ -85,18 +85,18 @@ Phase 2 completes the database-level correctness. Three gaps remain:
 
 ---
 
-### Group 4 — Payment Void Audit Trigger
+### Group 4 — Payment Void Audit Trigger ✅ COMPLETE
 
 **Goal:** Automatically insert an audit record when a payment is voided (`voided_at` transitions from NULL to a timestamp).
 
 **Tasks:**
-- Write failing DB-backed tests: set `voided_at` on a payment → audit row inserted with `action='void'`, correct `entity_type='payment'` and `entity_id`
-- Add migration `0004_payment_void_audit.sql` with:
+- [x] Write failing DB-backed tests: set `voided_at` on a payment → audit row inserted with `action='void'`, correct `entity_type='payment'` and `entity_id`
+- [x] Add migration `0004_payment_void_audit.sql` with:
   - PL/pgSQL function `record_payment_void()`
   - Trigger `trg_payment_void_audit` — AFTER UPDATE ON payments — fires when `NEW.voided_at IS NOT NULL AND OLD.voided_at IS NULL`
   - Inserts into `audit`: `entity_type='payment'`, `entity_id=NEW.id`, `action='void'`, `metadata=jsonb with amount and contract_id`
-- Make tests pass
-- Commit at each TDD step
+- [x] Make tests pass
+- [x] Commit at each TDD step
 
 **Files:**
 - `apps/api/drizzle/migrations/0004_payment_void_audit.sql` ← new
@@ -104,18 +104,18 @@ Phase 2 completes the database-level correctness. Three gaps remain:
 
 ---
 
-### Group 5 — Tenant Auto-Inactivation Function
+### Group 5 — Tenant Auto-Inactivation Function ✅ COMPLETE
 
 **Goal:** Provide a DB-callable function that inactivates tenants whose contracts have passed their `end_date`. The existing `trg_tenant_expiration` trigger will automatically set `expiration_date = now() + 10 years` after this.
 
 **Tasks:**
-- Write failing DB-backed tests: insert contract with past `end_date`, call function, assert tenant status becomes `inactive` and `expiration_date` is set
-- Add migration `0005_expire_contract_tenants.sql` with:
+- [x] Write failing DB-backed tests: insert contract with past `end_date`, call function, assert tenant status becomes `inactive` and `expiration_date` is set
+- [x] Add migration `0005_expire_contract_tenants.sql` with:
   - PL/pgSQL function `expire_contract_tenants()` — updates tenants to `inactive` where their contract `end_date < CURRENT_DATE` and tenant is still `active`
   - Returns count of affected tenants
-- No background job needed in v1 — function is prepared for future scheduling
-- Make tests pass
-- Commit at each TDD step
+- [x] No background job needed in v1 — function is prepared for future scheduling
+- [x] Make tests pass
+- [x] Commit at each TDD step
 
 **Files:**
 - `apps/api/drizzle/migrations/0005_expire_contract_tenants.sql` ← new

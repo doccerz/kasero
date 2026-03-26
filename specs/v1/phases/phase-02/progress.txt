@@ -17,3 +17,17 @@ Group 3 — COMPLETE
 - Created 0003_no_hard_delete.sql: prevent_hard_delete() function + 7 BEFORE DELETE triggers (one per protected table); spaces excluded
 - Migration applied via psql pipe to Docker container (docker exec -i postgres psql ...)
 - All 58 tests pass with DATABASE_URL
+
+Group 4 — COMPLETE
+- Added failing tests: UPDATE payments SET voided_at → audit row inserted with entity_type='payment', action='void', metadata with amount and contract_id
+- Added test: double-void does NOT insert a second audit row (trigger guards OLD.voided_at IS NULL)
+- Created 0004_payment_void_audit.sql: record_payment_void() AFTER UPDATE trigger on payments
+- Migration applied via psql pipe to Docker container (docker exec -i postgres psql -U admin -d kasero_test)
+- All 60 tests pass with DATABASE_URL
+
+Group 5 — COMPLETE
+- Added failing tests: tenant with past contract end_date → status becomes 'inactive' and expiration_date is set; future contract → not affected; count return value is accurate
+- Created 0005_expire_contract_tenants.sql: expire_contract_tenants() PL/pgSQL function using UPDATE...FROM JOIN with end_date < CURRENT_DATE and status = 'active' guard; returns ROW_COUNT via GET DIAGNOSTICS
+- The existing trg_tenant_expiration BEFORE UPDATE trigger fires automatically on the status transition, setting expiration_date = CURRENT_DATE + 10 years
+- Migration applied via psql pipe to Docker container
+- All 63 tests pass with DATABASE_URL
