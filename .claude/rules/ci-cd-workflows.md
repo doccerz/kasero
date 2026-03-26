@@ -33,7 +33,7 @@ graph TD
 - **Jobs:**
   - `test` — Node 24, `npm install --no-package-lock`, `npm test`; no `DATABASE_URL` — real-DB tests self-skip
   - `docker-build` — builds Docker image without pushing (Dockerfile smoke test)
-  - `auto-merge` — runs only when PR targets `staging`; depends on `test` + `docker-build`; auto-approves and merges; deletes the feature branch after merge (`staging` and `main` are never deleted)
+  - `auto-merge` — runs only when PR targets `staging`; depends on `test` + `docker-build`; merges directly (no approval — `GITHUB_TOKEN` cannot self-approve); deletes the feature branch after merge (`staging` and `main` are never deleted)
 
 ### docker-publish.yml
 - **Trigger:** tag push matching `v*.*.*`
