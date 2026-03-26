@@ -6,10 +6,16 @@
         "apps/*"
     ],
     "scripts": {
-        "dev": "echo \"No apps yet\"",
-        "test": "echo \"No tests yet\" && exit 0",
-        "test:watch": "echo \"No tests yet\"",
-        "test:coverage": "echo \"No tests yet\""
+        "dev": "npm run dev --workspace=apps/api & npm run dev --workspace=apps/web",
+        "dev:api": "npm run start:dev --workspace=apps/api",
+        "dev:web": "npm run dev --workspace=apps/web",
+        "test": "npm run test --workspace=apps/api --if-present && npm run test --workspace=apps/web --if-present",
+        "test:api": "npm run test --workspace=apps/api",
+        "test:web": "npm run test --workspace=apps/web",
+        "test:api:db": "npm run test:db --workspace=apps/api",
+        "db:generate": "npm run db:generate --workspace=apps/api",
+        "db:migrate": "npm run db:migrate --workspace=apps/api",
+        "db:seed": "npm run db:seed --workspace=apps/api"
     },
     "engines": {
         "node": ">=24"
