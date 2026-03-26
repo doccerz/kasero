@@ -197,6 +197,8 @@ Protected tables (no hard delete): `tenants`, `contracts`, `payments`, `fund`, `
 
 `expire_contract_tenants()` is a callable PL/pgSQL function (no background job in v1) that marks tenants `inactive` when their contract `end_date` has passed. Call it on a schedule when ready.
 
+All migrations (0000–0005) are tracked in `_journal.json` and are idempotent — safe to re-run against existing databases.
+
 ---
 
 ## Security

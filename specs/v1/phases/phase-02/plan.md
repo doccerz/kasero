@@ -123,16 +123,16 @@ Phase 2 completes the database-level correctness. Three gaps remain:
 
 ---
 
-### Group 6 — Integration Verification and PR
+### Group 6 — Integration Verification and PR ✅ COMPLETE
 
 **Goal:** Confirm end-to-end correctness before shipping.
 
 **Tasks:**
-- Run full test suite: `npm test` — all tests pass (DB tests pass with `DATABASE_URL`, self-skip without)
-- Verify clean DB creation: drop DB, re-run migrations from scratch, verify all tables/triggers/functions exist
-- Verify seed idempotency: run `npm run db:seed` twice, assert no duplicates
-- Commit any fixes
-- Create PR to staging: `feat/phase-02-db-schema-migrations-invariants` → `staging`
+- [x] Run full test suite: `npm test` — all tests pass (DB tests pass with `DATABASE_URL`, self-skip without)
+- [x] Verify clean DB creation: drop DB, re-run migrations from scratch, verify all tables/triggers/functions exist
+- [x] Verify seed idempotency: run `npm run db:seed` twice, assert no duplicates
+- [x] Commit any fixes
+- [x] Create PR to staging: `feat/phase-02-db-schema-migrations-invariants` → `staging`
 
 ---
 

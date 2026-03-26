@@ -8,6 +8,7 @@
 - [Git workflow](./rules/git-workflow.md)
 - [Service workflows](./rules/service-workflows.md)
 - [CI/CD workflows](./rules/ci-cd-workflows.md)
+- [Security guidelines](./rules/security-guidelines.md)
 
 # Input specs location
 

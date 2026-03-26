@@ -1,5 +1,5 @@
 -- One active contract per space
-CREATE UNIQUE INDEX uq_space_one_active_contract ON contracts(space_id) WHERE status = 'posted';
+CREATE UNIQUE INDEX IF NOT EXISTS uq_space_one_active_contract ON contracts(space_id) WHERE status = 'posted';
 
 -- Tenant expiration trigger
 CREATE OR REPLACE FUNCTION set_tenant_expiration() RETURNS TRIGGER AS $$
@@ -13,5 +13,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_tenant_expiration ON tenants;
 CREATE TRIGGER trg_tenant_expiration
 BEFORE UPDATE ON tenants FOR EACH ROW EXECUTE FUNCTION set_tenant_expiration();
