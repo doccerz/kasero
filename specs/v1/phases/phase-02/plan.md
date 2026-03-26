@@ -104,18 +104,18 @@ Phase 2 completes the database-level correctness. Three gaps remain:
 
 ---
 
-### Group 5 — Tenant Auto-Inactivation Function
+### Group 5 — Tenant Auto-Inactivation Function ✅ COMPLETE
 
 **Goal:** Provide a DB-callable function that inactivates tenants whose contracts have passed their `end_date`. The existing `trg_tenant_expiration` trigger will automatically set `expiration_date = now() + 10 years` after this.
 
 **Tasks:**
-- Write failing DB-backed tests: insert contract with past `end_date`, call function, assert tenant status becomes `inactive` and `expiration_date` is set
-- Add migration `0005_expire_contract_tenants.sql` with:
+- [x] Write failing DB-backed tests: insert contract with past `end_date`, call function, assert tenant status becomes `inactive` and `expiration_date` is set
+- [x] Add migration `0005_expire_contract_tenants.sql` with:
   - PL/pgSQL function `expire_contract_tenants()` — updates tenants to `inactive` where their contract `end_date < CURRENT_DATE` and tenant is still `active`
   - Returns count of affected tenants
-- No background job needed in v1 — function is prepared for future scheduling
-- Make tests pass
-- Commit at each TDD step
+- [x] No background job needed in v1 — function is prepared for future scheduling
+- [x] Make tests pass
+- [x] Commit at each TDD step
 
 **Files:**
 - `apps/api/drizzle/migrations/0005_expire_contract_tenants.sql` ← new

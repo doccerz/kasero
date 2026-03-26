@@ -190,8 +190,12 @@ Enforced at the PostgreSQL level via triggers and constraints:
 | Tenant expiration date auto-set on status change | `BEFORE UPDATE` trigger | `0001_constraints_and_triggers.sql` |
 | Posted contract core fields immutable | `BEFORE UPDATE` trigger | `0002_contract_immutability.sql` |
 | No hard deletes on core records | `BEFORE DELETE` triggers | `0003_no_hard_delete.sql` |
+| Payment void action recorded | `AFTER UPDATE` trigger | `0004_payment_void_audit.sql` |
+| Tenant auto-inactivation by contract expiry | `expire_contract_tenants()` function | `0005_expire_contract_tenants.sql` |
 
 Protected tables (no hard delete): `tenants`, `contracts`, `payments`, `fund`, `payables`, `public_access_codes`, `audit`. Spaces use soft-delete via `deleted_at`.
+
+`expire_contract_tenants()` is a callable PL/pgSQL function (no background job in v1) that marks tenants `inactive` when their contract `end_date` has passed. Call it on a schedule when ready.
 
 ---
 
