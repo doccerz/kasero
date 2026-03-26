@@ -26,3 +26,10 @@
 - Added AuthModule import to all 6 admin feature modules so JwtService is available via the exported JwtModule
 - Updated all 6 feature module specs to import DatabaseModule + override DB_TOKEN mock (overrideProvider only works for providers in the module tree — @Global() DatabaseModule must be included in test imports)
 - All 17 API test suites pass (34 skipped DB tests, 42 pass)
+
+### Group 3.1 — Fix GitHub Action Build Error [COMPLETE]
+
+- Fixed TS2322: Type 'string' is not assignable to type 'number | StringValue | undefined' in auth.module.ts
+- Root cause: appConfig.jwtExpiresIn is typed as string but jsonwebtoken's signOptions.expiresIn requires ms.StringValue | number
+- Fix: import type { StringValue } from 'ms' and cast appConfig.jwtExpiresIn as StringValue
+- Build now passes (nest build succeeds); all 17 API + 4 web test suites still pass

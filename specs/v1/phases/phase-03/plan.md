@@ -159,7 +159,7 @@ export class JwtAuthGuard implements CanActivate {
 - [x] `apps/api/src/audit/audit.controller.ts`
 
 ---
-### Group 3.1 - Fix github action issues
+### Group 3.1 - Fix github action issues [COMPLETE]
 #17 [builder 6/6] RUN npm run build
 #17 0.453 
 #17 0.453 > kasero-api@0.0.1 build
