@@ -49,9 +49,9 @@ Use `@nestjs/jwt` directly — no Passport. One role, one guard. Avoid over-engi
 **Goal:** `POST /auth/login` returns a JWT on valid credentials, 401 on invalid.
 
 **Failing tests first** (`auth.controller.spec.ts`):
-- `POST /auth/login` with valid `username`/`password` → HTTP 200 + `{ access_token: <string> }`
-- `POST /auth/login` with wrong password → HTTP 401
-- `POST /auth/login` with unknown username → HTTP 401
+- [x] `POST /auth/login` with valid `username`/`password` → HTTP 200 + `{ access_token: <string> }`
+- [x] `POST /auth/login` with wrong password → HTTP 401
+- [x] `POST /auth/login` with unknown username → HTTP 401
 
 **Implementation:**
 
@@ -92,10 +92,10 @@ login(@Body() body: { username: string; password: string }) {
 **Test pattern:** Use `@nestjs/testing` with a mocked DB provider (no real DB needed for these tests — inject a mock that returns a fake admin_users row or null).
 
 **Critical files:**
-- `apps/api/src/auth/auth.service.ts`
-- `apps/api/src/auth/auth.controller.ts`
-- `apps/api/src/auth/auth.module.ts`
-- `apps/api/src/auth/auth.controller.spec.ts` (new)
+- [x] `apps/api/src/auth/auth.service.ts`
+- [x] `apps/api/src/auth/auth.controller.ts`
+- [x] `apps/api/src/auth/auth.module.ts`
+- [x] `apps/api/src/auth/auth.controller.spec.ts` (new)
 
 ---
 
