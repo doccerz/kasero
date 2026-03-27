@@ -64,7 +64,7 @@ Commit after integration tests pass.
 
 ---
 
-### Task 4 — Update `README.md` with deployment runbook
+### ✅ Task 4 — Update `README.md` with deployment runbook
 
 Add three new sections to `README.md`:
 
