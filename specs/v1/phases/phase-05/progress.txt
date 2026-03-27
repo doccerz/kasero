@@ -1,1 +1,3 @@
 Group 1 COMPLETE: Created apps/api/src/spaces/spaces.service.spec.ts with all unit tests (findAll, findOne, create, update, remove) and a DB integration test. All 10 unit tests fail as expected (service is still an empty stub). Committed.
+
+Group 2 COMPLETE: Implemented SpacesService with findAll (isNull filter), findOne (id + isNull, throws NotFoundException), create (insert+returning), update (set+updatedAt+where+returning, throws NotFoundException), remove (soft-delete via deletedAt+where+returning, throws NotFoundException). All 10 unit tests pass, 1 DB integration test skipped (no DATABASE_URL). Committed.
