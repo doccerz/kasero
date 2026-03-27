@@ -9,6 +9,6 @@ export class TenantsController {
 
     @Get()         findAll() { return this.tenantsService.findAll(); }
     @Get(':id')    findOne(@Param('id') id: string) { return this.tenantsService.findOne(id); }
-    @Post()        create(@Body() body) { return this.tenantsService.create(body); }
-    @Patch(':id')  update(@Param('id') id: string, @Body() body) { return this.tenantsService.update(id, body); }
+    @Post()        create(@Body() body: { firstName: string; lastName: string; contactInfo?: unknown; metadata?: unknown }) { return this.tenantsService.create(body); }
+    @Patch(':id')  update(@Param('id') id: string, @Body() body: Partial<{ firstName: string; lastName: string; contactInfo: unknown; metadata: unknown }>) { return this.tenantsService.update(id, body); }
 }

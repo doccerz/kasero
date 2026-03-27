@@ -9,7 +9,7 @@ export class SpacesController {
 
     @Get()          findAll() { return this.spacesService.findAll(); }
     @Get(':id')     findOne(@Param('id') id: string) { return this.spacesService.findOne(id); }
-    @Post()         create(@Body() body) { return this.spacesService.create(body); }
-    @Patch(':id')   update(@Param('id') id: string, @Body() body) { return this.spacesService.update(id, body); }
+    @Post()         create(@Body() body: { name: string; description?: string; metadata?: unknown }) { return this.spacesService.create(body); }
+    @Patch(':id')   update(@Param('id') id: string, @Body() body: Partial<{ name: string; description: string; metadata: unknown }>) { return this.spacesService.update(id, body); }
     @Delete(':id')  remove(@Param('id') id: string) { return this.spacesService.remove(id); }
 }
