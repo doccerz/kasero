@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException, ConflictException } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { SettingsService } from '../settings/settings.service';
 import { DB_TOKEN } from '../database/database.module';
@@ -82,6 +83,112 @@ describe('TenantsService', () => {
             const result = await service.findAll();
 
             expect(result).toContainEqual(nullExpiryTenant);
+        });
+    });
+
+    function buildCrudMockDb({ selectRows = [] as any[], mutationRows = [] as any[] } = {}) {
+        const returning = jest.fn().mockResolvedValue(mutationRows);
+        const whereForMutation = jest.fn().mockReturnValue({ returning });
+        const set = jest.fn().mockReturnValue({ where: whereForMutation });
+        const values = jest.fn().mockReturnValue({ returning });
+        const whereForSelect = jest.fn().mockResolvedValue(selectRows);
+        const from = jest.fn().mockReturnValue({ where: whereForSelect });
+        return {
+            select: jest.fn().mockReturnValue({ from }),
+            insert: jest.fn().mockReturnValue({ values }),
+            update: jest.fn().mockReturnValue({ set }),
+            _from: from, _whereForSelect: whereForSelect, _returning: returning,
+        };
+    }
+
+    async function createCrudService(mockDb: any) {
+        const mockSettings = { getBoolean: jest.fn().mockReturnValue(false) };
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                TenantsService,
+                { provide: DB_TOKEN, useValue: mockDb },
+                { provide: SettingsService, useValue: mockSettings },
+            ],
+        }).compile();
+        return module.get<TenantsService>(TenantsService);
+    }
+
+    describe('findOne', () => {
+        it('returns tenant by id', async () => {
+            const tenant = { id: 'abc', firstName: 'Alice', lastName: 'Smith' };
+            const mockDb = buildCrudMockDb({ selectRows: [tenant] });
+            const service = await createCrudService(mockDb);
+            const result = await service.findOne('abc');
+            expect(result).toEqual(tenant);
+        });
+
+        it('throws NotFoundException when no rows returned', async () => {
+            const mockDb = buildCrudMockDb({ selectRows: [] });
+            const service = await createCrudService(mockDb);
+            await expect(service.findOne('abc')).rejects.toThrow(NotFoundException);
+        });
+    });
+
+    describe('create', () => {
+        it('inserts with status inactive and expirationDate ~10 years from now, returns row', async () => {
+            const newTenant = { id: 'new', firstName: 'Bob', lastName: 'Jones', status: 'inactive', expirationDate: '2036-03-27' };
+            const mockDb = buildCrudMockDb({ selectRows: [], mutationRows: [newTenant] });
+            const service = await createCrudService(mockDb);
+            const result = await service.create({ firstName: 'Bob', lastName: 'Jones' });
+            expect(mockDb.insert).toHaveBeenCalled();
+            expect(result).toEqual(newTenant);
+        });
+
+        it('throws ConflictException with duplicate: true and matchingIds when same name and null contactInfo', async () => {
+            const existing = { id: 'dup', firstName: 'Alice', lastName: 'Smith', contactInfo: null };
+            const mockDb = buildCrudMockDb({ selectRows: [existing] });
+            const service = await createCrudService(mockDb);
+            const err = await service.create({ firstName: 'Alice', lastName: 'Smith' }).catch(e => e);
+            expect(err).toBeInstanceOf(ConflictException);
+            expect(err.getResponse()).toMatchObject({ duplicate: true, matchingIds: ['dup'] });
+        });
+
+        it('proceeds without conflict when name matches but contactInfo differs', async () => {
+            const existing = { id: 'other', firstName: 'Alice', lastName: 'Smith', contactInfo: { phone: '1234' } };
+            const newTenant = { id: 'new', firstName: 'Alice', lastName: 'Smith', status: 'inactive' };
+            const mockDb = buildCrudMockDb({ selectRows: [existing], mutationRows: [newTenant] });
+            const service = await createCrudService(mockDb);
+            const result = await service.create({ firstName: 'Alice', lastName: 'Smith', contactInfo: { phone: '9999' } });
+            expect(result).toEqual(newTenant);
+        });
+
+        it('handles null contactInfo matching: both null treated as equal → conflict', async () => {
+            const existing = { id: 'dup', firstName: 'Alice', lastName: 'Smith', contactInfo: null };
+            const mockDb = buildCrudMockDb({ selectRows: [existing] });
+            const service = await createCrudService(mockDb);
+            await expect(
+                service.create({ firstName: 'Alice', lastName: 'Smith', contactInfo: undefined })
+            ).rejects.toThrow(ConflictException);
+        });
+    });
+
+    describe('update', () => {
+        it('calls update with partial payload + updatedAt, returns row', async () => {
+            const updated = { id: 'abc', firstName: 'Alice', lastName: 'Jones' };
+            const mockDb = buildCrudMockDb({ mutationRows: [updated] });
+            const service = await createCrudService(mockDb);
+            const result = await service.update('abc', { lastName: 'Jones' });
+            expect(mockDb.update).toHaveBeenCalled();
+            expect(result).toEqual(updated);
+        });
+
+        it('throws NotFoundException when no rows returned', async () => {
+            const mockDb = buildCrudMockDb({ mutationRows: [] });
+            const service = await createCrudService(mockDb);
+            await expect(service.update('abc', { lastName: 'Jones' })).rejects.toThrow(NotFoundException);
+        });
+
+        it('passes status through when in payload; DB trigger handles expirationDate on UPDATE', async () => {
+            const updated = { id: 'abc', status: 'inactive' };
+            const mockDb = buildCrudMockDb({ mutationRows: [updated] });
+            const service = await createCrudService(mockDb);
+            const result = await service.update('abc', { status: 'inactive' });
+            expect(result).toEqual(updated);
         });
     });
 

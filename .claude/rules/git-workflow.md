@@ -15,9 +15,18 @@
 - Don't checkout main branch
 
 ## Recovery: stray commit on staging
-- If a commit accidentally lands on `staging` instead of the feature branch — do NOT `git reset --hard`
-- Instead: make any remaining pending commits on `staging`, then `git checkout <feature-branch>` and `git merge staging`
-- Then delete local `staging` branch
 
-## Recovery: stray uncommitted change on staging when switching branches
-- If current has an unstaged edit that blocks checkout — use `git stash && git checkout <branch> && git stash pop`
+```mermaid
+graph TD
+    A[Commit landed on staging by mistake] --> B[Finish any remaining commits on staging]
+    B --> C[git checkout feature-branch]
+    C --> D[git merge staging]
+    D --> E[Delete local staging branch]
+```
+
+## Recovery: stray uncommitted change on staging
+
+```mermaid
+graph LR
+    A[Unstaged edit blocks checkout] --> B[git stash] --> C[git checkout branch] --> D[git stash pop]
+```

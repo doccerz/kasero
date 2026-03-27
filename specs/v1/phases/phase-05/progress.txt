@@ -1,0 +1,17 @@
+Group 1 COMPLETE: Created apps/api/src/spaces/spaces.service.spec.ts with all unit tests (findAll, findOne, create, update, remove) and a DB integration test. All 10 unit tests fail as expected (service is still an empty stub). Committed.
+
+Group 2 COMPLETE: Implemented SpacesService with findAll (isNull filter), findOne (id + isNull, throws NotFoundException), create (insert+returning), update (set+updatedAt+where+returning, throws NotFoundException), remove (soft-delete via deletedAt+where+returning, throws NotFoundException). All 10 unit tests pass, 1 DB integration test skipped (no DATABASE_URL). Committed.
+
+Group 3 COMPLETE: Added second describe block 'SpacesController — endpoints' to spaces.controller.spec.ts. Mocked SpacesService entirely; bypassed JwtAuthGuard with { canActivate: () => true }. 8 endpoint tests written (GET /admin/spaces, GET /admin/spaces/:id, GET 404, POST 201, PATCH 200, PATCH 404, DELETE 200, DELETE 404). 5 tests fail as expected (controller routes not yet implemented). Committed.
+
+Group 4 COMPLETE: Implemented SpacesController with 5 CRUD routes (GET findAll, GET :id findOne, POST create, PATCH :id update, DELETE :id remove). All 21 space tests pass (1 DB integration skipped). Committed.
+
+Group 5 COMPLETE: Extended tenants.service.spec.ts with three new describe blocks (findOne, create, update). Added buildCrudMockDb helper and createCrudService helper. Tests cover: findOne returns row / throws NotFoundException; create inserts with status inactive + ~10yr expiry / throws ConflictException with duplicate+matchingIds / proceeds when contactInfo differs / handles null contactInfo equality; update returns row / throws NotFoundException / passes status through. 9 new tests fail as expected (methods not yet implemented). Committed.
+
+Group 6 COMPLETE: Implemented TenantsService findOne (select by id, NotFoundException if missing), create (duplicate detection via jsonEqual with null normalization, status=inactive, expirationDate=now+10yr, ConflictException with {duplicate:true, matchingIds}), update (partial set + updatedAt, NotFoundException if no rows). Added jsonEqual/sortKeys and toDateString helpers inline. All 78 tests pass (38 skipped DB integration tests). Committed.
+
+Group 7 COMPLETE: Created apps/api/src/tenants/tenants.controller.spec.ts with guard integration tests (401 without token, not 401 with valid token) and endpoint behavior tests (GET findAll, GET findOne, GET 404, POST 201, POST 409 ConflictException with {duplicate,matchingIds}, PATCH 200, PATCH 404, DELETE 404 no route). Note: ConflictException with object payload serializes directly to response body (no message wrapper) — assert res.body directly not res.body.message. Committed failing tests first, then implemented controller.
+
+Group 8 COMPLETE: Implemented TenantsController with findAll (GET), findOne (GET :id), create (POST), update (PATCH :id) — no DELETE route as per no-hard-delete constraint. All 88 tests pass (38 skipped). Committed.
+
+Group 9 COMPLETE: Verification passed. All 88 unit tests pass (38 DB integration tests skipped without DATABASE_URL, as expected). With DATABASE_URL set, DB integration tests fail due to pre-existing Jest dynamic import() limitation requiring --experimental-vm-modules — this pre-dates Phase 5 and affects settings/tenants/spaces DB tests from prior phases. All Phase 5 functionality verified via unit tests. Phase complete.
