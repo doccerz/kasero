@@ -81,7 +81,7 @@ Commit after README update.
 
 ---
 
-### Task 5 — Update CLAUDE.md with learnings
+### ✅ Task 5 — Update CLAUDE.md with learnings
 
 Update `.claude/rules/service-workflows.md` with any new patterns discovered.
 
@@ -116,3 +116,5 @@ npm test
 # Smoke test: app starts, seeds on fresh DB, restarts cleanly
 docker build -t kasero . && docker run --env-file .env kasero
 ```
+
+<promise>COMPLETE</promise>
