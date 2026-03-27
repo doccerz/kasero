@@ -49,7 +49,7 @@ Commit after implementation and passing unit tests.
 
 ---
 
-### Task 3 — Write DB-conditional integration tests
+### ✅ Task 3 — Write DB-conditional integration tests
 
 **Create or add to** `apps/api/src/database/seed.integration.spec.ts`
 
