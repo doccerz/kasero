@@ -106,7 +106,7 @@ Integration tests: fund type=deposit confirmed; payments table verified for adva
 
 Commit: `docs(phase-08): mark COMPLETE`
 
-### Step 6 — Update CLAUDE.md
+### Step 6 — Update CLAUDE.md ✅
 
 Add to `service-workflows.md`:
 - Phase 08 atomic posting: `tx.insert.mock.calls[N][0]` pattern for verifying which table was inserted into in unit tests
