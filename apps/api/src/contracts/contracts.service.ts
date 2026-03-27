@@ -182,7 +182,9 @@ export class ContractsService {
                 return posted;
             });
         } catch (err: any) {
-            if (err?.code === '23505') throw new ConflictException('A posted contract already exists for this space');
+            if (err?.code === '23505' || err?.cause?.code === '23505') {
+                throw new ConflictException('A posted contract already exists for this space');
+            }
             throw err;
         }
     }

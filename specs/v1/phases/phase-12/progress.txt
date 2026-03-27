@@ -1,0 +1,25 @@
+Phase 12 — Testing & Business Rule Validation
+
+COMPLETED
+
+Task 1 — LedgersService integration tests (DONE)
+- Replaced 3 .todo() stubs in ledgers.service.spec.ts with real tests
+- Tests: getLedger returns real data, recordPayment inserts to DB, voidPayment sets voided_at + audit trigger
+- Fixed await import() → require() (ts-jest/CJS does not support dynamic import in callbacks)
+- Applied missing migration 0006_tenant_entry_tokens.sql to kasero_test
+
+Task 2 — PublicAccessService integration test (DONE)
+- Added integration describe block to public-access.service.spec.ts
+- Fixed pre-existing public-access.integration.spec.ts (await import → require)
+- Tests: getPublicStatus resolves valid code → ledger data with decimal amount_due
+
+Pre-existing bug fixes (needed for full verification):
+- contracts.service.spec.ts: await import → require
+- tenants.service.spec.ts: await import → require + removed illegal hard-delete cleanup
+- spaces.service.spec.ts: await import → require
+- settings.service.spec.ts: await import → require
+- contracts.service.ts: ConflictException now checks err.cause.code for Drizzle-wrapped PG 23505 errors
+
+Results:
+- With DATABASE_URL: 230 tests pass
+- Without DATABASE_URL (CI): 180 pass, 50 skip

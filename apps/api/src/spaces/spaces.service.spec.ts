@@ -139,11 +139,15 @@ describe('SpacesService', () => {
 
     (hasDatabaseUrl ? describe : describe.skip)('DB integration', () => {
         it('insert space → findAll returns it; remove it → findAll no longer returns it', async () => {
-            const { db } = await import('../database/database');
-            const { spaces } = await import('../database/schema');
-            const { eq } = await import('drizzle-orm');
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const db = require('../database/database').db;
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { spaces } = require('../database/schema');
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { eq } = require('drizzle-orm');
 
-            const { SettingsService } = await import('../settings/settings.service');
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { SettingsService } = require('../settings/settings.service');
             const settingsSvc = new SettingsService(db);
             const service = new SpacesService(db as any);
 

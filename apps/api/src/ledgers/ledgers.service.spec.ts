@@ -271,7 +271,82 @@ describe('LedgersService.voidPayment', () => {
 // ────────────────────────────────────────────────────────────────────
 
 (hasDatabaseUrl ? describe : describe.skip)('LedgersService integration', () => {
-    it.todo('getLedger returns real data from DB');
-    it.todo('recordPayment inserts into payments table');
-    it.todo('voidPayment sets voided_at and triggers audit insert');
+    let service: LedgersService;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let db: any;
+    let contractId: string;
+
+    const testSpaceId = require('crypto').randomUUID();
+    const testTenantId = require('crypto').randomUUID();
+
+    beforeAll(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { spaces, tenants } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { ContractsService } = require('../contracts/contracts.service');
+
+        await db.insert(spaces).values({ id: testSpaceId, name: `Ledger Test Space ${testSpaceId}` });
+        await db.insert(tenants).values({ id: testTenantId, firstName: 'Ledger', lastName: 'Tester' });
+
+        const contractsService = new ContractsService(db);
+        const contract = await contractsService.create({
+            tenantId: testTenantId,
+            spaceId: testSpaceId,
+            startDate: '2024-01-01',
+            endDate: '2024-03-31',
+            rentAmount: '1000.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+            depositAmount: '2000.00',
+            advanceMonths: 1,
+        });
+        await contractsService.post(contract.id);
+        contractId = contract.id;
+
+        service = new LedgersService(db);
+    });
+
+    it('getLedger returns real data from DB', async () => {
+        const ledger = await service.getLedger(contractId);
+
+        expect(ledger.payables.length).toBe(3);
+        expect(ledger.fund.length).toBe(1);
+        expect(ledger.fund[0].type).toBe('deposit');
+        expect(ledger.payments.length).toBe(1);
+        // 3 payables (Jan/Feb/Mar 2024, all past) = 3000 owed; 1 advance payment = 1000 paid
+        expect(ledger.amount_due).toBe('2000.00');
+    });
+
+    it('recordPayment inserts into payments table', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { payments } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { eq } = require('drizzle-orm');
+
+        const result = await service.recordPayment(contractId, { amount: '500.00' });
+
+        expect(result.id).toBeTruthy();
+        expect(result.amount).toBe('500.00');
+
+        const rows = await db.select().from(payments).where(eq(payments.id, result.id));
+        expect(rows).toHaveLength(1);
+    });
+
+    it('voidPayment sets voided_at and triggers audit insert', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { audit } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { eq } = require('drizzle-orm');
+
+        const payment = await service.recordPayment(contractId, { amount: '100.00' });
+        const result = await service.voidPayment(payment.id);
+
+        expect(result.voidedAt).toBeTruthy();
+
+        const auditRows = await db.select().from(audit).where(eq(audit.entityId, payment.id));
+        expect(auditRows).toHaveLength(1);
+        expect(auditRows[0].action).toBe('void');
+    });
 });
