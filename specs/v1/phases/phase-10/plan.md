@@ -116,7 +116,7 @@ export class DashboardController {
 npm test --workspace=apps/api
 ```
 
-### 4. Frontend: Dashboard page → commit
+### 4. ✅ Frontend: Dashboard page → commit
 
 **`apps/web/app/admin/dashboard/page.tsx`** (replace stub)
 - `async` server component
@@ -125,7 +125,7 @@ npm test --workspace=apps/api
 - Each entry links to `/admin/spaces/:id`
 - Columns: Space Name | Status | Tenant | Amount Due | Next Due Date
 
-### 5. Frontend: Space detail page → commit
+### 5. ✅ Frontend: Space detail page → commit
 
 **`apps/web/app/admin/spaces/[id]/page.tsx`** (replace stub)
 - `await params` to get `id`
@@ -135,7 +135,7 @@ npm test --workspace=apps/api
 - Each contract row links to `/admin/contracts/:id`
 - Columns: Tenant | Start | End | Status | Link
 
-### 6. Frontend: Contract ledger page → commit
+### 6. ✅ Frontend: Contract ledger page → commit
 
 **`apps/web/app/admin/contracts/[id]/page.tsx`** (replace stub)
 - `await params` to get `id`
@@ -146,16 +146,16 @@ npm test --workspace=apps/api
 - Payments table: Date | Amount | Voided (voided rows visually struck-through)
 - Fund table: Type | Amount
 
-### 7. Verify full test suite passes → commit
+### 7. ✅ Verify full test suite passes → commit
 
 ```bash
 npm test --workspace=apps/api
 npm test --workspace=apps/web
 ```
 
-### 8. Update CLAUDE.md → commit
+### 8. ✅ Update CLAUDE.md → commit
 
-### 9. Create PR to staging
+### 9. ✅ Create PR to staging
 
 ---
 
@@ -194,3 +194,5 @@ npm test --workspace=apps/web
 # 3. Navigate /admin/spaces/:id → verify contracts table
 # 4. Navigate /admin/contracts/:id → verify ledger, payables, payments, fund
 ```
+
+<promise>COMPLETE</promise>
