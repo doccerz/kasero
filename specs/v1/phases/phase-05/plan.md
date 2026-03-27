@@ -129,7 +129,7 @@ Tests:
 - `DELETE /admin/spaces/:id` → 200 with `remove()` result (soft-deleted record)
 - `DELETE /admin/spaces/:id` when `NotFoundException` → 404
 
-### Group 4 — Implement `spaces.controller.ts`
+### Group 4 — Implement `spaces.controller.ts` ✅ COMPLETE
 
 ```typescript
 @UseGuards(JwtAuthGuard)
