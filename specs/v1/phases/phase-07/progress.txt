@@ -1,0 +1,19 @@
+## Phase 7 Progress
+
+### Step 1 — COMPLETE (commit a88efa2)
+Created `ledgers.service.spec.ts` with:
+- getLedger unit tests: standard owed/paid, future payables excluded, overpaid clamped to 0, voided payments excluded, custom referenceDate, fund isolation
+- recordPayment tests: provided date, default to today
+- voidPayment tests: sets voidedAt, NotFoundException, BadRequestException
+- Integration test stubs (skipped without DATABASE_URL)
+
+### Step 2 — COMPLETE (commit 73efb0d)
+Created `ledgers.controller.spec.ts`:
+- Guard integration: GET /admin/contracts/:id/ledger without token → 401, with token → not 401
+- Endpoints: GET ledger → 200, GET ledger with referenceDate query, POST payments → 201
+
+Created `payments.controller.spec.ts`:
+- Guard integration: POST /admin/payments/:id/void without token → 401, with token → not 401
+- Endpoints: POST void → 200, NotFoundException → 404, BadRequestException → 400
+
+All tests fail as expected (controllers/service not yet implemented).
