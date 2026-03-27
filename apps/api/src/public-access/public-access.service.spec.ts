@@ -4,6 +4,8 @@ import { PublicAccessService } from './public-access.service';
 import { LedgersService } from '../ledgers/ledgers.service';
 import { DB_TOKEN } from '../database/database.module';
 
+const hasDatabaseUrl = !!process.env.DATABASE_URL;
+
 function buildMockDb({ selectRows = [] as any[], mutationRows = [] as any[] } = {}) {
     const returning = jest.fn().mockResolvedValue(mutationRows);
     const whereForMutation = jest.fn().mockReturnValue({ returning });
@@ -136,5 +138,64 @@ describe('PublicAccessService', () => {
             expect(mockDb.update).toHaveBeenCalled();
             expect(result).toEqual(updated);
         });
+    });
+});
+
+// ────────────────────────────────────────────────────────────────────
+// Integration tests (skipped when DATABASE_URL is not set)
+// ────────────────────────────────────────────────────────────────────
+
+(hasDatabaseUrl ? describe : describe.skip)('PublicAccessService integration', () => {
+    let paService: PublicAccessService;
+    let postedContractId: string;
+    let publicCode: string;
+
+    const testSpaceId = require('crypto').randomUUID();
+    const testTenantId = require('crypto').randomUUID();
+
+    beforeAll(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { spaces, tenants, publicAccessCodes } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { ContractsService } = require('../contracts/contracts.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { eq } = require('drizzle-orm');
+
+        await db.insert(spaces).values({ id: testSpaceId, name: `PA Test Space ${testSpaceId}` });
+        await db.insert(tenants).values({ id: testTenantId, firstName: 'PA', lastName: 'Tester' });
+
+        const contractsService = new ContractsService(db);
+        const contract = await contractsService.create({
+            tenantId: testTenantId,
+            spaceId: testSpaceId,
+            startDate: '2024-01-01',
+            endDate: '2024-03-31',
+            rentAmount: '1000.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+            depositAmount: '2000.00',
+            advanceMonths: 1,
+        });
+        await contractsService.post(contract.id);
+        postedContractId = contract.id;
+
+        const codes = await db.select().from(publicAccessCodes).where(eq(publicAccessCodes.contractId, contract.id));
+        publicCode = codes[0].code;
+
+        const ledgersService = new LedgersService(db);
+        paService = new PublicAccessService(db, ledgersService);
+    });
+
+    it('getPublicStatus resolves a valid public code to ledger data', async () => {
+        const result = await paService.getPublicStatus(publicCode);
+
+        expect(result.contractId).toBe(postedContractId);
+        expect(Array.isArray(result.ledger.payables)).toBe(true);
+        expect(Array.isArray(result.ledger.payments)).toBe(true);
+        expect(Array.isArray(result.ledger.fund)).toBe(true);
+        expect(typeof result.ledger.amount_due).toBe('string');
+        expect(result.ledger.amount_due).toMatch(/^\d+\.\d{2}$/);
     });
 });

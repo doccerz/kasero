@@ -10,11 +10,18 @@ const hasDatabaseUrl = !!process.env.DATABASE_URL;
     let contractsService: any;
 
     beforeAll(async () => {
-        const { db } = await import('../database/database');
-        const { spaces, tenants } = await import('../database/schema');
-        const { ContractsService } = await import('../contracts/contracts.service');
-        const { LedgersService } = await import('../ledgers/ledgers.service');
-        const { PublicAccessService } = await import('./public-access.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { spaces, tenants, publicAccessCodes } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { ContractsService } = require('../contracts/contracts.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { LedgersService } = require('../ledgers/ledgers.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { PublicAccessService } = require('./public-access.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { eq } = require('drizzle-orm');
 
         await db.insert(spaces).values({ id: testSpaceId, name: `PATest Space ${testSpaceId}` });
         await db.insert(tenants).values({ id: testTenantId, firstName: 'PATest', lastName: 'Tenant' });
@@ -34,10 +41,7 @@ const hasDatabaseUrl = !!process.env.DATABASE_URL;
         });
         contractId = contract.id;
 
-        const posted = await contractsService.post(contractId);
-        // Fetch the public access code from DB
-        const { publicAccessCodes } = await import('../database/schema');
-        const { eq } = await import('drizzle-orm');
+        await contractsService.post(contractId);
         const codes = await db.select().from(publicAccessCodes).where(eq(publicAccessCodes.contractId, contractId));
         accessCode = codes[0].code;
     });
@@ -51,12 +55,12 @@ const hasDatabaseUrl = !!process.env.DATABASE_URL;
     });
 
     it('getPublicStatus throws NotFoundException for unknown code', async () => {
-        const { NotFoundException } = await import('@nestjs/common');
+        const { NotFoundException } = require('@nestjs/common');
         await expect(publicAccessService.getPublicStatus('00000000-0000-0000-0000-000000000000')).rejects.toThrow(NotFoundException);
     });
 
     it('revoke → getPublicStatus throws NotFoundException', async () => {
-        const { NotFoundException } = await import('@nestjs/common');
+        const { NotFoundException } = require('@nestjs/common');
         await contractsService.revokeAccessCode(contractId);
         await expect(publicAccessService.getPublicStatus(accessCode)).rejects.toThrow(NotFoundException);
     });
