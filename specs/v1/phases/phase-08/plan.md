@@ -65,7 +65,7 @@ it('fund entry has type=deposit; advance payment is in payments table', async ()
 
 Commit: `test(phase-08): add failing ledger separation and rollback tests`
 
-### Step 3 — Verify tests pass
+### Step 3 — Verify tests pass ✅
 
 The existing `post()` implementation already:
 - Calls `tx.insert(fund).values(...)` for deposit → passes Test A
