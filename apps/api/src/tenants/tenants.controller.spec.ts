@@ -61,6 +61,7 @@ describe('TenantsController — endpoints', () => {
         findOne: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        generateEntryLink: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -158,6 +159,25 @@ describe('TenantsController — endpoints', () => {
 
     it('DELETE /admin/tenants/:id → 404 (route does not exist)', async () => {
         const res = await request(app.getHttpServer()).delete('/admin/tenants/uuid-1');
+
+        expect(res.status).toBe(404);
+    });
+
+    it('POST /admin/tenants/:id/entry-link → 201 with token', async () => {
+        mockTenantsService.generateEntryLink.mockResolvedValue({ token: 'generated-uuid' });
+
+        const res = await request(app.getHttpServer())
+            .post('/admin/tenants/uuid-1/entry-link');
+
+        expect(res.status).toBe(201);
+        expect(res.body).toEqual({ token: 'generated-uuid' });
+    });
+
+    it('POST /admin/tenants/:id/entry-link → 404 when tenant not found', async () => {
+        mockTenantsService.generateEntryLink.mockRejectedValue(new NotFoundException('Tenant not found'));
+
+        const res = await request(app.getHttpServer())
+            .post('/admin/tenants/missing-id/entry-link');
 
         expect(res.status).toBe(404);
     });
