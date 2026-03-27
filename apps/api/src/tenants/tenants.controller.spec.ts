@@ -131,7 +131,7 @@ describe('TenantsController — endpoints', () => {
             .send({ firstName: 'Alice', lastName: 'Smith' });
 
         expect(res.status).toBe(409);
-        expect(res.body.message).toEqual({ duplicate: true, matchingIds: ['uuid-1'] });
+        expect(res.body).toEqual({ duplicate: true, matchingIds: ['uuid-1'] });
     });
 
     it('PATCH /admin/tenants/:id → 200', async () => {
