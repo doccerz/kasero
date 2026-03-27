@@ -69,4 +69,14 @@ export class TenantsService {
         if (!rows[0]) throw new NotFoundException('Tenant not found');
         return rows[0];
     }
+
+    async generateEntryLink(tenantId: string): Promise<{ token: string }> {
+        await this.findOne(tenantId);
+        const token = crypto.randomUUID();
+        await this.db.update(tenants)
+            .set({ entryToken: token, entryTokenUsedAt: null, updatedAt: new Date() })
+            .where(eq(tenants.id, tenantId))
+            .returning();
+        return { token };
+    }
 }

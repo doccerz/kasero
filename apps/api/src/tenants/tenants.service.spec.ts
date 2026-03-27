@@ -192,6 +192,27 @@ describe('TenantsService', () => {
         });
     });
 
+    describe('generateEntryLink', () => {
+        it('throws NotFoundException when tenant not found', async () => {
+            const mockDb = buildCrudMockDb({ selectRows: [] });
+            const service = await createCrudService(mockDb);
+            await expect(service.generateEntryLink('missing-id')).rejects.toThrow(NotFoundException);
+        });
+
+        it('returns { token } and updates entryToken on tenant', async () => {
+            const tenant = { id: 'tid-1', firstName: 'Alice', lastName: 'Smith' };
+            const updated = { id: 'tid-1', entryToken: 'new-uuid', entryTokenUsedAt: null };
+            const mockDb = buildCrudMockDb({ selectRows: [tenant], mutationRows: [updated] });
+            const service = await createCrudService(mockDb);
+
+            const result = await service.generateEntryLink('tid-1');
+
+            expect(mockDb.update).toHaveBeenCalled();
+            expect(result).toHaveProperty('token');
+            expect(typeof result.token).toBe('string');
+        });
+    });
+
     (hasDatabaseUrl ? it : it.skip)('DB: hidden expired tenant when setting is true', async () => {
         const { db } = await import('../database/database');
         const { tenants } = await import('../database/schema');

@@ -1,0 +1,21 @@
+Phase 9 COMPLETE — all 14 steps implemented.
+
+Steps completed:
+1. Schema: Added entryToken (uuid) and entryTokenUsedAt (timestamp) to tenants table + migration 0006
+2. LedgersModule: Exported LedgersService
+3. PublicAccessService: Implemented getPublicStatus, resolveEntryToken, submitEntry (9 unit tests)
+4. PublicAccessController: Implemented at /internal/* prefix with GET/POST routes (7 tests)
+5. PublicAccessModule: Added LedgersModule import; fixed module spec to provide DB_TOKEN mock
+6. TenantsService: Added generateEntryLink using crypto.randomUUID() (2 tests)
+7. TenantsController: Added POST :id/entry-link route (2 tests)
+8. ContractsService: Added revokeAccessCode (3 tests)
+9. ContractsController: Added POST :id/revoke-code route (2 tests)
+10. Integration test: public-access.integration.spec.ts (self-skips without DATABASE_URL)
+11. Web /public/[code]: Server component fetching ledger, displaying amount_due + payables table
+12. Web /: Client component with code entry form using useRouter
+13. Web /entry/[token]: Server wrapper + EntryForm client component with consent checkbox
+14. Web tests: 3 new test files for home, public, entry pages
+
+Final test counts:
+- API: 170 unit tests passing, 49 skipped (integration), 28 suites
+- Web: 8 tests passing, 7 suites

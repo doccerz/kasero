@@ -34,6 +34,8 @@ export const tenants = pgTable('tenants', {
     contactInfo: jsonb('contact_info'),
     status: tenantStatusEnum('status').notNull().default('inactive'),
     expirationDate: date('expiration_date'),
+    entryToken: uuid('entry_token'),
+    entryTokenUsedAt: timestamp('entry_token_used_at'),
     metadata: jsonb('metadata'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),

@@ -62,6 +62,7 @@ describe('ContractsController — endpoints', () => {
         create: jest.fn(),
         update: jest.fn(),
         post: jest.fn(),
+        revokeAccessCode: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -176,6 +177,26 @@ describe('ContractsController — endpoints', () => {
 
     it('DELETE /admin/contracts/:id → 404 (route does not exist)', async () => {
         const res = await request(app.getHttpServer()).delete('/admin/contracts/uuid-1');
+
+        expect(res.status).toBe(404);
+    });
+
+    it('POST /admin/contracts/:id/revoke-code → 200 with revoked record', async () => {
+        const revokedCode = { id: 'pac-1', contractId: 'uuid-1', revokedAt: new Date().toISOString() };
+        mockContractsService.revokeAccessCode.mockResolvedValue(revokedCode);
+
+        const res = await request(app.getHttpServer())
+            .post('/admin/contracts/uuid-1/revoke-code');
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(revokedCode);
+    });
+
+    it('POST /admin/contracts/:id/revoke-code → 404 when not found', async () => {
+        mockContractsService.revokeAccessCode.mockRejectedValue(new NotFoundException('No code'));
+
+        const res = await request(app.getHttpServer())
+            .post('/admin/contracts/uuid-missing/revoke-code');
 
         expect(res.status).toBe(404);
     });
