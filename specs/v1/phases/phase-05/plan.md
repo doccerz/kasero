@@ -258,7 +258,7 @@ No `@Delete` route. `ConflictException` from the service propagates via NestJS's
 
 ---
 
-### Group 9 - Verification
+### Group 9 - Verification ✅ COMPLETE
 
 ```bash
 # Run all tests
@@ -287,3 +287,5 @@ curl -X POST http://localhost:3001/admin/tenants -H 'Authorization: Bearer <toke
 - `DELETE /admin/spaces/:id` when already soft-deleted: `isNull` guard in `where` matches zero rows → 404. Correct.
 - Tenant `contactInfo` null matching: normalize `undefined` to `null` before `jsonEqual` to avoid `JSON.stringify(undefined)` returning `undefined` (not a string).
 - `expirationDate` on tenant create: DB trigger fires only on `UPDATE`. Service must compute and insert it explicitly. Calculation: `now + 10 * 365.25 days` formatted as `YYYY-MM-DD`.
+
+<promise>COMPLETE</promise>
