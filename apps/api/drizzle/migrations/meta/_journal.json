@@ -43,6 +43,13 @@
       "when": 1774560491284,
       "tag": "0005_expire_contract_tenants",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1774560491285,
+      "tag": "0006_tenant_entry_tokens",
+      "breakpoints": true
     }
   ]
 }
