@@ -11,7 +11,11 @@ function buildMockDb({ selectRows = [] as any[], mutationRows = [] as any[] } = 
     const set = jest.fn().mockReturnValue({ where: whereForMutation });
     const values = jest.fn().mockReturnValue({ returning });
     const whereForSelect = jest.fn().mockResolvedValue(selectRows);
-    const leftJoin = jest.fn().mockReturnValue({ where: whereForSelect });
+    const leftJoin = jest.fn().mockReturnValue({
+        where: whereForSelect,
+        then: (resolve: any, reject: any) => Promise.resolve(selectRows).then(resolve, reject),
+        catch: (reject: any) => Promise.resolve(selectRows).catch(reject),
+    });
     const from = jest.fn().mockReturnValue({ where: whereForSelect, leftJoin });
     return {
         select: jest.fn().mockReturnValue({ from }),
