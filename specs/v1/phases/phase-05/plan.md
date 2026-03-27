@@ -221,7 +221,7 @@ function jsonEqual(a: unknown, b: unknown): boolean {
 
 **`toDateString` helper** (inline): `(d: Date) => d.toISOString().split('T')[0]`
 
-### Group 7 — Tenants controller tests
+### Group 7 — Tenants controller tests ✅ COMPLETE
 
 Create `apps/api/src/tenants/tenants.controller.spec.ts` with two describe blocks:
 
@@ -239,7 +239,7 @@ Create `apps/api/src/tenants/tenants.controller.spec.ts` with two describe block
 - `PATCH /admin/tenants/:id` when `NotFoundException` → 404
 - `DELETE /admin/tenants/:id` → 404 (route does not exist)
 
-### Group 8 — Implement `tenants.controller.ts`
+### Group 8 — Implement `tenants.controller.ts` ✅ COMPLETE
 
 ```typescript
 @UseGuards(JwtAuthGuard)
