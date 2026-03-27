@@ -28,3 +28,10 @@
 - Feature module spec isolation with nested AuthModule dependency: `overrideProvider(DB_TOKEN)` alone is insufficient — must also import `DatabaseModule` explicitly in `createTestingModule({ imports: [DatabaseModule, FeatureModule] })` so the `@Global()` DB_TOKEN is part of the module tree; then override it with a mock
 - E2e-style guard tests with empty controllers: use an inline `@Controller` + `@Get()` in the spec file to create a test-only route — guards only run when a matching route exists; 404 is returned before guard evaluation if no route matches
 - Admin controller routing: all admin feature controllers use `@Controller('admin/<resource>')` path prefix (e.g., `admin/spaces`, `admin/tenants`) — matches the API endpoint design `/admin/*`
+- Tenant expiration trigger INSERT gap: `trg_tenant_expiration` fires only on `UPDATE`, not `INSERT` — tenant `create` must explicitly set `expirationDate = now + 10 years`; the trigger handles it only on subsequent status transitions
+- Drizzle `updatedAt` manual set: `defaultNow()` applies only on insert — every `db.update().set({...})` must explicitly include `updatedAt: new Date()`
+- Soft delete + 404 pattern: include `isNull(table.deletedAt)` in `update`/`remove` WHERE clauses; if `.returning()` is empty, throw `NotFoundException` — prevents silent no-ops on already-deleted records
+- Drizzle `date` column type expects `YYYY-MM-DD` string, not a JS `Date` — use `date.toISOString().split('T')[0]` when inserting date-only values
+- JSONB equality check: normalize `undefined` → `null`, sort object keys before `JSON.stringify` to handle key-order differences from JSONB round-trips
+- Controller endpoint test pattern: mock entire service with `overrideProvider(Service).useValue(mockService)`; bypass guard with `overrideGuard(JwtAuthGuard).useValue({ canActivate: () => true })`
+- No DELETE route for tenants: `prevent_hard_delete` DB trigger enforces no-delete invariant — do not expose a DELETE endpoint; the constraint is at both API and DB layers

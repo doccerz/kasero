@@ -6,7 +6,7 @@ PROGRESS_FILE="${SPECS_DIR}/progress.txt"
 
 PROMPT="Read @${PLAN} and @${PROGRESS_FILE}. \
 Find the next incomplete GROUP or VERIFICATION and implement it. \
-For every complete task, tag task as complete in the plan.md, gitcommit. \
+For every complete task, tag task as complete in the plan.md, git commit. \
 After completing the whole GROUP or VERIFICATION, \
 improve the memory files (CLAUDE.md rules) and README.md with any relevant learnings or changes from this task, \
 Update progress.txt with what you did. \
@@ -16,4 +16,4 @@ If all tasks are complete, write <promise>COMPLETE</promise> into plan.md \
 then create a PR to staging. \
 "
 
-claude -p  --output-format stream-json "$PROMPT" --permission-mode bypassPermissions --verbose
+claude -p  --output-format stream-json "$PROMPT" --permission-mode bypassPermissions --verbose --remote-control

@@ -149,19 +149,6 @@ npm run dev --workspace=apps/api
 npm run dev --workspace=apps/web
 ```
 
-### Testing
-
-```bash
-# Run all tests (no DATABASE_URL needed — DB tests self-skip)
-npm test
-
-# Watch mode
-npm run test:watch
-
-# Coverage report
-npm run test:coverage
-```
-
 ### Database / Drizzle
 
 ```bash
@@ -187,24 +174,6 @@ docker run --env-file .env -p 3001:3001 kasero
 
 ---
 
-## CI/CD
-
-See [ci-cd-workflows.md](./ci-cd-workflows.md) for the full pipeline diagram and workflow details.
-
-**Summary:**
-
-| Event | Workflow | Outcome |
-|-------|----------|---------|
-| PR to `staging` or `main` | `ci.yml` | Runs `npm test` + docker build smoke test |
-| PR to `staging` (CI passes) | `ci.yml` auto-merge job | Auto-merges PR to staging |
-| Push to `main` | `release-please.yml` | Conventional commits → GitHub release + Docker push to `ghcr.io` |
-| PR to `main` closed with `release` label | `release-please.yml` | `npm version patch` + tag + Docker push |
-| Manual `v*.*.*` tag push | `docker-publish.yml` | Docker build and push |
-
-Registry: `ghcr.io/<owner>/kasero`
-
----
-
 ## API Endpoints
 
 ### Admin Endpoints (JWT required)
@@ -224,25 +193,6 @@ Registry: `ghcr.io/<owner>/kasero`
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/internal/contracts/public/:code` | Resolve contract by public code for tenant status view |
-
----
-
-## Common Issues
-
-**Tests skip unexpectedly**
-Tests that require a real database self-skip when `DATABASE_URL` is not set. This is by design for CI. Run with a local `DATABASE_URL` to execute database-backed tests.
-
-**Migrations fail on startup**
-Ensure `DATABASE_URL` is set and the PostgreSQL instance is reachable before starting the API. Drizzle runs migrations on startup.
-
-**Seeded admin not created**
-The seed script is idempotent — it only inserts if the admin record does not exist. Verify `ADMIN_USERNAME` and `ADMIN_PASSWORD` are set in `.env`.
-
-**Contract posting appears partial**
-Contract posting is a single atomic transaction. If any step fails (payable generation, fund entry, etc.), the entire transaction rolls back. Check API logs for the specific constraint violation.
-
-**Tenant expiration not updating**
-Tenant expiration is managed by a database trigger. If it behaves unexpectedly, verify the trigger was created during the migration step.
 
 ---
 
