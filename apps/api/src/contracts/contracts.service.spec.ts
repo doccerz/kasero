@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { ContractsService, generatePayables } from './contracts.service';
 import { DB_TOKEN } from '../database/database.module';
+import { fund, payments } from '../database/schema';
 
 const hasDatabaseUrl = !!process.env.DATABASE_URL;
 
@@ -354,6 +355,54 @@ describe('ContractsService', () => {
 
             await expect(service.post('contract-1')).rejects.toThrow('some other db error');
         });
+
+        it('deposits go to fund table, not payments table', async () => {
+            const contractDepositOnly = { ...draftContract, advanceMonths: 0 };
+            const mockDb = buildMockDb();
+            mockDb.select
+                .mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([contractDepositOnly]), leftJoin: jest.fn() }) });
+            const tx = buildTxMock({ ...postedContract, advanceMonths: 0 });
+            mockDb.transaction.mockImplementation(async (fn: any) => fn(tx));
+            const service = await createService(mockDb);
+
+            await service.post('contract-1');
+
+            const tableCalls = tx.insert.mock.calls.map((c: any) => c[0]);
+            expect(tableCalls).toContain(fund);
+            expect(tableCalls).not.toContain(payments);
+        });
+
+        it('advance payment goes to payments table, not fund table', async () => {
+            const contractAdvanceOnly = { ...draftContract, depositAmount: null };
+            const mockDb = buildMockDb();
+            mockDb.select
+                .mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([contractAdvanceOnly]), leftJoin: jest.fn() }) });
+            const tx = buildTxMock({ ...postedContract, depositAmount: null });
+            mockDb.transaction.mockImplementation(async (fn: any) => fn(tx));
+            const service = await createService(mockDb);
+
+            await service.post('contract-1');
+
+            const tableCalls = tx.insert.mock.calls.map((c: any) => c[0]);
+            expect(tableCalls).toContain(payments);
+            expect(tableCalls).not.toContain(fund);
+        });
+
+        it('skips fund and payment inserts when both depositAmount is null and advanceMonths is 0', async () => {
+            const contractNone = { ...draftContract, depositAmount: null, advanceMonths: 0 };
+            const mockDb = buildMockDb();
+            mockDb.select
+                .mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([contractNone]), leftJoin: jest.fn() }) });
+            const tx = buildTxMock({ ...postedContract, depositAmount: null, advanceMonths: 0 });
+            mockDb.transaction.mockImplementation(async (fn: any) => fn(tx));
+            const service = await createService(mockDb);
+
+            await service.post('contract-1');
+
+            const tableCalls = tx.insert.mock.calls.map((c: any) => c[0]);
+            expect(tableCalls).not.toContain(fund);
+            expect(tableCalls).not.toContain(payments);
+        });
     });
 });
 
@@ -440,5 +489,26 @@ describe('ContractsService', () => {
         await service.post(contract.id);
 
         await expect(service.update(contract.id, { rentAmount: '999.00' })).rejects.toThrow(BadRequestException);
+    });
+
+    it('fund entry has type=deposit; advance payment is in payments table', async () => {
+        const uniqueSpaceId = require('crypto').randomUUID();
+        const { db } = await import('../database/database');
+        const { spaces, fund: fundTable, payments: paymentsTable } = await import('../database/schema');
+        const { eq } = await import('drizzle-orm');
+        await db.insert(spaces).values({ id: uniqueSpaceId, name: `Ledger Sep Test Space ${uniqueSpaceId}` });
+
+        const contract = await service.create({ ...baseContractData(), spaceId: uniqueSpaceId });
+        await service.post(contract.id);
+
+        const fundRows = await db.select().from(fundTable).where(eq(fundTable.contractId, contract.id));
+        expect(fundRows).toHaveLength(1);
+        expect(fundRows[0].type).toBe('deposit');
+        expect(fundRows[0].amount).toBe(baseContractData().depositAmount);
+
+        const paymentRows = await db.select().from(paymentsTable).where(eq(paymentsTable.contractId, contract.id));
+        expect(paymentRows).toHaveLength(1);
+        const expectedAdvance = (parseFloat(baseContractData().rentAmount) * baseContractData().advanceMonths).toFixed(2);
+        expect(paymentRows[0].amount).toBe(expectedAdvance);
     });
 });
