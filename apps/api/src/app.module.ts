@@ -9,9 +9,10 @@ import { ContractsModule } from './contracts/contracts.module';
 import { LedgersModule } from './ledgers/ledgers.module';
 import { PublicAccessModule } from './public-access/public-access.module';
 import { AuditModule } from './audit/audit.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
-    imports: [DatabaseModule, AuthModule, SettingsModule, SpacesModule, TenantsModule, ContractsModule, LedgersModule, PublicAccessModule, AuditModule],
+    imports: [DatabaseModule, AuthModule, SettingsModule, SpacesModule, TenantsModule, ContractsModule, LedgersModule, PublicAccessModule, AuditModule, DashboardModule],
     controllers: [AppController],
     providers: [],
 })
