@@ -76,7 +76,7 @@ No code changes should be needed. If tests fail, fix the implementation.
 
 Commit: `feat(phase-08): confirm atomic posting satisfies ledger separation invariants`
 
-### Step 4 — Run full test suite
+### Step 4 — Run full test suite ✅
 
 ```bash
 npm test --workspace=apps/api
@@ -86,7 +86,7 @@ All tests must pass (DB integration tests self-skip in CI when `DATABASE_URL` is
 
 Commit: `test(phase-08): all tests passing`
 
-### Step 5 — Mark progress.txt COMPLETE
+### Step 5 — Mark progress.txt COMPLETE ✅
 
 Update `specs/v1/phases/phase-08/progress.txt`:
 ```
