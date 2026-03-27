@@ -272,15 +272,20 @@ describe('LedgersService.voidPayment', () => {
 
 (hasDatabaseUrl ? describe : describe.skip)('LedgersService integration', () => {
     let service: LedgersService;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let db: any;
     let contractId: string;
 
     const testSpaceId = require('crypto').randomUUID();
     const testTenantId = require('crypto').randomUUID();
 
     beforeAll(async () => {
-        const { db } = await import('../database/database');
-        const { spaces, tenants } = await import('../database/schema');
-        const { ContractsService } = await import('../contracts/contracts.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { spaces, tenants } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { ContractsService } = require('../contracts/contracts.service');
 
         await db.insert(spaces).values({ id: testSpaceId, name: `Ledger Test Space ${testSpaceId}` });
         await db.insert(tenants).values({ id: testTenantId, firstName: 'Ledger', lastName: 'Tester' });
@@ -315,9 +320,10 @@ describe('LedgersService.voidPayment', () => {
     });
 
     it('recordPayment inserts into payments table', async () => {
-        const { db } = await import('../database/database');
-        const { payments } = await import('../database/schema');
-        const { eq } = await import('drizzle-orm');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { payments } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { eq } = require('drizzle-orm');
 
         const result = await service.recordPayment(contractId, { amount: '500.00' });
 
@@ -329,9 +335,10 @@ describe('LedgersService.voidPayment', () => {
     });
 
     it('voidPayment sets voided_at and triggers audit insert', async () => {
-        const { db } = await import('../database/database');
-        const { audit } = await import('../database/schema');
-        const { eq } = await import('drizzle-orm');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { audit } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { eq } = require('drizzle-orm');
 
         const payment = await service.recordPayment(contractId, { amount: '100.00' });
         const result = await service.voidPayment(payment.id);
