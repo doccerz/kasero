@@ -73,7 +73,7 @@ function buildMockDb({ selectRows = [], mutationRows = [] } = {}) {
 }
 ```
 
-### Group 2 — Implement `spaces.service.ts`
+### Group 2 — Implement `spaces.service.ts` ✅ COMPLETE
 
 Inject `@Inject(DB_TOKEN) private readonly db: any`.
 
