@@ -1,0 +1,28 @@
+Phase 6 — Contracts: Draft, Posting, and Immutability
+
+COMPLETED
+
+## What was done
+
+### Step 1 — Wrote failing unit tests
+- Created `apps/api/src/contracts/contracts.service.spec.ts` with:
+  - `generatePayables` pure helper tests (monthly/quarterly/annually, date clamping, empty array on invalid range)
+  - Service unit tests: `findAll`, `findOne`, `create`, `update` (draft/posted guard), `post` (full transaction, skip fund/payment, 23505 conflict handling)
+  - DB integration tests (guarded by `hasDatabaseUrl`)
+- Created `apps/api/src/contracts/contracts.controller.spec.ts` with:
+  - Guard integration tests (real JwtAuthGuard + mock JwtService)
+  - Endpoint tests for all routes (GET, POST, PATCH, POST :id/post, no DELETE)
+
+### Step 2 — Committed failing tests
+`test(contracts): add failing unit tests for service and controller`
+
+### Step 3 — Implemented contracts.service.ts and contracts.controller.ts
+- `generatePayables` pure exported helper: cursor-based loop with UTC date math, addMonths day clamping, dueDate clamping to month length, periodEnd clamped to endDate
+- `ContractsService`: findAll (leftJoin tenants), findOne, create, update (posted guard), post (atomic transaction with publicAccessCode, fund, payment, payables)
+- `ContractsController`: GET, GET :id, POST, PATCH :id, POST :id/post (@HttpCode(200))
+- Fixed `buildMockDb` leftJoin mock to be thenable so `await .leftJoin()` resolves without needing `.where()`
+
+### Step 4 — All 23 test suites pass (161 tests, 42 skipped/DB-gated, 0 failures)
+
+## Key learnings added to rules
+- `leftJoin` mock must include `then`/`catch` to be directly awaitable when service doesn't call `.where()` after leftJoin
