@@ -105,19 +105,21 @@ Guard integration tests (real guard + mock JwtService) and endpoint tests (overr
 
 **→ git commit**
 
-### Step 3 — Implement LedgersService
+### Step 3 — Implement LedgersService ✅ COMPLETE
 
 **→ git commit**
 
-### Step 4 — Implement ContractLedgerController
+### Step 4 — Implement ContractLedgerController ✅ COMPLETE
 
 **→ git commit**
 
-### Step 5 — Implement PaymentsController + update LedgersModule
+### Step 5 — Implement PaymentsController + update LedgersModule ✅ COMPLETE
 
 **→ git commit**
 
-### Step 6 — Verify all tests pass (`npm test`)
+### Step 6 — Verify all tests pass (`npm test`) ✅ COMPLETE
+
+All 187 tests pass (45 skipped = integration stubs without DATABASE_URL).
 
 **→ git commit**
 
