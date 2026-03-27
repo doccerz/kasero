@@ -1,0 +1,1 @@
+Group 1 COMPLETE: Created apps/api/src/spaces/spaces.service.spec.ts with all unit tests (findAll, findOne, create, update, remove) and a DB integration test. All 10 unit tests fail as expected (service is still an empty stub). Committed.
