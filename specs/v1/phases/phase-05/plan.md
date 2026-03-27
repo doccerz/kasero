@@ -115,7 +115,7 @@ async remove(id: string) {
 
 Key: `isNull` guard in `update`/`remove` ensures already-deleted spaces return 404, not a silent no-op. `updatedAt` must be set manually (Drizzle `defaultNow()` only applies on insert).
 
-### Group 3 — Spaces controller endpoint tests
+### Group 3 — Spaces controller endpoint tests ✅ COMPLETE
 
 Add a second `describe('SpacesController — endpoints')` block to `spaces.controller.spec.ts`. Mock `SpacesService` entirely; override `JwtAuthGuard` with `{ canActivate: () => true }`.
 
