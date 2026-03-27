@@ -152,12 +152,16 @@ Pass the token as `Authorization: Bearer <token>` to access admin endpoints.
 | `GET` | `/admin/contracts/:id/ledger` | View contract ledger |
 | `*` | `/admin/contracts/:id/payments` | Record payments |
 | `POST` | `/admin/payments/:id/void` | Void a payment |
+| `POST` | `/admin/contracts/:id/revoke-code` | Revoke public access code |
+| `POST` | `/admin/tenants/:id/entry-link` | Generate tenant self-entry link |
 
 ### Internal Frontend-Only
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/internal/contracts/public/:code` | Tenant status lookup by public code |
+| `GET` | `/internal/tenants/entry/:token` | Resolve tenant entry token |
+| `POST` | `/internal/tenants/entry/:token` | Submit tenant entry details |
 
 ---
 
