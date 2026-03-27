@@ -404,6 +404,33 @@ describe('ContractsService', () => {
             expect(tableCalls).not.toContain(payments);
         });
     });
+
+    describe('revokeAccessCode', () => {
+        it('throws NotFoundException when contract not found', async () => {
+            const mockDb = buildMockDb({ selectRows: [] });
+            const service = await createService(mockDb);
+            await expect(service.revokeAccessCode('missing-id')).rejects.toThrow(NotFoundException);
+        });
+
+        it('throws NotFoundException when no public access code exists', async () => {
+            const contract = { id: 'cid-1', status: 'posted' };
+            const mockDb = buildMockDb({ selectRows: [contract], mutationRows: [] });
+            const service = await createService(mockDb);
+            await expect(service.revokeAccessCode('cid-1')).rejects.toThrow(NotFoundException);
+        });
+
+        it('returns updated code record on success', async () => {
+            const contract = { id: 'cid-1', status: 'posted' };
+            const revokedCode = { id: 'pac-1', contractId: 'cid-1', revokedAt: new Date() };
+            const mockDb = buildMockDb({ selectRows: [contract], mutationRows: [revokedCode] });
+            const service = await createService(mockDb);
+
+            const result = await service.revokeAccessCode('cid-1');
+
+            expect(mockDb.update).toHaveBeenCalled();
+            expect(result).toEqual(revokedCode);
+        });
+    });
 });
 
 // ────────────────────────────────────────────────────────────────────

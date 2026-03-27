@@ -45,4 +45,10 @@ export class ContractsController {
     post(@Param('id') id: string) {
         return this.contractsService.post(id);
     }
+
+    @Post(':id/revoke-code')
+    @HttpCode(200)
+    revokeCode(@Param('id') id: string) {
+        return this.contractsService.revokeAccessCode(id);
+    }
 }

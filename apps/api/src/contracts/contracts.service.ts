@@ -186,4 +186,15 @@ export class ContractsService {
             throw err;
         }
     }
+
+    async revokeAccessCode(contractId: string) {
+        await this.findOne(contractId);
+        const rows = await this.db
+            .update(publicAccessCodes)
+            .set({ revokedAt: new Date() })
+            .where(eq(publicAccessCodes.contractId, contractId))
+            .returning();
+        if (!rows[0]) throw new NotFoundException('No public access code found for this contract');
+        return rows[0];
+    }
 }
