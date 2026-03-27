@@ -167,7 +167,7 @@ Extend `tenants.service.spec.ts` with three new `describe` blocks:
 - Throws `NotFoundException` when no rows returned
 - When `status` in payload (e.g., to 'inactive'): service passes it through; DB trigger handles `expirationDate` on the `UPDATE`
 
-### Group 6 — Implement new tenant service methods
+### Group 6 — Implement new tenant service methods ✅ COMPLETE
 
 ```typescript
 async findOne(id: string): Promise<typeof tenants.$inferSelect> {
