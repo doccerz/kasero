@@ -123,9 +123,11 @@ All 187 tests pass (45 skipped = integration stubs without DATABASE_URL).
 
 **→ git commit**
 
-### Step 7 — Update progress.txt + CLAUDE.md rules (if learnings), create PR to staging
+### Step 7 — Update progress.txt + CLAUDE.md rules (if learnings), create PR to staging ✅ COMPLETE
 
 **→ git commit → PR**
+
+<promise>COMPLETE</promise>
 
 ---
 
