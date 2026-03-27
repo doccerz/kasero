@@ -147,7 +147,7 @@ export class SpacesController {
 
 POST returns 201 by NestJS default. DELETE returns 200 with the soft-deleted record (callers get confirmation).
 
-### Group 5 — Tenant service additional tests
+### Group 5 — Tenant service additional tests ✅ COMPLETE
 
 Extend `tenants.service.spec.ts` with three new `describe` blocks:
 
