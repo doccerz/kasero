@@ -61,8 +61,10 @@ describe('SettingsService', () => {
     });
 
     (hasDatabaseUrl ? it : it.skip)('DB: settings are populated after bootstrap', async () => {
-        const { db } = await import('../database/database');
-        const { settings } = await import('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { settings } = require('../database/schema');
 
         const dbService = new SettingsService(db);
         await dbService.onApplicationBootstrap();

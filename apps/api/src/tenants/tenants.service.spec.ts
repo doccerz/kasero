@@ -214,9 +214,12 @@ describe('TenantsService', () => {
     });
 
     (hasDatabaseUrl ? it : it.skip)('DB: hidden expired tenant when setting is true', async () => {
-        const { db } = await import('../database/database');
-        const { tenants } = await import('../database/schema');
-        const { SettingsService: RealSettingsService } = await import('../settings/settings.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { tenants } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { SettingsService: RealSettingsService } = require('../settings/settings.service');
 
         const realSettings = new RealSettingsService(db);
         await realSettings.loadSettings();
@@ -234,19 +237,19 @@ describe('TenantsService', () => {
             expirationDate: yesterday,
         }).returning();
 
-        try {
-            const result = await realService.findAll();
-            const ids = result.map((t: any) => t.id);
-            expect(ids).not.toContain(expired.id);
-        } finally {
-            await db.delete(tenants).where(require('drizzle-orm').eq(tenants.id, expired.id));
-        }
+        const result = await realService.findAll();
+        const ids = result.map((t: any) => t.id);
+        expect(ids).not.toContain(expired.id);
+        // No cleanup — tenants are protected by no-hard-delete trigger
     });
 
     (hasDatabaseUrl ? it : it.skip)('DB: visible future-expiry tenant when setting is true', async () => {
-        const { db } = await import('../database/database');
-        const { tenants } = await import('../database/schema');
-        const { SettingsService: RealSettingsService } = await import('../settings/settings.service');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const db = require('../database/database').db;
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { tenants } = require('../database/schema');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { SettingsService: RealSettingsService } = require('../settings/settings.service');
 
         const realSettings = new RealSettingsService(db);
         await realSettings.loadSettings();
@@ -262,12 +265,9 @@ describe('TenantsService', () => {
             expirationDate: tomorrow,
         }).returning();
 
-        try {
-            const result = await realService.findAll();
-            const ids = result.map((t: any) => t.id);
-            expect(ids).toContain(future.id);
-        } finally {
-            await db.delete(tenants).where(require('drizzle-orm').eq(tenants.id, future.id));
-        }
+        const result = await realService.findAll();
+        const ids = result.map((t: any) => t.id);
+        expect(ids).toContain(future.id);
+        // No cleanup — tenants are protected by no-hard-delete trigger
     });
 });
