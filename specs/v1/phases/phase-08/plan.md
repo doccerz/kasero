@@ -1,5 +1,7 @@
 # Phase 08 — Contract Posting Atomic Workflow
 
+<promise>COMPLETE</promise>
+
 ## Context
 
 Phase 08 formalizes and verifies the atomic contract posting workflow. The core implementation already exists from Phase 06 work (commit `990c6b0`): the `post()` method in `ContractsService` executes a single `db.transaction()` with all 6 required steps. However, progress.txt is empty — Phase 08 has never been officially verified or marked complete.
