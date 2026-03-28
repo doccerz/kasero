@@ -128,8 +128,82 @@ Copy `.env.example` to `.env` and fill in values. Never commit `.env`.
 
 When `DATABASE_URL` is set, the API automatically on startup:
 1. Runs pending Drizzle migrations
-2. Seeds default settings (`tenant.hide_expired=true`)
-3. Seeds the admin user (idempotent — skips if already exists)
+2. Seeds default settings (`tenant.hide_expired=true`) — idempotent, uses `onConflictDoNothing`
+3. Seeds the admin user — idempotent, uses `onConflictDoNothing`
+4. Seeds the app version row (`1.0.0`) — idempotent, skips if a version row already exists
+
+All seed operations are safe to re-run on restart without side effects.
+
+---
+
+## Deployment Checklist
+
+### First Deployment
+
+1. Copy `.env.example` to `.env` and fill in all required variables (see Environment Variables table above)
+2. Ensure `TZ=Asia/Manila` is set in your environment
+3. Build the Docker image: `docker build -t kasero .`
+4. Start the container: `docker run --env-file .env -p 3001:3001 kasero`
+5. On startup the API will automatically run migrations, seed settings, seed the admin user, and seed the app version row
+6. Verify the app is healthy by checking the `/` endpoint (returns `200 OK`)
+
+### Subsequent Upgrades
+
+1. Pull the latest image or rebuild: `docker build -t kasero .`
+2. Stop the running container
+3. Start the new container with the same `.env`: `docker run --env-file .env -p 3001:3001 kasero`
+4. Migrations run automatically on startup — pending migrations are applied, already-applied ones are skipped
+5. All seed operations are idempotent — re-running them on restart is safe and produces no duplicates
+
+---
+
+## Operations Runbook
+
+### 1. Clean Install (First-Time Setup)
+
+```bash
+# Build and start
+docker build -t kasero .
+docker run --env-file .env -p 3001:3001 kasero
+```
+
+On startup the API:
+- Runs all pending migrations (creates all tables, indexes, and triggers)
+- Inserts the default settings key (`tenant.hide_expired=true`)
+- Inserts the admin user from `ADMIN_USERNAME` + `ADMIN_PASSWORD` env vars
+- Inserts a version row (`1.0.0`) in `app_version`
+
+Result: database is fully initialized, app is ready to use.
+
+### 2. Application Restart (Idempotent Startup)
+
+```bash
+# Stop and restart with same image
+docker stop <container>
+docker run --env-file .env -p 3001:3001 kasero
+```
+
+On restart:
+- Drizzle migration runner checks `_journal.json` — all previously applied migrations are skipped
+- All seed operations check for existing rows before inserting — no duplicates are created
+- The app starts cleanly with no side effects
+
+### 3. Migration-Based Upgrade
+
+```bash
+# Deploy new image that includes pending migrations
+docker build -t kasero:new .
+docker stop <current-container>
+docker run --env-file .env -p 3001:3001 kasero:new
+```
+
+On startup with a new image:
+- Drizzle runs only the new migration files not yet applied (tracked in `_journal.json`)
+- Already-applied migrations are skipped (idempotent)
+- Seed operations check for existing rows and skip if already seeded
+- The app starts normally after migrations complete
+
+> **Note**: Migrations are run in the application process on startup. There is no separate migration job. If a migration fails, the app will not start — fix the migration and redeploy.
 
 ---
 

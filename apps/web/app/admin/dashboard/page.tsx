@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 
@@ -20,11 +21,11 @@ const STATUS_LABELS: Record<DashboardEntry['occupancyStatus'], string> = {
     vacant: 'Vacant',
 };
 
-const STATUS_STYLES: Record<DashboardEntry['occupancyStatus'], string> = {
-    overdue: 'background-color: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;',
-    nearing: 'background-color: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;',
-    occupied: 'background-color: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;',
-    vacant: 'background-color: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;',
+const STATUS_STYLES: Record<DashboardEntry['occupancyStatus'], CSSProperties> = {
+    overdue: { backgroundColor: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 },
+    nearing: { backgroundColor: '#fef9c3', color: '#854d0e', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 },
+    occupied: { backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 },
+    vacant: { backgroundColor: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 },
 };
 
 export default async function DashboardPage() {

@@ -36,8 +36,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Build Docker image
+            - name: Build API Docker image
               run: docker build -t kasero .
+
+            - name: Build Web Docker image
+              run: docker build --target web-runner -t kasero-web .
 
     auto-merge:
         name: Auto Merge to Staging

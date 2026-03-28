@@ -1,26 +1,71 @@
+jest.mock('./database', () => ({
+    db: {
+        select: jest.fn(),
+        insert: jest.fn(),
+    },
+}));
+
+jest.mock('bcryptjs', () => ({
+    hash: jest.fn().mockResolvedValue('hashed_password'),
+}));
+
 import { seedDefaultSettings, seedAdminUser, seedAppVersion } from './seed';
+import { db } from './database';
 
-const hasDatabaseUrl = !!process.env.DATABASE_URL;
+describe('seed functions (unit)', () => {
+    let mockOnConflictDoNothing: jest.Mock;
+    let mockValues: jest.Mock;
 
-describe('seed functions', () => {
-    (hasDatabaseUrl ? it : it.skip)('seedDefaultSettings is idempotent', async () => {
-        await expect(seedDefaultSettings()).resolves.not.toThrow();
-        await expect(seedDefaultSettings()).resolves.not.toThrow();
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        mockOnConflictDoNothing = jest.fn().mockResolvedValue([]);
+        mockValues = jest.fn().mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
+        (db.insert as jest.Mock).mockReturnValue({ values: mockValues });
     });
 
-    (hasDatabaseUrl ? it : it.skip)('seedAdminUser is idempotent', async () => {
-        await expect(seedAdminUser('test_admin', 'test_password_123')).resolves.not.toThrow();
-        await expect(seedAdminUser('test_admin', 'test_password_123')).resolves.not.toThrow();
+    describe('seedDefaultSettings', () => {
+        it('calls onConflictDoNothing (no duplicate insert)', async () => {
+            await seedDefaultSettings();
+
+            expect(db.insert).toHaveBeenCalledTimes(1);
+            expect(mockValues).toHaveBeenCalled();
+            expect(mockOnConflictDoNothing).toHaveBeenCalled();
+        });
     });
 
-    (hasDatabaseUrl ? it : it.skip)('seedAppVersion is idempotent', async () => {
-        await expect(seedAppVersion('0.0.0-test')).resolves.not.toThrow();
-        await expect(seedAppVersion('0.0.0-test')).resolves.not.toThrow();
+    describe('seedAdminUser', () => {
+        it('calls onConflictDoNothing (no duplicate insert)', async () => {
+            await seedAdminUser('admin', 'password123');
+
+            expect(db.insert).toHaveBeenCalledTimes(1);
+            expect(mockValues).toHaveBeenCalled();
+            expect(mockOnConflictDoNothing).toHaveBeenCalled();
+        });
     });
 
-    it('seed module exports the expected functions', () => {
-        expect(typeof seedDefaultSettings).toBe('function');
-        expect(typeof seedAdminUser).toBe('function');
-        expect(typeof seedAppVersion).toBe('function');
+    describe('seedAppVersion', () => {
+        it('inserts when select returns empty array', async () => {
+            const mockLimit = jest.fn().mockResolvedValue([]);
+            const mockFrom = jest.fn().mockReturnValue({ limit: mockLimit });
+            (db.select as jest.Mock).mockReturnValue({ from: mockFrom });
+
+            await seedAppVersion('1.0.0');
+
+            expect(db.select).toHaveBeenCalledTimes(1);
+            expect(db.insert).toHaveBeenCalledTimes(1);
+            expect(mockValues).toHaveBeenCalledWith({ version: '1.0.0' });
+        });
+
+        it('skips insert when select returns existing row', async () => {
+            const mockLimit = jest.fn().mockResolvedValue([{ version: '1.0.0', createdAt: new Date() }]);
+            const mockFrom = jest.fn().mockReturnValue({ limit: mockLimit });
+            (db.select as jest.Mock).mockReturnValue({ from: mockFrom });
+
+            await seedAppVersion('1.0.0');
+
+            expect(db.select).toHaveBeenCalledTimes(1);
+            expect(db.insert).not.toHaveBeenCalled();
+        });
     });
 });

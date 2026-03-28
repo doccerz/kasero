@@ -1,0 +1,28 @@
+Phase 13 — COMPLETE
+
+Task 1 (DONE): Wrote unit tests for seed idempotency in apps/api/src/database/seed.spec.ts.
+  - Replaced integration-style tests with proper unit tests using jest.mock('./database') and jest.mock('bcryptjs')
+  - Tests verify: seedDefaultSettings calls onConflictDoNothing, seedAdminUser calls onConflictDoNothing,
+    seedAppVersion inserts when select returns [], skips insert when select returns existing row
+
+Task 2 (DONE): Fixed apps/api/src/main.ts to call seedAppVersion('1.0.0') on startup.
+  - Added import of seedAppVersion from ./database/seed
+  - Called await seedAppVersion('1.0.0') after seedAdminUser in bootstrap()
+  - All tests pass (183 passing, 47 skipped in CI)
+
+Task 3 (DONE): Created apps/api/src/database/seed.integration.spec.ts.
+  - Uses hasDatabaseUrl ? describe : describe.skip pattern (self-skips in CI without DATABASE_URL)
+  - Tests: clean install (first run inserts correct rows), restart (second run does not create duplicates)
+  - Cleanup: unique test admin username + pool.query('DELETE FROM admin_users WHERE ...') in afterAll
+  - Note: used require() instead of await import() — ts-jest does not support dynamic imports without --experimental-vm-modules
+
+Task 4 (DONE): Updated README.md with deployment runbook.
+  - Updated Startup Behavior section to include seedAppVersion (step 4)
+  - Added Deployment Checklist section (first deployment + subsequent upgrades)
+  - Added Operations Runbook section (clean install, application restart, migration-based upgrade)
+
+Task 5 (DONE): Updated .claude/rules/service-workflows.md with new patterns.
+  - Corrected the "Integration test cleanup for seed tests" entry (transaction rollback doesn't work when seed functions use global db pool)
+  - Added: dynamic import restriction in ts-jest (use require() instead)
+  - Added: seed bcryptjs mock pattern
+  - Updated: service integration test instantiation to use require() instead of await import()
