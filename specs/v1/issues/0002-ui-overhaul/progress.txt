@@ -1,0 +1,58 @@
+## Issue: Frontend UI Overhaul + Playwright E2E Tests
+Branch: feat/frontend-ui-e2e
+Started: 2026-03-28
+
+---
+
+## Status: IN PROGRESS
+
+---
+
+## Completed Steps
+
+[x] Create feature branch `feat/frontend-ui-e2e`
+[x] Install @playwright/test, add test:e2e script to package.json
+[x] Add testPathIgnorePatterns for e2e/ to jest.config.ts
+[x] Create playwright.config.ts (chromium, mock server env, webServer)
+[x] Create e2e/global-setup.ts (mock HTTP server on port 3099 with all fixtures)
+[x] Create e2e/global-teardown.ts
+[x] Create e2e/home.spec.ts
+[x] Create e2e/public.spec.ts
+[x] Create e2e/entry.spec.ts
+[x] Create e2e/admin-login.spec.ts
+[x] Create e2e/admin-dashboard.spec.ts
+[x] Create e2e/admin-space.spec.ts
+[x] Create e2e/admin-contract.spec.ts
+[x] Commit: "test(e2e): add failing Playwright tests for all pages"
+
+[x] Create apps/web/middleware.ts (auth guard — replaces layout-level redirect)
+[x] Update apps/web/app/admin/layout.tsx (thin shell, no guard)
+[x] Create apps/web/app/admin/_components/admin-nav.tsx (client nav with active state)
+[x] Create apps/web/app/api/auth/login/route.ts (proxies to NestJS, sets cookie)
+[x] Create apps/web/app/api/auth/logout/route.ts (deletes cookie, redirects)
+[x] Create apps/web/app/admin/(protected)/layout.tsx (sidebar + nav)
+[x] Create apps/web/app/admin/(protected)/dashboard/page.tsx (Tailwind-styled)
+[x] Create apps/web/app/admin/(protected)/spaces/[id]/page.tsx (Tailwind-styled)
+[x] Create apps/web/app/admin/(protected)/contracts/[id]/page.tsx (Tailwind-styled)
+[x] Create apps/web/app/admin/(protected)/tenants/[id]/page.tsx (stub)
+[x] Create apps/web/app/admin/login/login-form.tsx (client form)
+[x] Update apps/web/app/admin/login/page.tsx (renders LoginForm)
+
+---
+
+## Remaining Steps
+
+[ ] Update apps/web/app/layout.tsx (metadata title: Kasero)
+[ ] Update apps/web/app/page.tsx (Tailwind-styled home page)
+[ ] Update apps/web/app/public/layout.tsx (centered card wrapper)
+[ ] Update apps/web/app/public/[code]/page.tsx (Tailwind-styled)
+[ ] Update apps/web/app/entry/layout.tsx (centered card wrapper)
+[ ] Update apps/web/app/entry/[token]/page.tsx (styled error states)
+[ ] Update apps/web/app/entry/[token]/entry-form.tsx (Tailwind-styled form)
+[ ] Commit: "feat(web): implement UI overhaul with Tailwind"
+[ ] Run npm run test:e2e — verify all pass
+[ ] Run npm test — verify Jest tests still pass
+[ ] Commit: "test(e2e): verify all Playwright tests pass"
+[ ] Update CLAUDE.md with learnings
+[ ] Commit: "docs: update CLAUDE.md with UI/Playwright learnings"
+[ ] Create PR to staging
