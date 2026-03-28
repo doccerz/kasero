@@ -10,7 +10,7 @@ test.describe('Admin contract detail', () => {
     test('shows contract summary, amount due, and all ledger tables', async ({ page }) => {
         await page.goto('/admin/contracts/contract-1');
         await expect(page.getByText('Maria Santos')).toBeVisible();
-        await expect(page.getByText(/amount due/i)).toBeVisible();
+        await expect(page.getByText(/amount due/i).first()).toBeVisible();
         await expect(page.getByRole('heading', { name: /payables/i })).toBeVisible();
         await expect(page.getByRole('heading', { name: /payments/i })).toBeVisible();
         await expect(page.getByRole('heading', { name: /fund/i })).toBeVisible();
@@ -18,13 +18,13 @@ test.describe('Admin contract detail', () => {
 
     test('shows payables table data', async ({ page }) => {
         await page.goto('/admin/contracts/contract-1');
-        await expect(page.getByText('2025-01-01')).toBeVisible();
-        await expect(page.getByText('2025-02-01')).toBeVisible();
+        // Use role=cell to avoid matching the contract summary period text
+        await expect(page.getByRole('cell', { name: '2025-01-01' })).toBeVisible();
+        await expect(page.getByRole('cell', { name: '2025-02-01' })).toBeVisible();
     });
 
     test('shows voided payment with strikethrough styling', async ({ page }) => {
         await page.goto('/admin/contracts/contract-1');
-        // The voided payment row should have line-through
         const voidedRow = page.locator('tr', { hasText: '2025-02-12' });
         await expect(voidedRow).toBeVisible();
         await expect(voidedRow).toHaveClass(/line-through/);

@@ -15,10 +15,18 @@ test.describe('Entry form page', () => {
 
     test('shows already-used message for used token', async ({ page }) => {
         await page.goto('/entry/USEDTOKEN');
-        await expect(page.getByText(/already submitted/i)).toBeVisible();
+        await expect(page.getByText(/already been submitted/i)).toBeVisible();
     });
 
     test('shows success state after form submission', async ({ page }) => {
+        // Intercept the browser-side POST to the entry endpoint
+        await page.route('**/internal/tenants/entry/VALIDTOKEN', (route) => {
+            if (route.request().method() === 'POST') {
+                route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+            } else {
+                route.continue();
+            }
+        });
         await page.goto('/entry/VALIDTOKEN');
         await page.getByLabel(/first name/i).fill('Juan');
         await page.getByLabel(/last name/i).fill('Dela Cruz');
@@ -30,6 +38,18 @@ test.describe('Entry form page', () => {
     });
 
     test('shows error when submission fails', async ({ page }) => {
+        // Intercept the browser-side POST to the entry endpoint
+        await page.route('**/internal/tenants/entry/ERRORTOKEN', (route) => {
+            if (route.request().method() === 'POST') {
+                route.fulfill({
+                    status: 422,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ message: 'Validation failed' }),
+                });
+            } else {
+                route.continue();
+            }
+        });
         await page.goto('/entry/ERRORTOKEN');
         await page.getByLabel(/first name/i).fill('Juan');
         await page.getByLabel(/last name/i).fill('Dela Cruz');
