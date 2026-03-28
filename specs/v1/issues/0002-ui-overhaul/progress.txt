@@ -1,10 +1,11 @@
 ## Issue: Frontend UI Overhaul + Playwright E2E Tests
 Branch: feat/frontend-ui-e2e
 Started: 2026-03-28
+Completed: 2026-03-28
 
 ---
 
-## Status: IN PROGRESS
+## Status: COMPLETE ✓
 
 ---
 
@@ -25,7 +26,7 @@ Started: 2026-03-28
 [x] Create e2e/admin-contract.spec.ts
 [x] Commit: "test(e2e): add failing Playwright tests for all pages"
 
-[x] Create apps/web/middleware.ts (auth guard — replaces layout-level redirect)
+[x] Create apps/web/proxy.ts (auth guard — Next.js 16.2.1 renamed middleware → proxy)
 [x] Update apps/web/app/admin/layout.tsx (thin shell, no guard)
 [x] Create apps/web/app/admin/_components/admin-nav.tsx (client nav with active state)
 [x] Create apps/web/app/api/auth/login/route.ts (proxies to NestJS, sets cookie)
@@ -35,24 +36,37 @@ Started: 2026-03-28
 [x] Create apps/web/app/admin/(protected)/spaces/[id]/page.tsx (Tailwind-styled)
 [x] Create apps/web/app/admin/(protected)/contracts/[id]/page.tsx (Tailwind-styled)
 [x] Create apps/web/app/admin/(protected)/tenants/[id]/page.tsx (stub)
+[x] Create apps/web/app/admin/(protected)/spaces/page.tsx (stub)
+[x] Create apps/web/app/admin/(protected)/contracts/page.tsx (stub)
+[x] Create apps/web/app/admin/(protected)/tenants/page.tsx (stub)
 [x] Create apps/web/app/admin/login/login-form.tsx (client form)
 [x] Update apps/web/app/admin/login/page.tsx (renders LoginForm)
+[x] Update apps/web/app/layout.tsx (metadata title: Kasero)
+[x] Update apps/web/app/page.tsx (Tailwind-styled home page)
+[x] Update apps/web/app/public/layout.tsx (centered card wrapper)
+[x] Update apps/web/app/public/[code]/page.tsx (Tailwind-styled)
+[x] Update apps/web/app/entry/layout.tsx (centered card wrapper)
+[x] Update apps/web/app/entry/[token]/page.tsx (styled error states)
+[x] Update apps/web/app/entry/[token]/entry-form.tsx (Tailwind-styled form)
+[x] Commit: "feat(web): implement UI overhaul with Tailwind CSS"
+[x] Fix: rename middleware.ts → proxy.ts (Next.js 16.2.1 breaking change)
+[x] Fix: remove old admin page dirs that conflicted with (protected) group
+[x] Fix: Playwright test selectors for strict mode and browser-side POST intercept
+[x] Commit: "fix(web): resolve duplicate route conflicts and Next.js 16 proxy migration"
+[x] Verified: 24/24 Playwright tests pass
+[x] Verified: 8/8 Jest tests pass
+[x] Update CLAUDE.md with learnings
+[x] Create PR to staging
 
 ---
 
-## Remaining Steps
+## Notes / Learnings
 
-[ ] Update apps/web/app/layout.tsx (metadata title: Kasero)
-[ ] Update apps/web/app/page.tsx (Tailwind-styled home page)
-[ ] Update apps/web/app/public/layout.tsx (centered card wrapper)
-[ ] Update apps/web/app/public/[code]/page.tsx (Tailwind-styled)
-[ ] Update apps/web/app/entry/layout.tsx (centered card wrapper)
-[ ] Update apps/web/app/entry/[token]/page.tsx (styled error states)
-[ ] Update apps/web/app/entry/[token]/entry-form.tsx (Tailwind-styled form)
-[ ] Commit: "feat(web): implement UI overhaul with Tailwind"
-[ ] Run npm run test:e2e — verify all pass
-[ ] Run npm test — verify Jest tests still pass
-[ ] Commit: "test(e2e): verify all Playwright tests pass"
-[ ] Update CLAUDE.md with learnings
-[ ] Commit: "docs: update CLAUDE.md with UI/Playwright learnings"
-[ ] Create PR to staging
+- Next.js 16.2.1: `middleware.ts` is DEPRECATED — must use `proxy.ts` with `export function proxy()`
+- Route groups (protected) in Next.js app router: old pages at same URL path must be deleted to avoid
+  "parallel pages that resolve to the same path" build error
+- Playwright `page.route()` only intercepts BROWSER-side fetches, not server-side Node.js fetch calls
+  → Admin pages (server-side fetch) require a separate mock HTTP server (globalSetup) on a dedicated port
+  → Entry form POST (client-side fetch) can use page.route() directly in the test
+- Stale .next/ cache causes false tsc errors after moving pages — always `rm -rf .next` before type-checking
+  after restructuring routes
