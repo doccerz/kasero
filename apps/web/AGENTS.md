@@ -9,4 +9,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Server components that fetch data should be `async` functions; use `fetch(url, { cache: 'no-store' })` for dynamic data
 - `INTERNAL_API_URL` env var is available server-side for NestJS API calls (defined in `.env.example`)
 - Use `'use client'` directive for interactive forms/components; server components are the default
+- `outputFileTracingRoot` is a top-level `next.config.ts` option, NOT under `experimental`
+- React `style` prop requires `CSSProperties` objects (camelCase keys) — CSS strings are not valid
+
+## Verification
+- Run `npx tsc --noEmit` in `apps/web` to type-check without building
 <!-- END:nextjs-agent-rules -->

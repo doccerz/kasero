@@ -6,7 +6,7 @@
     - 
 - [Coding guidelines](./docs/coding-guidelines.md) - Coding guidelines, standards, and patterns
 - [Testing patterns](./docs/testing-patterns.md) - Testing patterns
-- [Git workflow](./docs/git-workflow.md) - Git workflow
+- [Git workflow](./docs/git-workflow.md) - Git workflow — **MUST follow for every task**: new branch per plan, commit after each meaningful change, open PR (never push directly to main/staging)
 - [Service workflows](./docs/service-workflows.md)
 - [CI/CD workflows](./docs/ci-cd-workflows.md) - Github actions documentation
 - [Security guidelines](./docs/security-guidelines.md) - Security guidelines
