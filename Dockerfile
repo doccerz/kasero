@@ -38,4 +38,4 @@ COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/drizzle ./drizzle
 COPY --from=deps /app/node_modules ./node_modules
 EXPOSE 3001
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]

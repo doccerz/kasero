@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { isDockerMode } from './auth-helper';
 
 test.describe('Entry form page', () => {
+    test.beforeEach(async () => {
+        test.skip(isDockerMode, 'Entry token tests require mock server fixtures (VALIDTOKEN, USEDTOKEN)');
+    });
+
     test('shows form for valid token', async ({ page }) => {
         await page.goto('/entry/VALIDTOKEN');
         await expect(page.getByRole('heading', { name: /enter your details/i })).toBeVisible();
@@ -19,7 +24,6 @@ test.describe('Entry form page', () => {
     });
 
     test('shows success state after form submission', async ({ page }) => {
-        // Intercept the browser-side POST to the entry endpoint
         await page.route('**/internal/tenants/entry/VALIDTOKEN', (route) => {
             if (route.request().method() === 'POST') {
                 route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
@@ -38,7 +42,6 @@ test.describe('Entry form page', () => {
     });
 
     test('shows error when submission fails', async ({ page }) => {
-        // Intercept the browser-side POST to the entry endpoint
         await page.route('**/internal/tenants/entry/ERRORTOKEN', (route) => {
             if (route.request().method() === 'POST') {
                 route.fulfill({

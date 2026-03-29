@@ -13,6 +13,14 @@
 
 # Input specs location
 
+## QA / SIT / UAT
+
+- SIT/UAT test cases live in `specs/v1/qa/cycle-N/plan.md` (e.g. `cycle-1`, `cycle-2`)
+- These are user-facing test cases — written as if the tester knows nothing about the code
+- Each test case includes: ID, Priority (P1/P2/P3), Preconditions, Steps, Expected Result
+- When creating new SIT/UAT cycles, base them only on documentation — do NOT reference code internals
+- The execution summary table at the end of each plan is filled in by human testers
+
 ## **IMPORTANT**: CLAUDE.md management
 - Always use mermaid.js syntax for workflows
 

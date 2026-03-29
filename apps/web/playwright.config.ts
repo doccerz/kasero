@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
+
 export default defineConfig({
     testDir: './e2e',
     fullyParallel: true,
@@ -10,7 +12,7 @@ export default defineConfig({
     globalSetup: './e2e/global-setup.ts',
     globalTeardown: './e2e/global-teardown.ts',
     use: {
-        baseURL: 'http://localhost:3000',
+        baseURL,
         trace: 'on-first-retry',
     },
     projects: [
@@ -19,13 +21,15 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] },
         },
     ],
-    webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-        env: {
-            INTERNAL_API_URL: 'http://localhost:3099',
-        },
-    },
+    webServer: process.env.PLAYWRIGHT_BASE_URL
+        ? undefined
+        : {
+              command: 'npm run dev',
+              url: 'http://localhost:3000',
+              reuseExistingServer: !process.env.CI,
+              timeout: 120_000,
+              env: {
+                  INTERNAL_API_URL: 'http://localhost:3099',
+              },
+          },
 });

@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { isDockerMode } from './auth-helper';
 
 test.describe('Public access page', () => {
+    test.beforeEach(async () => {
+        test.skip(isDockerMode, 'Public access tests require mock server fixtures (VALIDCODE)');
+    });
+
     test('shows amount due and payables table for valid code', async ({ page }) => {
         await page.goto('/public/VALIDCODE');
         await expect(page.getByText(/amount due/i)).toBeVisible();

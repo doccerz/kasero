@@ -43,6 +43,12 @@ const FIXTURES: Record<string, object | object[]> = {
             occupancyStatus: 'vacant',
         },
     ],
+    '/admin/spaces': [
+        { id: 'space-1', name: 'Unit 1A', description: 'Ground floor corner unit' },
+        { id: 'space-2', name: 'Unit 2B', description: 'Second floor unit' },
+        { id: 'space-3', name: 'Unit 3C', description: 'Third floor unit' },
+        { id: 'space-4', name: 'Unit 4D' },
+    ],
     '/admin/spaces/space-1': {
         id: 'space-1',
         name: 'Unit 1A',
@@ -52,6 +58,29 @@ const FIXTURES: Record<string, object | object[]> = {
         id: 'space-empty',
         name: 'Empty Unit',
     },
+    '/admin/tenants': [
+        {
+            id: 'tenant-1',
+            firstName: 'Maria',
+            lastName: 'Santos',
+            status: 'active',
+            contactInfo: { email: 'maria@example.com', phone: '+63 912 000 0001' },
+        },
+        {
+            id: 'tenant-2',
+            firstName: 'Jose',
+            lastName: 'Rizal',
+            status: 'active',
+            contactInfo: { email: 'jose@example.com', phone: '+63 912 000 0002' },
+        },
+    ],
+    '/admin/tenants/tenant-1': {
+        id: 'tenant-1',
+        firstName: 'Maria',
+        lastName: 'Santos',
+        status: 'active',
+        contactInfo: { email: 'maria@example.com', phone: '+63 912 000 0001' },
+    },
     '/admin/contracts': [
         {
             id: 'contract-1',
@@ -60,6 +89,7 @@ const FIXTURES: Record<string, object | object[]> = {
             tenantName: 'Maria Santos',
             startDate: '2025-01-01',
             endDate: '2025-12-31',
+            rentAmount: '8000.00',
             status: 'posted',
         },
         {
@@ -69,6 +99,7 @@ const FIXTURES: Record<string, object | object[]> = {
             tenantName: 'Jose Rizal',
             startDate: '2025-03-01',
             endDate: '2026-02-28',
+            rentAmount: '6000.00',
             status: 'draft',
         },
     ],
@@ -115,8 +146,16 @@ const FIXTURES: Record<string, object | object[]> = {
 
 let server: http.Server;
 
+function readBody(req: http.IncomingMessage): Promise<string> {
+    return new Promise((resolve) => {
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', () => resolve(Buffer.concat(chunks).toString()));
+    });
+}
+
 export default async function globalSetup() {
-    server = http.createServer((req, res) => {
+    server = http.createServer(async (req, res) => {
         const url = req.url ?? '/';
         const method = req.method ?? 'GET';
 
@@ -173,6 +212,62 @@ export default async function globalSetup() {
             return;
         }
 
+        // CRUD: spaces
+        if (url === '/admin/spaces' && method === 'POST') {
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const newSpace = { id: 'space-new', name: body.name, description: body.description ?? undefined };
+            res.writeHead(201);
+            res.end(JSON.stringify(newSpace));
+            return;
+        }
+
+        const spaceEditMatch = url.match(/^\/admin\/spaces\/([^/]+)$/);
+        if (spaceEditMatch) {
+            if (method === 'PATCH') {
+                const raw = await readBody(req);
+                const body = JSON.parse(raw || '{}');
+                const existing = FIXTURES[url] as Record<string, unknown> | undefined;
+                const updated = { ...(existing ?? { id: spaceEditMatch[1] }), ...body };
+                res.writeHead(200);
+                res.end(JSON.stringify(updated));
+                return;
+            }
+            if (method === 'DELETE') {
+                res.writeHead(204);
+                res.end();
+                return;
+            }
+        }
+
+        // CRUD: tenants
+        if (url === '/admin/tenants' && method === 'POST') {
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const newTenant = {
+                id: 'tenant-new',
+                firstName: body.firstName,
+                lastName: body.lastName,
+                status: 'active',
+                contactInfo: body.contactInfo ?? {},
+            };
+            res.writeHead(201);
+            res.end(JSON.stringify(newTenant));
+            return;
+        }
+
+        const tenantEditMatch = url.match(/^\/admin\/tenants\/([^/]+)$/);
+        if (tenantEditMatch && method === 'PATCH') {
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const existing = FIXTURES[url] as Record<string, unknown> | undefined;
+            const updated = { ...(existing ?? { id: tenantEditMatch[1] }), ...body };
+            res.writeHead(200);
+            res.end(JSON.stringify(updated));
+            return;
+        }
+
+        // Static fixtures (GET)
         const fixture = FIXTURES[url];
         if (fixture !== undefined) {
             res.writeHead(200);

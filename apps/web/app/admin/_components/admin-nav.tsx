@@ -5,6 +5,10 @@ import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
     { label: 'Dashboard', href: '/admin/dashboard' },
+    { label: 'Spaces', href: '/admin/spaces' },
+    { label: 'Tenants', href: '/admin/tenants' },
+    { label: 'Contracts', href: '/admin/contracts' },
+    { label: 'Profile', href: '/admin/profile' },
 ];
 
 export default function AdminNav() {

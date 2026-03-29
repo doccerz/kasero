@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -41,6 +42,12 @@ export default function HomePage() {
                         </button>
                     </form>
                 </div>
+                <p className="mt-4 text-center text-xs text-slate-400">
+                    Are you a landlord?{' '}
+                    <Link href="/admin/login" className="text-slate-600 hover:text-slate-800 underline underline-offset-2 transition-colors">
+                        Sign in here
+                    </Link>
+                </p>
             </div>
         </div>
     );
