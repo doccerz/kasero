@@ -12,6 +12,34 @@ Test critical paths and error handling.
 
 ---
 
+## SIT/UAT Playwright Tests (against Docker stack)
+
+SIT/UAT test specs live in `apps/web/e2e/sit-*.spec.ts`. Each file maps to a test group in `specs/v1/qa/cycle-N/plan.md`.
+
+### Prerequisites
+
+```bash
+# Start the full stack
+docker compose up -d --build
+```
+
+### Running a SIT spec
+
+```bash
+cd apps/web
+npx playwright test e2e/sit-auth.spec.ts --reporter=list
+```
+
+`PLAYWRIGHT_BASE_URL` defaults to `http://localhost:3000`. Admin credentials are read from env vars (`ADMIN_USERNAME`, `ADMIN_PASSWORD`) and default to values in `.env`.
+
+### Coverage mapping
+
+| Spec file | Test group |
+|-----------|-----------|
+| `e2e/sit-auth.spec.ts` | TC-AUTH-001 to TC-AUTH-005 |
+
+---
+
 ## Service Unit Test Mock Patterns
 
 ### Standard `buildMockDb` with join + transaction support
