@@ -47,9 +47,9 @@ docker compose up -d --build
 | TC-AUTH-003 | Login empty fields | Claude | 2026-03-29 | PASS | |
 | TC-AUTH-004 | Access protected page without login | Claude | 2026-03-29 | PASS | |
 | TC-AUTH-005 | Admin logout | Claude | 2026-03-29 | PASS | |
-| TC-DASH-001 | Dashboard space summary | | | | |
-| TC-DASH-002 | Overdue status | | | | |
-| TC-DASH-003 | Vacant status | | | | |
+| TC-DASH-001 | Dashboard space summary | Claude | 2026-03-29 | PASS | |
+| TC-DASH-002 | Overdue status | Claude | 2026-03-29 | BLOCKED | Precondition not met: no space with a posted overdue contract exists in current DB state |
+| TC-DASH-003 | Vacant status | Claude | 2026-03-29 | PASS | |
 | TC-SPACE-001 | Create space | | | | |
 | TC-SPACE-002 | Create space missing fields | | | | |
 | TC-SPACE-003 | View space details | | | | |

@@ -8,3 +8,14 @@
 - TC-AUTH-003: Login empty fields shows validation — PASS
 - TC-AUTH-004: Access protected page without login redirects to login — PASS
 - TC-AUTH-005: Admin logout redirects to login page — PASS
+
+### 2026-03-29 — Dashboard Group (TC-DASH-001 to TC-DASH-003)
+- Executed via: `node apps/web/run-sit-dash.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-dash.spec.ts (copied to apps/web/e2e/sit-dash.spec.ts)
+- DB state at time of testing: Unit 1A (vacant), Unit 2B (vacant) — no contracts posted
+- TC-DASH-001: Dashboard loads with space summary — PASS (table visible, Vacant badges shown)
+- TC-DASH-002: Overdue status displayed — BLOCKED (precondition not met: no space has a posted overdue contract in the current DB)
+- TC-DASH-003: Vacant space displayed on dashboard — PASS (Unit 1A and Unit 2B both show Vacant)
+- Learnings:
+  - Use setupAuth (POST to /api/auth/login via page.request) not UI login for beforeEach — more reliable than clicking through the form
+  - UI login via page.goto + button click sets a cookie but requires awaiting the full page navigation before page.goto() is called again
