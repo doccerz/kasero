@@ -81,11 +81,13 @@ docker compose up -d --build
 | TC-PUBLIC-002 | Invalid public link | Claude | 2026-03-29 | FAIL | Findings: Backend returns HTTP 500 instead of 404 for unknown public access codes; frontend renders "An error occurred. Please try again later." instead of "Invalid or expired access code."; How to replicate: navigate to /public/any-invalid-code; Expected: "Invalid or expired" error message; Actual: "An error occurred. Please try again later." |
 | TC-PUBLIC-003 | No internal IDs exposed publicly | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contract exists; cannot access a valid public status page to verify ID exposure |
 | TC-PUBLIC-004 | Tenant self-entry flow | Claude | 2026-03-29 | BLOCKED | Precondition not met: no entry tokens have been issued; contract creation/posting UI not yet implemented |
-| TC-INTEGRITY-001 | Timezone consistency | | | | |
-| TC-INTEGRITY-002 | Billing period alignment | | | | |
-| TC-INTEGRITY-003 | App loads without errors | | | | |
- 
---- 
+| TC-INTEGRITY-001 | Timezone consistency | Claude | 2026-03-29 | BLOCKED | Precondition not met: requires contract creation UI to create a contract with today's date; contract creation UI not yet implemented |
+| TC-INTEGRITY-002 | Billing period alignment | Claude | 2026-03-29 | BLOCKED | Precondition not met: requires a posted contract with monthly billing; contract creation/posting UI not yet implemented |
+| TC-INTEGRITY-003 | App loads without errors | Claude | 2026-03-29 | PASS | |
+
+<promise>COMPLETE</promise>
+
+---
 
 ## Test Case Conventions
 
