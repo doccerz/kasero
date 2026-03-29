@@ -69,3 +69,21 @@
   - Contract detail page (/admin/contracts/[id]) shows Payables/Payments/Fund ledger sections but has no Post/Edit/Record Payment actions
   - No API routes under apps/web/app/api/admin/ for contracts — all contract CRUD goes directly to NestJS backend
   - All TC-CONTRACT-* and TC-LEDGER-* and TC-PAYMENT-* tests will remain BLOCKED until contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment) is implemented
+
+### 2026-03-29 — Ledger & Payments Group (TC-LEDGER-001, TC-LEDGER-002, TC-PAYMENT-001 to TC-PAYMENT-004)
+- Executed via: `node apps/web/run-sit-ledger.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-ledger.spec.ts (copied to apps/web/e2e/sit-ledger.spec.ts)
+- DB state at time of testing: no contracts exist; no contract creation/posting UI available
+- TC-LEDGER-001: View contract ledger — BLOCKED (no posted contracts in DB; contract creation/posting UI not implemented)
+- TC-LEDGER-002: Amount due calculated correctly — BLOCKED (no posted contracts with payables; contract creation/posting UI not implemented)
+- TC-PAYMENT-001: Record a payment — BLOCKED (no posted contract with outstanding balance; no Record Payment button in contract detail page)
+- TC-PAYMENT-002: Record payment missing fields — BLOCKED (no Record Payment UI; cannot test form validation)
+- TC-PAYMENT-003: Void a payment — BLOCKED (no payments to void; no Void Payment UI on contract detail page)
+- TC-PAYMENT-004: Cannot re-void a voided payment — BLOCKED (no voided payments; void payment UI not implemented)
+- All 6 tests BLOCKED: entire ledger & payments group blocked on missing contract management frontend features
+- Playwright output: 6 skipped (0 passed, 0 failed)
+- Learnings:
+  - Contract detail page (/admin/contracts/[id]) renders Payables/Payments/Fund/Amount Due as a read-only ledger view
+  - No Record Payment button, no Void button, no Post Contract button found on contract detail page
+  - Confirmed via source code (apps/web/app/admin/(protected)/contracts/[id]/page.tsx): page is a pure Server Component with no interactive actions
+  - All ledger & payment tests depend on the same blocked prerequisite: contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment)

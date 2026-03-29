@@ -71,12 +71,12 @@ docker compose up -d --build
 | TC-CONTRACT-006 | Payables generated on post | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts exist; contract creation/posting UI not yet implemented |
 | TC-CONTRACT-007 | Advance payment in ledger | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts with advance payment; contract creation UI not yet implemented |
 | TC-CONTRACT-008 | Deposit in fund (not amount due) | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts with deposit; contract creation UI not yet implemented |
-| TC-LEDGER-001 | View ledger | | | | |
-| TC-LEDGER-002 | Amount due calculated correctly | | | | |
-| TC-PAYMENT-001 | Record payment | | | | |
-| TC-PAYMENT-002 | Record payment missing fields | | | | |
-| TC-PAYMENT-003 | Void payment | | | | |
-| TC-PAYMENT-004 | Cannot re-void a voided payment | | | | |
+| TC-LEDGER-001 | View ledger | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contract exists; contract creation/posting UI not yet implemented |
+| TC-LEDGER-002 | Amount due calculated correctly | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contract with payables exists; contract creation/posting UI not yet implemented |
+| TC-PAYMENT-001 | Record payment | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contract with outstanding balance; also no Record Payment button exists in contract detail page |
+| TC-PAYMENT-002 | Record payment missing fields | Claude | 2026-03-29 | BLOCKED | Precondition not met: no Record Payment UI implemented; cannot test form validation |
+| TC-PAYMENT-003 | Void payment | Claude | 2026-03-29 | BLOCKED | Precondition not met: no payments exist to void; no Void Payment UI implemented |
+| TC-PAYMENT-004 | Cannot re-void a voided payment | Claude | 2026-03-29 | BLOCKED | Precondition not met: no voided payments exist; void payment UI not yet implemented |
 | TC-PUBLIC-001 | Tenant views public status | | | | |
 | TC-PUBLIC-002 | Invalid public link | | | | |
 | TC-PUBLIC-003 | No internal IDs exposed publicly | | | | |
