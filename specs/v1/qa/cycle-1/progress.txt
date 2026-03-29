@@ -87,3 +87,17 @@
   - No Record Payment button, no Void button, no Post Contract button found on contract detail page
   - Confirmed via source code (apps/web/app/admin/(protected)/contracts/[id]/page.tsx): page is a pure Server Component with no interactive actions
   - All ledger & payment tests depend on the same blocked prerequisite: contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment)
+
+### 2026-03-29 — Tenant Status (Public View) Group (TC-PUBLIC-001 to TC-PUBLIC-004)
+- Executed via: `node apps/web/run-sit-public.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-public.spec.ts (copied to apps/web/e2e/sit-public.spec.ts)
+- DB state at time of testing: no posted contracts exist; no public access codes or entry tokens available
+- TC-PUBLIC-001: Tenant views public status — BLOCKED (precondition not met: no posted contract; no public access code available)
+- TC-PUBLIC-002: Invalid public link returns error — FAIL (backend returns HTTP 500 instead of 404 for unknown public access codes; frontend shows "An error occurred." instead of "Invalid or expired access code.")
+- TC-PUBLIC-003: No internal IDs exposed publicly — BLOCKED (precondition not met: no posted contract; cannot load a valid public page)
+- TC-PUBLIC-004: Tenant self-entry flow — BLOCKED (precondition not met: no entry tokens issued; contract creation/posting UI not yet implemented)
+- Playwright output: 1 failed (TC-PUBLIC-002), 3 skipped
+- Learnings:
+  - Backend returns HTTP 500 (not 404) for unknown public access codes — this causes the frontend to render the generic "An error occurred." message instead of "Invalid or expired access code."
+  - The entry token page (/entry/[token]) initialises status as 'invalid' so a 500 response from the backend falls through to the invalid path correctly
+  - TC-PUBLIC-001/003/004 remain BLOCKED until contract creation/posting UI is implemented (same root blocker as TC-CONTRACT-* group)
