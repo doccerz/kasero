@@ -49,3 +49,23 @@
   - Playwright strict mode: `getByText(/regex/)` fails when the regex matches multiple elements — use `getByRole('heading', { name: /contracts/i })` or `.first()` to disambiguate
   - Spaces use soft-delete; after delete the space disappears from the list (confirmed by router.refresh())
   - The contract creation UI is not yet implemented in the frontend — TC-SPACE-006 and any contract creation tests will be BLOCKED until Add Contract feature is built
+
+### 2026-03-29 — Contracts Management Group (TC-CONTRACT-001 to TC-CONTRACT-008)
+- Executed via: `node apps/web/run-sit-contracts.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-contracts.spec.ts (copied to apps/web/e2e/sit-contracts.spec.ts)
+- DB state at time of testing: no contracts exist; no contract creation UI available
+- TC-CONTRACT-001: Create a draft contract — BLOCKED (no Add Contract button in /admin/contracts; contract creation UI not implemented)
+- TC-CONTRACT-002: Edit a draft contract — BLOCKED (no draft contracts in DB; no contract creation UI)
+- TC-CONTRACT-003: Post a contract — BLOCKED (no draft contracts; no Post Contract button in contract detail page)
+- TC-CONTRACT-004: Posted contract fields locked — BLOCKED (no posted contracts in DB; no contract creation/posting UI)
+- TC-CONTRACT-005: No two active contracts per space — BLOCKED (no contract creation UI; cannot verify duplicate contract prevention)
+- TC-CONTRACT-006: Payables generated on post — BLOCKED (no posted contracts; no posting UI)
+- TC-CONTRACT-007: Advance payment in ledger — BLOCKED (no posted contracts with advance payment; no contract creation UI)
+- TC-CONTRACT-008: Deposit in fund (not amount due) — BLOCKED (no posted contracts with deposit; no contract creation UI)
+- All 8 tests BLOCKED: entire contracts group blocked on missing frontend features
+- Playwright output: 8 skipped (0 passed, 0 failed)
+- Learnings:
+  - Contract list page (/admin/contracts) only shows existing contracts — no Add Contract button
+  - Contract detail page (/admin/contracts/[id]) shows Payables/Payments/Fund ledger sections but has no Post/Edit/Record Payment actions
+  - No API routes under apps/web/app/api/admin/ for contracts — all contract CRUD goes directly to NestJS backend
+  - All TC-CONTRACT-* and TC-LEDGER-* and TC-PAYMENT-* tests will remain BLOCKED until contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment) is implemented

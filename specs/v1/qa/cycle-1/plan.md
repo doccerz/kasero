@@ -63,14 +63,14 @@ docker compose up -d --build
 | TC-TENANT-005 | Tenant cannot be deleted | Claude | 2026-03-29 | PASS | |
 | TC-TENANT-006 | Tenant active on contract start | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contract with start date ≤ today exists; contract creation UI not yet implemented |
 | TC-TENANT-007 | Tenant inactive after contract ends | Claude | 2026-03-29 | BLOCKED | Precondition not met: no expired contract exists in current DB state; contract creation UI not yet implemented |
-| TC-CONTRACT-001 | Create draft contract | | | | |
-| TC-CONTRACT-002 | Edit draft contract | | | | |
-| TC-CONTRACT-003 | Post contract | | | | |
-| TC-CONTRACT-004 | Posted contract fields locked | | | | |
-| TC-CONTRACT-005 | No two active contracts per space | | | | |
-| TC-CONTRACT-006 | Payables generated on post | | | | |
-| TC-CONTRACT-007 | Advance payment in ledger | | | | |
-| TC-CONTRACT-008 | Deposit in fund (not amount due) | | | | |
+| TC-CONTRACT-001 | Create draft contract | Claude | 2026-03-29 | BLOCKED | Precondition not met: no contract creation UI exists — Add Contract button not present in /admin/contracts |
+| TC-CONTRACT-002 | Edit draft contract | Claude | 2026-03-29 | BLOCKED | Precondition not met: no draft contracts in DB and no contract creation UI implemented |
+| TC-CONTRACT-003 | Post contract | Claude | 2026-03-29 | BLOCKED | Precondition not met: no draft contracts exist; no Post Contract button in contract detail page |
+| TC-CONTRACT-004 | Posted contract fields locked | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts in DB; contract creation/posting UI not yet implemented |
+| TC-CONTRACT-005 | No two active contracts per space | Claude | 2026-03-29 | BLOCKED | Precondition not met: contract creation UI not yet implemented; cannot verify duplicate contract prevention |
+| TC-CONTRACT-006 | Payables generated on post | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts exist; contract creation/posting UI not yet implemented |
+| TC-CONTRACT-007 | Advance payment in ledger | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts with advance payment; contract creation UI not yet implemented |
+| TC-CONTRACT-008 | Deposit in fund (not amount due) | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contracts with deposit; contract creation UI not yet implemented |
 | TC-LEDGER-001 | View ledger | | | | |
 | TC-LEDGER-002 | Amount due calculated correctly | | | | |
 | TC-PAYMENT-001 | Record payment | | | | |
