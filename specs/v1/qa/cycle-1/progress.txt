@@ -20,6 +20,22 @@
   - Use setupAuth (POST to /api/auth/login via page.request) not UI login for beforeEach — more reliable than clicking through the form
   - UI login via page.goto + button click sets a cookie but requires awaiting the full page navigation before page.goto() is called again
 
+### 2026-03-29 — Tenants Management Group (TC-TENANT-001 to TC-TENANT-007)
+- Executed via: `node apps/web/run-sit-tenants.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-tenants.spec.ts (copied to apps/web/e2e/sit-tenants.spec.ts)
+- DB state at time of testing: Maria Santos, Jose Rizal (seed tenants); no contracts posted
+- TC-TENANT-001: Create a new tenant — PASS (modal opens, form fills firstName/lastName/email, Create submits, tenant appears in list)
+- TC-TENANT-002: Create tenant missing required fields — PASS (HTML5 required validation blocks submission on firstName; modal stays open)
+- TC-TENANT-003: View tenant details — PASS (click tenant link navigates to detail page, heading matches name, Contracts section visible, Back link present)
+- TC-TENANT-004: Edit tenant — PASS (Edit button opens pre-filled modal, phone field updated, Save closes modal)
+- TC-TENANT-005: Tenant cannot be deleted — PASS (no Delete button found in any tenant row; tenants list is non-empty confirming test is not vacuously true)
+- TC-TENANT-006: Tenant active on contract start — BLOCKED (precondition not met: no posted contract with start date ≤ today; contract creation UI not yet implemented)
+- TC-TENANT-007: Tenant inactive after contract ends — BLOCKED (precondition not met: no expired contract exists; contract creation UI not yet implemented)
+- Learnings:
+  - Tenant detail page uses `<dl>` with `<dt>`/`<dd>` for Email/Phone/Status; use `page.getByText('Email')` for label visibility
+  - No delete path for tenants by design — TC-TENANT-005 confirms this at the UI level
+  - TC-TENANT-006/007 depend on contract lifecycle; will unblock once contract creation UI is implemented
+
 ### 2026-03-29 — Spaces Management Group (TC-SPACE-001 to TC-SPACE-006)
 - Executed via: `node apps/web/run-sit-spaces.js` against docker compose stack (http://localhost:3000)
 - Spec: specs/v1/qa/cycle-1/sit-spaces.spec.ts (copied to apps/web/e2e/sit-spaces.spec.ts)

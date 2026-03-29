@@ -56,13 +56,13 @@ docker compose up -d --build
 | TC-SPACE-004 | Edit space | Claude | 2026-03-29 | PASS | |
 | TC-SPACE-005 | Soft-delete space | Claude | 2026-03-29 | PASS | |
 | TC-SPACE-006 | Deleted space rejects contracts | Claude | 2026-03-29 | BLOCKED | Precondition not met: no contract creation UI with space selector exists — cannot verify deleted space exclusion from selection |
-| TC-TENANT-001 | Create tenant | | | | |
-| TC-TENANT-002 | Create tenant missing fields | | | | |
-| TC-TENANT-003 | View tenant details | | | | |
-| TC-TENANT-004 | Edit tenant | | | | |
-| TC-TENANT-005 | Tenant cannot be deleted | | | | |
-| TC-TENANT-006 | Tenant active on contract start | | | | |
-| TC-TENANT-007 | Tenant inactive after contract ends | | | | |
+| TC-TENANT-001 | Create tenant | Claude | 2026-03-29 | PASS | |
+| TC-TENANT-002 | Create tenant missing fields | Claude | 2026-03-29 | PASS | |
+| TC-TENANT-003 | View tenant details | Claude | 2026-03-29 | PASS | |
+| TC-TENANT-004 | Edit tenant | Claude | 2026-03-29 | PASS | |
+| TC-TENANT-005 | Tenant cannot be deleted | Claude | 2026-03-29 | PASS | |
+| TC-TENANT-006 | Tenant active on contract start | Claude | 2026-03-29 | BLOCKED | Precondition not met: no posted contract with start date ≤ today exists; contract creation UI not yet implemented |
+| TC-TENANT-007 | Tenant inactive after contract ends | Claude | 2026-03-29 | BLOCKED | Precondition not met: no expired contract exists in current DB state; contract creation UI not yet implemented |
 | TC-CONTRACT-001 | Create draft contract | | | | |
 | TC-CONTRACT-002 | Edit draft contract | | | | |
 | TC-CONTRACT-003 | Post contract | | | | |
