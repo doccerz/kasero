@@ -19,3 +19,17 @@
 - Learnings:
   - Use setupAuth (POST to /api/auth/login via page.request) not UI login for beforeEach — more reliable than clicking through the form
   - UI login via page.goto + button click sets a cookie but requires awaiting the full page navigation before page.goto() is called again
+
+### 2026-03-29 — Spaces Management Group (TC-SPACE-001 to TC-SPACE-006)
+- Executed via: `node apps/web/run-sit-spaces.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-spaces.spec.ts (copied to apps/web/e2e/sit-spaces.spec.ts)
+- TC-SPACE-001: Create a new space — PASS (modal opens, form fills, Create submits, space appears in list)
+- TC-SPACE-002: Create space missing required fields — PASS (HTML5 required validation blocks submission, modal stays open)
+- TC-SPACE-003: View space details — FAIL (test script strict mode violation: getByText(/contracts/i) matched 3 elements — nav link, section heading, and "No contracts" message; app functionality works correctly)
+- TC-SPACE-004: Edit an existing space — PASS (Edit button opens pre-filled modal, Save closes modal)
+- TC-SPACE-005: Soft-delete a space — PASS (Delete confirmation shown, confirmed delete removes space from list)
+- TC-SPACE-006: Deleted space rejects contracts — BLOCKED (no contract creation UI with space selector exists; cannot verify deleted space exclusion)
+- Learnings:
+  - Playwright strict mode: `getByText(/regex/)` fails when the regex matches multiple elements — use `getByRole('heading', { name: /contracts/i })` or `.first()` to disambiguate
+  - Spaces use soft-delete; after delete the space disappears from the list (confirmed by router.refresh())
+  - The contract creation UI is not yet implemented in the frontend — TC-SPACE-006 and any contract creation tests will be BLOCKED until Add Contract feature is built

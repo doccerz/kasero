@@ -50,12 +50,12 @@ docker compose up -d --build
 | TC-DASH-001 | Dashboard space summary | Claude | 2026-03-29 | PASS | |
 | TC-DASH-002 | Overdue status | Claude | 2026-03-29 | BLOCKED | Precondition not met: no space with a posted overdue contract exists in current DB state |
 | TC-DASH-003 | Vacant status | Claude | 2026-03-29 | PASS | |
-| TC-SPACE-001 | Create space | | | | |
-| TC-SPACE-002 | Create space missing fields | | | | |
-| TC-SPACE-003 | View space details | | | | |
-| TC-SPACE-004 | Edit space | | | | |
-| TC-SPACE-005 | Soft-delete space | | | | |
-| TC-SPACE-006 | Deleted space rejects contracts | | | | |
+| TC-SPACE-001 | Create space | Claude | 2026-03-29 | PASS | |
+| TC-SPACE-002 | Create space missing fields | Claude | 2026-03-29 | PASS | |
+| TC-SPACE-003 | View space details | Claude | 2026-03-29 | FAIL | Findings: Strict mode violation — `getByText(/contracts/i)` matched 3 elements (nav link, section heading "Contracts", "No contracts for this space."); How to replicate: navigate to /admin/spaces, click first space link, assert Contracts section; Expected: single "Contracts" section heading visible; Actual: assertion failed due to ambiguous locator matching 3 elements |
+| TC-SPACE-004 | Edit space | Claude | 2026-03-29 | PASS | |
+| TC-SPACE-005 | Soft-delete space | Claude | 2026-03-29 | PASS | |
+| TC-SPACE-006 | Deleted space rejects contracts | Claude | 2026-03-29 | BLOCKED | Precondition not met: no contract creation UI with space selector exists — cannot verify deleted space exclusion from selection |
 | TC-TENANT-001 | Create tenant | | | | |
 | TC-TENANT-002 | Create tenant missing fields | | | | |
 | TC-TENANT-003 | View tenant details | | | | |

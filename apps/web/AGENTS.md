@@ -14,12 +14,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **`middleware.ts` is DEPRECATED** — rename to `proxy.ts` and rename the export to `proxy()`: `export function proxy(request: NextRequest) {}`
 - Route groups `(protected)` do NOT change URLs but the old pages at the same path must be deleted — Next.js throws "parallel pages that resolve to the same path" otherwise
 - After restructuring routes, always `rm -rf .next` before `npx tsc --noEmit` to clear stale route type cache
+- **Stale `.next/` cache causes UI and proxy regressions** — if pages show old unstyled content or `/admin/login` enters a redirect loop (`ERR_TOO_MANY_REDIRECTS`), run `rm -rf .next` in `apps/web` and restart `npm run dev`. The compiled middleware manifest must be regenerated from the current `proxy.ts`.
+- **`proxy.ts` matcher must exclude paths that are redirect targets** — use a negative lookahead to exclude `/admin/login` from the matcher: `matcher: ['/admin/((?!login).+)']`. This prevents the proxy from running on the login page itself, eliminating any redirect loop if the matcher were ever broadened.
 
 ## Playwright E2E Testing
 - `page.route()` only intercepts **browser-side** fetches. Server-side `fetch()` calls (in server components/pages) are Node.js and NOT interceptable by `page.route()`
 - For server-side fetch mocking: start a mock HTTP server in `globalSetup.ts` and pass its URL via `INTERNAL_API_URL` in the `webServer.env` of `playwright.config.ts`
 - For client-side fetch mocking (e.g. form submissions): use `page.route('**/path/**', ...)` normally
 - Stale `.next/` cache causes false `tsc` errors after moving pages — `rm -rf .next` before type-checking after route restructuring
+- **Strict mode in Playwright**: `getByText(/regex/)` fails when the regex matches multiple elements — use `getByRole('heading', { name: /regex/i })` or `.first()` to disambiguate; avoid broad regex selectors on pages with navbars that repeat the same text
+- **SIT spec pattern**: save canonical spec in `specs/v1/qa/cycle-N/sit-<group>.spec.ts`, copy to `apps/web/e2e/sit-<group>.spec.ts`, and provide a `run-sit-<group>.js` runner in `apps/web/` that sets `PLAYWRIGHT_BASE_URL` and runs against the Docker stack
 
 ## Verification
 - Run `npx tsc --noEmit` in `apps/web` to type-check without building

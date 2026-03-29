@@ -259,6 +259,8 @@ See `.claude/rules/ci-cd-workflows.md` for the full pipeline diagram.
 |----------|----------|
 | v1 Project Specification | `specs/v1/kasero-v1-project-specs.md` |
 | Implementation Phases | `specs/v1/phases/` |
+| SIT/UAT Test Cases — Cycle 1 | `specs/v1/qa/cycle-1/plan.md` |
+| SIT Cycle 1 Execution Progress | `specs/v1/qa/cycle-1/progress.txt` |
 | Project Overview (internal) | `.claude/rules/project-overview.md` |
 | Coding Guidelines | `.claude/rules/coding-guidelines.md` |
 | Testing Patterns | `.claude/rules/testing-patterns.md` |
