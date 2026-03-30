@@ -77,7 +77,7 @@ test.describe('SIT Cycle 1 — Spaces Management', () => {
         await expect(page.getByRole('heading', { level: 1 })).toHaveText(spaceName!.trim());
 
         // Contracts section heading is present
-        await expect(page.getByText(/contracts/i)).toBeVisible();
+        await expect(page.getByRole('heading', { name: /contracts/i })).toBeVisible();
     });
 
     // ─── TC-SPACE-004 ──────────────────────────────────────────────────────────

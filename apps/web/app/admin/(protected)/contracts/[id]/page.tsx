@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import ContractDetailClient from './_components/contract-detail-client';
 
 interface Contract {
     id: string;
@@ -81,6 +82,9 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
 
             <h1 className="text-2xl font-bold text-slate-800 mb-4">Contract</h1>
 
+            {/* Client component: action buttons + interactive payments table */}
+            <ContractDetailClient contract={contract} payments={ledger?.payments ?? []} />
+
             {/* Contract summary */}
             <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6 text-sm grid grid-cols-2 gap-2">
                 <div><span className="font-medium text-slate-500">Tenant:</span> <span className="text-slate-800">{contract.tenantName ?? contract.tenantId}</span></div>
@@ -131,39 +135,13 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
                 </div>
             )}
 
-            {/* Payments */}
+            {/* Payments (read-only; interactive version rendered in ContractDetailClient) */}
             <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3 mt-6">
                 Payments
             </h2>
             {!ledger || ledger.payments.length === 0 ? (
                 <p className="text-slate-500 text-sm mb-6">No payments.</p>
-            ) : (
-                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-slate-200 bg-slate-50">
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Date</th>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Amount</th>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Voided</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {ledger.payments.map((p) => (
-                                <tr
-                                    key={p.id}
-                                    className={`border-b border-slate-100 ${
-                                        p.voidedAt ? 'line-through text-slate-400' : 'hover:bg-slate-50 text-slate-700'
-                                    }`}
-                                >
-                                    <td className="px-4 py-3">{p.date}</td>
-                                    <td className="px-4 py-3 font-mono">₱{p.amount}</td>
-                                    <td className="px-4 py-3">{p.voidedAt ? 'Yes' : 'No'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+            ) : null}
 
             {/* Fund */}
             <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3 mt-6">

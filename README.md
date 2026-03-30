@@ -16,6 +16,7 @@ Kasero is a private, internal application for managing apartment spaces, tenants
 - Admin dashboard showing all spaces sorted by urgency (overdue → nearing → occupied → vacant)
 - Space detail view with full contract history; contract ledger view with payables, payments, and fund
 - Admin-only access for all write operations
+- Full contract management UI: create contracts, edit drafts, post contracts, record payments, and void payments from the admin panel
 
 ---
 

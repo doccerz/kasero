@@ -1,0 +1,17 @@
+Group A (Bug Fixes) — COMPLETE
+  A1: Fixed Dockerfile CMD entry point (apps/web/server.js → server.js)
+  A2: Added UUID guard in public-access.service.ts to return 404 for non-UUID codes
+  A3: Fixed ambiguous Playwright locator in sit-spaces.spec.ts (getByText → getByRole heading)
+
+Group B (Contract Management UI) — COMPLETE
+  B1: Created 5 API proxy routes:
+        apps/web/app/api/admin/contracts/route.ts (POST create)
+        apps/web/app/api/admin/contracts/[id]/route.ts (PATCH update)
+        apps/web/app/api/admin/contracts/[id]/post/route.ts (POST post)
+        apps/web/app/api/admin/contracts/[id]/payments/route.ts (POST record payment)
+        apps/web/app/api/admin/payments/[id]/void/route.ts (POST void payment)
+  B2: Updated contracts/page.tsx to fetch tenants+spaces and delegate to ContractsClient
+      Created contracts/_components/contracts-client.tsx with "New Contract" button + creation modal
+  B3: Updated contracts/[id]/page.tsx to delegate actions to ContractDetailClient
+      Created contracts/[id]/_components/contract-detail-client.tsx with Edit/Post/RecordPayment/Void actions
+  TypeScript: npx tsc --noEmit passes with no errors
