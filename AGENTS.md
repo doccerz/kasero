@@ -1,39 +1,14 @@
-# [Project Name]
-
-## ⚠️ MANDATORY TASK WORKFLOW
-> **MUST follow for EVERY task — no exceptions, no shortcuts**
-
-### Before starting
-1. Create a new branch: `feat/issue-XXXX-short-desc` or `fix/issue-XXXX-short-desc`
-2. NEVER commit to or work on `main` or `staging` directly
-
-### TDD cycle — repeat per feature / fix
-3. Write failing tests first (unit and/or E2E as applicable)
-4. `git commit` the failing tests
-5. Implement the minimum code to make tests pass
-6. `git commit` the implementation
-7. Verify ALL tests pass (`npm test` + playwright if applicable)
-8. `git commit` the passing state
-
-### Finishing a task
-9. Update `CLAUDE.md` (or its referenced docs) with any new patterns or learnings from this task
-10. `git commit` the CLAUDE.md update
-11. Create a PR to `staging` — NEVER push directly to `staging` or `main`
-
-> See full detail: [TDD workflow](./docs/coding-guidelines.md) | [Git rules](./docs/git-workflow.md)
-
----
+# Kasero
 
 <!-- Detailed rules are split into focused files under ./docs/ -->
 
-- [Project overview](./docs/project-overview.md)
-    - 
-- [Coding guidelines](./docs/coding-guidelines.md) - Coding guidelines, standards, and patterns
-- [Testing patterns](./docs/testing-patterns.md) - Testing patterns
-- [Git workflow](./docs/git-workflow.md) - Git workflow — **MUST follow for every task**: new branch per plan, commit after each meaningful change, open PR (never push directly to main/staging)
-- [Service workflows](./docs/service-workflows.md)
-- [CI/CD workflows](./docs/ci-cd-workflows.md) - Github actions documentation
-- [Security guidelines](./docs/security-guidelines.md) - Security guidelines
+- [@./docs/project-overview.md](./docs/project-overview.md)
+- [@./docs/coding-guidelines.md](./docs/coding-guidelines.md) - Coding guidelines, standards, and patterns
+- [@./docs/testing-patterns.md](./docs/testing-patterns.md) - Testing patterns
+- [@./docs/git-workflow.md](./docs/git-workflow.md) - Git workflow — **MUST follow for every task**: new branch per plan, commit after each meaningful change, open PR (never push directly to main/staging)
+- [@./docs/service-workflows.md](./docs/service-workflows.md)
+- [@./docs/ci-cd-workflows.md](./docs/ci-cd-workflows.md) - Github actions documentation
+- [@./docs/security-guidelines.md](./docs/security-guidelines.md) - Security guidelines
 
 # Input specs location
 
@@ -44,6 +19,17 @@
 - Each test case includes: ID, Priority (P1/P2/P3), Preconditions, Steps, Expected Result
 - When creating new SIT/UAT cycles, base them only on documentation — do NOT reference code internals
 - The execution summary table at the end of each plan is filled in by human testers
+
+## **IMPORTANT**: Plan Execution Workflow
+- Plans and spec files describe **what** to build — they do NOT override the mandatory TDD workflow
+- When executing any plan (e.g., `@specs/v1/issues/XXXX/plan.md`), the mandatory task checklist in CLAUDE.md applies to **each phase or section independently** — no exceptions
+- For every phase: write failing tests first → commit → implement → commit → run full test suite → update CLAUDE.md → commit CLAUDE.md → open PR to staging
+- Tests passing (step 5) is **NOT** phase completion — steps 7–9 are mandatory deliverables for every phase
+- Do NOT start the next phase until the current one has an open PR on staging
+- After tests pass, immediately ask: "Have I updated CLAUDE.md? Have I opened a PR to staging?" If no to either — do it now before continuing
+
+> **CRITICAL**: Plan files describe WHAT to build. They do NOT override the mandatory workflow in CLAUDE.md.
+> If a plan's section omits the PR step or names a wrong target branch, CLAUDE.md takes precedence. Always PR to `staging`, never directly to `main`.
 
 ## **IMPORTANT**: CLAUDE.md management
 - Always use mermaid.js syntax for workflows
