@@ -210,6 +210,28 @@ describe('LedgersService.getLedger', () => {
         const result = await service.getLedger(contractId);
         expect(result.amount_due).toBe('0.00');
     });
+
+    it('payable with future billingDate but past dueDate → excluded from amount_due', async () => {
+        const payableRows = [
+            { id: 'p1', contractId, dueDate: '2024-01-01', billingDate: '2099-12-31', amount: '1000.00', periodStart: '2024-01-01', periodEnd: '2024-01-31' },
+        ];
+        const mockDb = buildMockDbForLedger({ payableRows });
+        const service = await createService(mockDb);
+
+        const result = await service.getLedger(contractId, '2024-06-01');
+        expect(result.amount_due).toBe('0.00');
+    });
+
+    it('payable with past billingDate and future dueDate → included in amount_due', async () => {
+        const payableRows = [
+            { id: 'p1', contractId, dueDate: '2099-12-31', billingDate: '2024-01-01', amount: '1000.00', periodStart: '2024-01-01', periodEnd: '2024-01-31' },
+        ];
+        const mockDb = buildMockDbForLedger({ payableRows });
+        const service = await createService(mockDb);
+
+        const result = await service.getLedger(contractId, '2024-06-01');
+        expect(result.amount_due).toBe('1000.00');
+    });
 });
 
 // ────────────────────────────────────────────────────────────────────

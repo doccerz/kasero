@@ -153,6 +153,47 @@ describe('generatePayables', () => {
         // Second period starts Feb 28/29, not March 3
         expect(rows[1].periodStart).toMatch(/^2024-02-/);
     });
+
+    it('billingDateRule provided → billingDate field set per billing period', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-01-01',
+            endDate: '2024-03-31',
+            rentAmount: '1000.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+            billingDateRule: 20,
+        });
+        expect(rows).toHaveLength(3);
+        expect(rows[0].billingDate).toBe('2024-01-20');
+        expect(rows[1].billingDate).toBe('2024-02-20');
+        expect(rows[2].billingDate).toBe('2024-03-20');
+    });
+
+    it('billingDateRule absent → billingDate equals dueDate', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-01-01',
+            endDate: '2024-01-31',
+            rentAmount: '1000.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+        });
+        expect(rows[0].billingDate).toBe(rows[0].dueDate);
+    });
+
+    it('billingDateRule clamped in February (leap year) when billingDateRule=31', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-02-01',
+            endDate: '2024-02-29',
+            rentAmount: '500.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+            billingDateRule: 31,
+        });
+        expect(rows[0].billingDate).toBe('2024-02-29');
+    });
 });
 
 // ────────────────────────────────────────────────────────────────────
