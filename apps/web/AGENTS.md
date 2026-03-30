@@ -24,6 +24,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Stale `.next/` cache causes false `tsc` errors after moving pages — `rm -rf .next` before type-checking after route restructuring
 - **Strict mode in Playwright**: `getByText(/regex/)` fails when the regex matches multiple elements — use `getByRole('heading', { name: /regex/i })` or `.first()` to disambiguate; avoid broad regex selectors on pages with navbars that repeat the same text
 - **SIT spec pattern**: save canonical spec in `specs/v1/qa/cycle-N/sit-<group>.spec.ts`, copy to `apps/web/e2e/sit-<group>.spec.ts`, and provide a `run-sit-<group>.js` runner in `apps/web/` that sets `PLAYWRIGHT_BASE_URL` and runs against the Docker stack
+- **`getByRole('dialog')` requires `role="dialog"` on the modal element** — CSS-only overlays (e.g. `<div className="fixed inset-0 ...">`) are not semantically dialogs; add `role="dialog"` to the inner content div
+- **`getByLabel()` requires associated labels** — use `htmlFor` on `<label>` paired with `id` on `<input>`; without this Playwright cannot locate form fields by label
+- **SIT tests run against dev server by default** (`reuseExistingServer: true`) — running a Docker web container on port 3000 causes tests to hit the real API instead of the mock; stop the Docker web container before running `npx playwright test`
+- **Mock server must handle all mutation endpoints** — add POST handlers for create/update/delete/void to `global-setup.ts`; missing handlers return 404 causing client-side error state and failed assertions
 
 ## Verification
 - Run `npx tsc --noEmit` in `apps/web` to type-check without building

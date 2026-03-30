@@ -237,7 +237,7 @@ export default function ContractDetailClient({
             {/* Edit Modal */}
             {showEditModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                    <div role="dialog" className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="px-6 py-4 border-b border-slate-200">
                             <h2 className="text-base font-semibold text-slate-800">Edit Contract</h2>
                         </div>
@@ -339,7 +339,7 @@ export default function ContractDetailClient({
             {/* Post Confirmation */}
             {showPostConfirm && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-sm mx-4">
+                    <div role="dialog" className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-sm mx-4">
                         <div className="px-6 py-4 border-b border-slate-200">
                             <h2 className="text-base font-semibold text-slate-800">Post Contract</h2>
                         </div>
@@ -372,16 +372,17 @@ export default function ContractDetailClient({
             {/* Record Payment Modal */}
             {showPaymentModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-md mx-4">
+                    <div role="dialog" className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-md mx-4">
                         <div className="px-6 py-4 border-b border-slate-200">
                             <h2 className="text-base font-semibold text-slate-800">Record Payment</h2>
                         </div>
                         <form onSubmit={handleRecordPayment} className="px-6 py-4 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="payment-amount" className="block text-sm font-medium text-slate-700 mb-1">
                                     Amount <span className="text-red-500">*</span>
                                 </label>
                                 <input
+                                    id="payment-amount"
                                     type="number"
                                     required
                                     min="0"
@@ -393,10 +394,11 @@ export default function ContractDetailClient({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="payment-date" className="block text-sm font-medium text-slate-700 mb-1">
                                     Date <span className="text-red-500">*</span>
                                 </label>
                                 <input
+                                    id="payment-date"
                                     type="date"
                                     required
                                     value={paymentForm.date}
@@ -419,7 +421,7 @@ export default function ContractDetailClient({
                                     disabled={loading}
                                     className="px-4 py-2 text-sm bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
                                 >
-                                    {loading ? 'Recording…' : 'Record Payment'}
+                                    {loading ? 'Saving…' : 'Save'}
                                 </button>
                             </div>
                         </form>

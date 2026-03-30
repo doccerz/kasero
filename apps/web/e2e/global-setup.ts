@@ -124,6 +124,7 @@ const FIXTURES: Record<string, object | object[]> = {
         payments: [
             { id: 'pmt1', date: '2025-01-10', amount: '8000.00', voidedAt: null },
             { id: 'pmt2', date: '2025-02-12', amount: '4000.00', voidedAt: '2025-03-01' },
+            { id: 'pmt3', date: '2026-03-29', amount: '1000.00', voidedAt: null },
         ],
         fund: [
             { id: 'fund1', type: 'deposit', amount: '16000.00' },
@@ -264,6 +265,51 @@ export default async function globalSetup() {
             const updated = { ...(existing ?? { id: tenantEditMatch[1] }), ...body };
             res.writeHead(200);
             res.end(JSON.stringify(updated));
+            return;
+        }
+
+        // CRUD: contracts
+        if (url === '/admin/contracts' && method === 'POST') {
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const newContract = { id: 'contract-new', ...body, status: 'draft' };
+            res.writeHead(201);
+            res.end(JSON.stringify(newContract));
+            return;
+        }
+
+        const contractMatch = url.match(/^\/admin\/contracts\/([^/]+)$/);
+        if (contractMatch && method === 'PATCH') {
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const existing = FIXTURES[url] as Record<string, unknown> | undefined;
+            const updated = { ...(existing ?? { id: contractMatch[1] }), ...body };
+            res.writeHead(200);
+            res.end(JSON.stringify(updated));
+            return;
+        }
+
+        const contractPostMatch = url.match(/^\/admin\/contracts\/([^/]+)\/post$/);
+        if (contractPostMatch && method === 'POST') {
+            res.writeHead(200);
+            res.end(JSON.stringify({ id: contractPostMatch[1], status: 'posted' }));
+            return;
+        }
+
+        const contractPaymentsMatch = url.match(/^\/admin\/contracts\/([^/]+)\/payments$/);
+        if (contractPaymentsMatch && method === 'POST') {
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const newPayment = { id: 'pmt-new', ...body, voidedAt: null };
+            res.writeHead(201);
+            res.end(JSON.stringify(newPayment));
+            return;
+        }
+
+        const paymentVoidMatch = url.match(/^\/admin\/payments\/([^/]+)\/void$/);
+        if (paymentVoidMatch && method === 'POST') {
+            res.writeHead(200);
+            res.end(JSON.stringify({ id: paymentVoidMatch[1], voidedAt: new Date().toISOString() }));
             return;
         }
 

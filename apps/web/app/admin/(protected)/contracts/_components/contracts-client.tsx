@@ -183,7 +183,7 @@ export default function ContractsClient({
 
             {showModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                    <div role="dialog" className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="px-6 py-4 border-b border-slate-200">
                             <h2 className="text-base font-semibold text-slate-800">New Contract</h2>
                         </div>
