@@ -11,18 +11,19 @@
 
 - You must not pull or download packages that we don't need yet
 
-### Use test driven development
-> **IMPORTANT**: MUST follow strictly — applies unconditionally, even when Claude is invoked non-interactively via a prompt parameter
+### ⚠️ Use test-driven development (TDD)
+> **CRITICAL — MUST follow strictly — applies unconditionally, even in non-interactive/automated runs**
 
 ```mermaid
 graph TD
-    A[Write failing tests]
+    A0[Create branch: feat/fix/issue-XXXX]
+    A0 --> A[Write failing tests]
     A --> B[Git commit]
-    B --> C[Execute plan]
+    B --> C[Implement — minimum code to pass]
     C --> D[Git commit]
     D --> E[Pass the tests for the task]
     E --> F[Git commit]
-    F --> G[Pass all tests]
+    F --> G[Pass ALL tests]
     G --> H[Mark task done]
     H --> I[Git commit]
     I --> J[Update CLAUDE.md]
