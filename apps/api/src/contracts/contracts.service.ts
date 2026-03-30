@@ -30,10 +30,11 @@ export interface GeneratePayablesParams {
     rentAmount: string;
     billingFrequency: 'monthly' | 'quarterly' | 'annually';
     dueDateRule: number;
+    billingDateRule?: number;
 }
 
 export function generatePayables(params: GeneratePayablesParams) {
-    const { contractId, startDate, endDate, rentAmount, billingFrequency, dueDateRule } = params;
+    const { contractId, startDate, endDate, rentAmount, billingFrequency, dueDateRule, billingDateRule } = params;
 
     const stepMap: Record<string, number> = { monthly: 1, quarterly: 3, annually: 12 };
     const step = stepMap[billingFrequency];
@@ -48,6 +49,7 @@ export function generatePayables(params: GeneratePayablesParams) {
         periodEnd: string;
         amount: string;
         dueDate: string;
+        billingDate: string;
     }> = [];
 
     let [cy, cm, cd] = [sy, sm, sd];
@@ -75,7 +77,11 @@ export function generatePayables(params: GeneratePayablesParams) {
         const clampedDue = Math.min(dueDateRule, daysInMonth(cy, cm));
         const dueDate = toYMD(cy, cm, clampedDue);
 
-        result.push({ contractId, periodStart, periodEnd: toYMD(pey, pem, ped), amount: rentAmount, dueDate });
+        const billingDate = billingDateRule != null
+            ? toYMD(cy, cm, Math.min(billingDateRule, daysInMonth(cy, cm)))
+            : dueDate;
+
+        result.push({ contractId, periodStart, periodEnd: toYMD(pey, pem, ped), amount: rentAmount, dueDate, billingDate });
 
         [cy, cm, cd] = [ny, nm, nd];
     }
@@ -145,6 +151,7 @@ export class ContractsService {
             rentAmount: existing.rentAmount,
             billingFrequency: existing.billingFrequency,
             dueDateRule: existing.dueDateRule,
+            ...(existing.billingDateRule != null ? { billingDateRule: existing.billingDateRule } : {}),
         });
 
         try {

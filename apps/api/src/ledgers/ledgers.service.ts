@@ -26,7 +26,7 @@ export class LedgersService {
         ]);
 
         const totalOwed = payableRows
-            .filter((p: any) => p.dueDate <= refDate)
+            .filter((p: any) => (p.billingDate ?? p.dueDate) <= refDate)
             .reduce((sum: number, p: any) => sum + parseFloat(p.amount), 0);
 
         const totalPaid = paymentRows
