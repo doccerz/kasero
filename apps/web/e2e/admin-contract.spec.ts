@@ -35,4 +35,11 @@ test.describe('Admin contract detail', () => {
         await page.goto('/admin/contracts/bad-id');
         await expect(page.getByText(/contract not found/i)).toBeVisible();
     });
+
+    test('POST /api/admin/contracts/:id/void proxies to backend and returns 200', async ({ request }) => {
+        const res = await request.post('/api/admin/contracts/contract-1/void');
+        expect(res.status()).toBe(200);
+        const body = await res.json();
+        expect(body).toMatchObject({ id: 'contract-1', status: 'voided' });
+    });
 });

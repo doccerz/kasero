@@ -296,6 +296,13 @@ export default async function globalSetup() {
             return;
         }
 
+        const contractVoidMatch = url.match(/^\/admin\/contracts\/([^/]+)\/void$/);
+        if (contractVoidMatch && method === 'POST') {
+            res.writeHead(200);
+            res.end(JSON.stringify({ id: contractVoidMatch[1], status: 'voided' }));
+            return;
+        }
+
         const contractPaymentsMatch = url.match(/^\/admin\/contracts\/([^/]+)\/payments$/);
         if (contractPaymentsMatch && method === 'POST') {
             const raw = await readBody(req);
