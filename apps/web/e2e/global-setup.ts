@@ -143,6 +143,7 @@ const FIXTURES: Record<string, object | object[]> = {
     },
     '/internal/tenants/entry/VALIDTOKEN': { status: 'valid' },
     '/auth/login': { access_token: 'mock-jwt-token' },
+    '/admin/profile': { id: '1', username: 'admin', name: null, email: null },
 };
 
 let server: http.Server;
