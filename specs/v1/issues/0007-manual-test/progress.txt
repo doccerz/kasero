@@ -1,0 +1,1 @@
+Phase 1 COMPLETE: Created migration 0007_profile_void_billing.sql; updated schema.ts — added 'voided' to contractStatusEnum, billingDateRule to contracts, billingDate to payables, name/email to adminUsers.

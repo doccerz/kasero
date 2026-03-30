@@ -13,7 +13,7 @@ import {
 
 export const tenantStatusEnum = pgEnum('tenant_status', ['active', 'inactive']);
 export const billingFrequencyEnum = pgEnum('billing_frequency', ['monthly', 'quarterly', 'annually']);
-export const contractStatusEnum = pgEnum('contract_status', ['draft', 'posted']);
+export const contractStatusEnum = pgEnum('contract_status', ['draft', 'posted', 'voided']);
 export const fundTypeEnum = pgEnum('fund_type', ['deposit', 'excess']);
 export const auditActionEnum = pgEnum('audit_action', ['void', 'state_change']);
 
@@ -50,6 +50,7 @@ export const contracts = pgTable('contracts', {
     rentAmount: numeric('rent_amount', { precision: 12, scale: 2 }).notNull(),
     billingFrequency: billingFrequencyEnum('billing_frequency').notNull(),
     dueDateRule: integer('due_date_rule').notNull(),
+    billingDateRule: integer('billing_date_rule'),
     depositAmount: numeric('deposit_amount', { precision: 12, scale: 2 }),
     advanceMonths: integer('advance_months'),
     status: contractStatusEnum('status').notNull().default('draft'),
@@ -65,6 +66,7 @@ export const payables = pgTable('payables', {
     periodEnd: date('period_end').notNull(),
     amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
     dueDate: date('due_date').notNull(),
+    billingDate: date('billing_date'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -102,6 +104,8 @@ export const adminUsers = pgTable('admin_users', {
     id: uuid('id').defaultRandom().primaryKey(),
     username: text('username').notNull(),
     passwordHash: text('password_hash').notNull(),
+    name: text('name'),
+    email: text('email'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (t) => [unique().on(t.username)]);
 
