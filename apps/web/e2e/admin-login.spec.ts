@@ -24,7 +24,7 @@ test.describe('Admin login page', () => {
         await expect(page.getByText(/invalid credentials/i)).toBeVisible();
     });
 
-    test('redirects to dashboard on successful login', async ({ page }) => {
+    test('redirects to spaces on successful login', async ({ page }) => {
         // Intercept the browser-side POST to /api/auth/login (Next.js Route Handler)
         await page.route('**/api/auth/login', async (route) => {
             await route.fulfill({
@@ -38,6 +38,6 @@ test.describe('Admin login page', () => {
         await page.getByLabel(/username/i).fill('admin');
         await page.getByLabel(/password/i).fill('password');
         await page.getByRole('button', { name: /log in/i }).click();
-        await expect(page).toHaveURL('/admin/dashboard');
+        await expect(page).toHaveURL('/admin/spaces');
     });
 });

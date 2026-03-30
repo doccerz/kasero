@@ -12,9 +12,9 @@ test.describe('SIT Cycle 1 — Dashboard', () => {
     });
 
     test('TC-DASH-001: Dashboard loads with space summary', async ({ page }) => {
-        await page.goto('/admin/dashboard');
+        await page.goto('/admin/spaces');
         // Heading is visible
-        await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /spaces/i })).toBeVisible();
         // Either a table with spaces or an empty-state message
         const table = page.getByRole('table');
         const emptyMsg = page.getByText(/no spaces found/i);
@@ -29,7 +29,7 @@ test.describe('SIT Cycle 1 — Dashboard', () => {
     });
 
     test('TC-DASH-002: Overdue space appears at top of dashboard', async ({ page }) => {
-        await page.goto('/admin/dashboard');
+        await page.goto('/admin/spaces');
         const overdueBadges = page.locator('span').filter({ hasText: /overdue/i });
         const count = await overdueBadges.count();
         // Precondition: a space with overdue balance must exist
@@ -41,7 +41,7 @@ test.describe('SIT Cycle 1 — Dashboard', () => {
     });
 
     test('TC-DASH-003: Vacant space appears on dashboard', async ({ page }) => {
-        await page.goto('/admin/dashboard');
+        await page.goto('/admin/spaces');
         // At least one vacant badge should be visible
         const vacantBadge = page.locator('span').filter({ hasText: /vacant/i });
         await expect(vacantBadge.first()).toBeVisible();

@@ -1,0 +1,1 @@
+Implement the next incomplete task. Tag the task as complete once done and update progress.txt on what you did. If all tasks are complete, write <promise>COMPLETE</promise> into plan.md.

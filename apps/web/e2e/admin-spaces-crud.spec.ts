@@ -10,7 +10,9 @@ test.describe('Admin spaces CRUD', () => {
         await page.goto('/admin/spaces');
         await expect(page.getByRole('heading', { name: 'Spaces' })).toBeVisible();
         await expect(page.getByRole('link', { name: 'Unit 1A' })).toBeVisible();
-        await expect(page.getByText('Ground floor corner unit')).toBeVisible();
+        // Status badge column is present
+        const badges = page.locator('span').filter({ hasText: /overdue|nearing|occupied|vacant/i });
+        await expect(badges.first()).toBeVisible();
     });
 
     test('shows New Space button', async ({ page }) => {

@@ -23,7 +23,7 @@ export default function LoginForm() {
             });
 
             if (res.ok) {
-                router.push('/admin/dashboard');
+                router.push('/admin/spaces');
             } else {
                 const body = await res.json().catch(() => ({}));
                 setError(body.message ?? 'Invalid credentials. Please try again.');
