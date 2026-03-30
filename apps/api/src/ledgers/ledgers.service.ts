@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { eq, isNull } from 'drizzle-orm';
 import { DB_TOKEN } from '../database/database.module';
-import { payables, payments, fund } from '../database/schema';
+import { contracts, payables, payments, fund } from '../database/schema';
 
 export interface LedgerView {
     payables: any[];
@@ -39,8 +39,11 @@ export class LedgersService {
     }
 
     async recordPayment(contractId: string, data: { amount: string; date?: string }): Promise<PaymentRow> {
-        const date = data.date ?? new Date().toISOString().split('T')[0];
+        const [contract] = await this.db.select().from(contracts).where(eq(contracts.id, contractId));
+        if (!contract) throw new NotFoundException('Contract not found');
+        if (contract.status === 'voided') throw new BadRequestException('Cannot record payment on a voided contract');
 
+        const date = data.date ?? new Date().toISOString().split('T')[0];
         const [row] = await this.db
             .insert(payments)
             .values({ contractId, amount: data.amount, date })

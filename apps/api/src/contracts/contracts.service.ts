@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { eq, sql, getTableColumns } from 'drizzle-orm';
 import { DB_TOKEN } from '../database/database.module';
-import { contracts, tenants, payables, payments, fund, publicAccessCodes } from '../database/schema';
+import { contracts, tenants, payables, payments, fund, publicAccessCodes, audit } from '../database/schema';
 
 // ────────────────────────────────────────────────────────────────────
 // Pure helpers
@@ -187,6 +187,22 @@ export class ContractsService {
             }
             throw err;
         }
+    }
+
+    async void(id: string) {
+        const existing = await this.findOne(id);
+        if (existing.status !== 'posted') {
+            throw new BadRequestException('Only posted contracts can be voided');
+        }
+        return await this.db.transaction(async (tx: any) => {
+            const [voided] = await tx
+                .update(contracts)
+                .set({ status: 'voided', updatedAt: new Date() })
+                .where(eq(contracts.id, id))
+                .returning();
+            await tx.insert(audit).values({ entityType: 'contract', entityId: id, action: 'void' });
+            return voided;
+        });
     }
 
     async revokeAccessCode(contractId: string) {

@@ -220,8 +220,9 @@ describe('LedgersService.recordPayment', () => {
     const contractId = 'contract-uuid';
 
     it('inserts payment with provided date', async () => {
+        const activeContract = { id: contractId, status: 'posted' };
         const newPayment = { id: 'pm-new', contractId, amount: '500.00', date: '2024-06-01', voidedAt: null };
-        const mockDb = buildMockDbForInsert({ mutationRows: [newPayment] });
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract, mutationRows: [newPayment] });
         const service = await createService(mockDb);
 
         const result = await service.recordPayment(contractId, { amount: '500.00', date: '2024-06-01' });
@@ -233,8 +234,9 @@ describe('LedgersService.recordPayment', () => {
 
     it('defaults date to today when not provided', async () => {
         const today = new Date().toISOString().split('T')[0];
+        const activeContract = { id: contractId, status: 'posted' };
         const newPayment = { id: 'pm-new', contractId, amount: '200.00', date: today, voidedAt: null };
-        const mockDb = buildMockDbForInsert({ mutationRows: [newPayment] });
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract, mutationRows: [newPayment] });
         const service = await createService(mockDb);
 
         await service.recordPayment(contractId, { amount: '200.00' });
