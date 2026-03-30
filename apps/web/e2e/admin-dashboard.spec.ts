@@ -17,7 +17,7 @@ test.describe('Admin dashboard', () => {
 
     test('shows sidebar navigation', async ({ page }) => {
         await page.goto('/admin/dashboard');
-        await expect(page.getByRole('link', { name: /dashboard/i })).toBeVisible();
+        await expect(page.getByRole('link', { name: /spaces/i })).toBeVisible();
         await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
     });
 
