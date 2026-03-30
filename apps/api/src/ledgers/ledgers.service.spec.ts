@@ -72,6 +72,19 @@ function buildMockDbForInsert({ mutationRows = [] as any[] } = {}) {
     };
 }
 
+function buildMockDbForRecordPayment({ contractRow = null as any, mutationRows = [] as any[] } = {}) {
+    const contractWhere = jest.fn().mockResolvedValue(contractRow ? [contractRow] : []);
+    const contractFrom = jest.fn().mockReturnValue({ where: contractWhere });
+
+    const returning = jest.fn().mockResolvedValue(mutationRows);
+    const values = jest.fn().mockReturnValue({ returning });
+
+    return {
+        select: jest.fn().mockReturnValue({ from: contractFrom }),
+        insert: jest.fn().mockReturnValue({ values }),
+    };
+}
+
 async function createService(mockDb: any): Promise<LedgersService> {
     const module = await Test.createTestingModule({
         providers: [
@@ -228,6 +241,16 @@ describe('LedgersService.recordPayment', () => {
 
         const [insertedValues] = mockDb.insert().values.mock.calls;
         expect(insertedValues[0].date).toBe(today);
+    });
+
+    it('throws BadRequestException when contract is voided', async () => {
+        const voidedContract = { id: contractId, status: 'voided' };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: voidedContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: '500.00' }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
     });
 });
 

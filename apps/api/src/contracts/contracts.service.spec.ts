@@ -405,6 +405,55 @@ describe('ContractsService', () => {
         });
     });
 
+    describe('void', () => {
+        function buildVoidTxMock(contractRow: any) {
+            return {
+                update: jest.fn().mockReturnValue({
+                    set: jest.fn().mockReturnValue({
+                        where: jest.fn().mockReturnValue({
+                            returning: jest.fn().mockResolvedValue([contractRow]),
+                        }),
+                    }),
+                }),
+                insert: jest.fn().mockReturnValue({
+                    values: jest.fn().mockReturnValue({
+                        returning: jest.fn().mockResolvedValue([]),
+                    }),
+                }),
+            };
+        }
+
+        it('throws NotFoundException when contract not found', async () => {
+            const mockDb = buildMockDb({ selectRows: [] });
+            const service = await createService(mockDb);
+            await expect(service.void('missing')).rejects.toThrow(NotFoundException);
+            expect(mockDb.transaction).not.toHaveBeenCalled();
+        });
+
+        it('throws BadRequestException when contract status is draft', async () => {
+            const mockDb = buildMockDb();
+            mockDb.select.mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([draftContract]), leftJoin: jest.fn() }) });
+            const service = await createService(mockDb);
+            await expect(service.void('contract-1')).rejects.toThrow(BadRequestException);
+            expect(mockDb.transaction).not.toHaveBeenCalled();
+        });
+
+        it('executes transaction: updates status to voided and inserts audit row', async () => {
+            const voidedContract = { ...postedContract, status: 'voided' };
+            const mockDb = buildMockDb();
+            mockDb.select.mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([postedContract]), leftJoin: jest.fn() }) });
+            const tx = buildVoidTxMock(voidedContract);
+            mockDb.transaction.mockImplementation(async (fn: any) => fn(tx));
+            const service = await createService(mockDb);
+
+            const result = await service.void('contract-1');
+
+            expect(result).toEqual(voidedContract);
+            expect(tx.update).toHaveBeenCalled();
+            expect(tx.insert).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe('revokeAccessCode', () => {
         it('throws NotFoundException when contract not found', async () => {
             const mockDb = buildMockDb({ selectRows: [] });
