@@ -40,6 +40,8 @@ describe('PublicAccessService', () => {
         service = module.get<PublicAccessService>(PublicAccessService);
     }
 
+    const VALID_UUID = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+
     describe('getPublicStatus', () => {
         it('returns contractId and ledger for a valid active code', async () => {
             const row = { contractId: 'cid-1' };
@@ -48,7 +50,7 @@ describe('PublicAccessService', () => {
             await createService(mockDb);
             mockLedgers.getLedger.mockResolvedValue(ledger);
 
-            const result = await service.getPublicStatus('some-code');
+            const result = await service.getPublicStatus(VALID_UUID);
 
             expect(result).toEqual({ contractId: 'cid-1', ledger });
             expect(mockLedgers.getLedger).toHaveBeenCalledWith('cid-1', undefined);
@@ -58,7 +60,14 @@ describe('PublicAccessService', () => {
             const mockDb = buildMockDb({ selectRows: [] });
             await createService(mockDb);
 
-            await expect(service.getPublicStatus('bad-code')).rejects.toThrow(NotFoundException);
+            await expect(service.getPublicStatus(VALID_UUID)).rejects.toThrow(NotFoundException);
+        });
+
+        it('throws NotFoundException for non-UUID format codes', async () => {
+            const mockDb = buildMockDb();
+            await createService(mockDb);
+
+            await expect(service.getPublicStatus('not-a-uuid')).rejects.toThrow(NotFoundException);
         });
 
         it('passes referenceDate to getLedger', async () => {
@@ -68,7 +77,7 @@ describe('PublicAccessService', () => {
             await createService(mockDb);
             mockLedgers.getLedger.mockResolvedValue(ledger);
 
-            await service.getPublicStatus('some-code', '2025-01-01');
+            await service.getPublicStatus(VALID_UUID, '2025-01-01');
 
             expect(mockLedgers.getLedger).toHaveBeenCalledWith('cid-1', '2025-01-01');
         });
