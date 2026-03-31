@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import AdminNav from '../_components/admin-nav';
 
 async function fetchProfile(token: string | undefined) {
@@ -27,24 +28,25 @@ export default async function ProtectedLayout({
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
     const profile = await fetchProfile(token);
-    const displayName = profile?.name || profile?.username || 'Admin';
+    if (!profile) redirect('/admin/login');
+    const displayName = profile.name || profile.username || 'Admin';
 
     return (
-        <div className="flex h-screen bg-slate-100">
+        <div className="flex h-screen bg-[var(--surface)]">
             {/* Sidebar */}
-            <aside className="w-56 bg-slate-900 flex flex-col flex-shrink-0">
-                <div className="px-6 py-5 border-b border-slate-700">
+            <aside className="w-56 bg-[var(--surface-container-highest)] flex flex-col flex-shrink-0">
+                <div className="px-6 py-5">
                     <Link href="/admin/profile" className="block hover:opacity-80 transition-opacity">
-                        <span className="text-white font-bold text-lg tracking-tight">{displayName}</span>
-                        <span className="text-slate-400 text-xs block mt-0.5">Admin</span>
+                        <span className="text-[var(--on-surface)] font-bold text-lg tracking-tight font-[family-name:var(--font-display)]">{displayName}</span>
+                        <span className="text-[var(--on-surface-variant)] text-xs block mt-0.5">Admin</span>
                     </Link>
                 </div>
                 <AdminNav />
-                <div className="px-3 py-4 border-t border-slate-700">
+                <div className="px-3 py-4">
                     <form action="/api/auth/logout" method="POST">
                         <button
                             type="submit"
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-left"
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--on-surface-variant)] hover:bg-[var(--surface-container-low)] transition-colors text-left"
                         >
                             Logout
                         </button>

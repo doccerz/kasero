@@ -88,4 +88,211 @@ test.describe('SIT Cycle 1 — Tenant Status (Public View)', () => {
         await page.goto('/entry/USEDTOKEN');
         await expect(page.getByText(/already been submitted/i)).toBeVisible();
     });
+
+    // ─── TC-PUBLIC-005 ────────────────────────────────────────────────────────
+    test('TC-PUBLIC-005: Access code with special characters', async ({ page }) => {
+        // No preconditions needed — test with special characters in the URL.
+        // Navigate to a public URL with special characters in the code
+        // Browser will URL-encode: !@#$% → %21%40%23%24%25
+        await page.goto('/public/test!@#$%code');
+
+        // Must NOT redirect to admin login
+        await expect(page).not.toHaveURL(/\/admin\/login/);
+
+        // Error message must be shown gracefully (no crash)
+        // The backend validates UUID format and returns 404 for invalid codes
+        await expect(page.getByText(/invalid/i)).toBeVisible();
+
+        // No ledger data should be displayed
+        await expect(page.getByText(/amount due/i)).not.toBeVisible();
+
+        // No stack trace or internal error should be exposed
+        await expect(page.getByText(/stack trace/i)).not.toBeVisible();
+        const bodyText = await page.locator('body').textContent();
+        expect(bodyText).not.toMatch(/Error:/i);
+    });
+
+    // ─── TC-PUBLIC-006 ────────────────────────────────────────────────────────
+    // Priority: P1
+    // Preconditions: None.
+    // Steps:
+    //   1. Navigate to /public/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee (valid UUID format but non-existent).
+    // Expected: 404 error or "Invalid access code" message; no data exposed.
+    test('TC-PUBLIC-006: Expired/tampered access code with valid UUID format', async ({ page }) => {
+        // No preconditions needed — test with a valid UUID format that doesn't exist in the database.
+        // Navigate to a public URL with a valid UUID format but non-existent code
+        await page.goto('/public/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+
+        // Must NOT redirect to admin login
+        await expect(page).not.toHaveURL(/\/admin\/login/);
+
+        // Error message must be shown gracefully (invalid or expired access code)
+        // The backend validates UUID format first, then checks existence in database
+        // Non-existent codes return 404 with "Invalid or expired access code" message
+        await expect(page.getByText(/invalid or expired/i)).toBeVisible();
+
+        // No ledger data should be displayed
+        await expect(page.getByText(/amount due/i)).not.toBeVisible();
+        await expect(page.getByRole('table')).not.toBeVisible();
+
+        // No contract details should be exposed
+        await expect(page.getByText(/tenant/i)).not.toBeVisible();
+        await expect(page.getByText(/space/i)).not.toBeVisible();
+
+        // No stack trace or internal error should be exposed
+        await expect(page.getByText(/stack trace/i)).not.toBeVisible();
+        const bodyText = await page.locator('body').textContent();
+        expect(bodyText).not.toMatch(/Error:/i);
+        expect(bodyText).not.toMatch(/NotFoundException/i);
+        expect(bodyText).not.toMatch(/stack/i);
+    });
+
+    // ─── TC-PUBLIC-007 ────────────────────────────────────────────────────────
+    // Priority: P2
+    // Preconditions: A valid public access code exists.
+    // Steps:
+    //   1. Rapidly refresh the public status page 10+ times in 1 second.
+    // Expected: Page loads correctly each time; no rate limit crash; consistent data.
+    test('TC-PUBLIC-007: Rapid repeated access to same code', async ({ page }) => {
+        // Non-Docker (mock): use the VALIDCODE fixture
+        // Rapidly access the same public code 10+ times
+        const accessPromises = [];
+        for (let i = 0; i < 10; i++) {
+            accessPromises.push(page.goto('/public/VALIDCODE'));
+        }
+
+        // Execute all requests concurrently (simulates rapid refresh)
+        await Promise.all(accessPromises);
+
+        // Navigate to the page one more time to verify it still loads correctly
+        await page.goto('/public/VALIDCODE');
+
+        // Page should load correctly without crashes
+        await expect(page).not.toHaveURL(/\/admin\/login/);
+
+        // Amount Due section should be visible (page loaded successfully)
+        await expect(page.getByText(/amount due/i)).toBeVisible();
+
+        // Payables table should be visible
+        await expect(page.getByRole('table').first()).toBeVisible();
+
+        // Data should be consistent (no corruption from concurrent access)
+        // If we reached this point, the system handled rapid access correctly
+    });
+
+    // ─── TC-PUBLIC-008 ────────────────────────────────────────────────────────
+    // Priority: P1
+    // Preconditions: None.
+    // Steps:
+    //   1. Try sequential codes: /public/00000000-0000-0000-0000-000000000001, ...002, etc.
+    //   2. Try to guess valid codes.
+    // Expected: Codes are non-guessable UUIDs; no enumeration possible; rate limiting may apply.
+    test('TC-PUBLIC-008: Public page ID enumeration attack', async ({ page }) => {
+        // No preconditions needed — test with sequential/enumerated codes.
+        // Try sequential UUIDs to test for enumeration vulnerabilities
+        const sequentialCodes = [
+            '00000000-0000-0000-0000-000000000001',
+            '00000000-0000-0000-0000-000000000002',
+            '00000000-0000-0000-0000-000000000003',
+            '11111111-1111-1111-1111-111111111111',
+            'ffffffff-ffff-ffff-ffff-ffffffffffff',
+        ];
+
+        for (const code of sequentialCodes) {
+            await page.goto(`/public/${code}`);
+
+            // Must NOT redirect to admin login
+            await expect(page).not.toHaveURL(/\/admin\/login/);
+
+            // Each attempt should return "Invalid or expired access code"
+            // No enumeration should be possible — all invalid codes return the same error
+            await expect(page.getByText(/invalid or expired/i)).toBeVisible();
+
+            // No ledger data should be displayed
+            await expect(page.getByText(/amount due/i)).not.toBeVisible();
+
+            // No contract details should be exposed
+            await expect(page.getByText(/tenant/i)).not.toBeVisible();
+            await expect(page.getByText(/space/i)).not.toBeVisible();
+        }
+
+        // Verify that valid UUID format codes are all treated the same way
+        // (no information leakage about whether a code is "close" to valid)
+        const bodyText = await page.locator('body').textContent();
+        expect(bodyText).not.toMatch(/Error:/i);
+        expect(bodyText).not.toMatch(/NotFoundException/i);
+        expect(bodyText).not.toMatch(/stack/i);
+
+        // Codes are non-guessable random UUIDs v4 format
+        // No sequential pattern can be used to enumerate valid codes
+    });
+
+    // ─── TC-PUBLIC-009 ────────────────────────────────────────────────────────
+    // Priority: P2
+    // Preconditions: Valid entry token exists.
+    // Steps:
+    //   1. Fill self-entry form and submit.
+    //   2. Immediately try to submit again with different data.
+    //   3. Try third time with different data.
+    // Expected: First submission succeeds; subsequent submissions fail OR token is consumed after first use.
+    test('TC-PUBLIC-009: Tenant self-entry duplicate submission', async ({ page }) => {
+        // Non-Docker (mock): use the VALIDTOKEN and USEDTOKEN fixtures
+        // Navigate to entry form
+        await page.goto('/entry/VALIDTOKEN');
+
+        // Fill and submit first time
+        await page.getByLabel(/first name/i).fill('Juan');
+        await page.getByLabel(/last name/i).fill('Dela Cruz');
+        await page.getByLabel(/consent/i).check();
+        await page.getByRole('button', { name: /submit/i }).click();
+
+        // First submission should succeed
+        await expect(page.getByText(/details submitted/i)).toBeVisible();
+
+        // Try to access the same token again - should show "already submitted"
+        await page.goto('/entry/VALIDTOKEN');
+        await expect(page.getByText(/already been submitted/i)).toBeVisible();
+
+        // Try with different data - should still fail (token consumed)
+        await page.goto('/entry/USEDTOKEN');
+        await expect(page.getByText(/already been submitted/i)).toBeVisible();
+    });
+
+    // ─── TC-PUBLIC-010 ────────────────────────────────────────────────────────
+    // Priority: P2
+    // Preconditions: Valid entry token exists.
+    // Steps:
+    //   1. Open entry form.
+    //   2. Submit without filling required fields.
+    // Expected: Validation blocks submission; required field errors shown.
+    test('TC-PUBLIC-010: Self-entry with incomplete data', async ({ page }) => {
+        // Non-Docker (mock): use the VALIDTOKEN fixture
+        await page.goto('/entry/VALIDTOKEN');
+
+        // Try to submit without filling required fields
+        // Only check consent (optional) but leave first name and last name empty
+        await page.getByLabel(/consent/i).check();
+        await page.getByRole('button', { name: /submit/i }).click();
+
+        // Validation should block submission
+        // Required field errors should be shown
+        await expect(page.getByText(/required/i)).toBeVisible();
+        await expect(page.getByLabel(/first name/i)).toBeFocused();
+
+        // Fill only first name, leave last name empty
+        await page.getByLabel(/first name/i).fill('Juan');
+        await page.getByRole('button', { name: /submit/i }).click();
+
+        // Validation should still block (last name required)
+        await expect(page.getByText(/required/i)).toBeVisible();
+        await expect(page.getByLabel(/last name/i)).toBeFocused();
+
+        // Consent should also be required
+        await page.getByLabel(/last name/i).fill('Dela Cruz');
+        await page.getByLabel(/consent/i).uncheck();
+        await page.getByRole('button', { name: /submit/i }).click();
+
+        // Validation should block (consent required)
+        await expect(page.getByText(/consent/i)).toBeVisible();
+    });
 });
