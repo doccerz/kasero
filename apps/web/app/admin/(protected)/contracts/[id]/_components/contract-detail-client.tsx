@@ -13,6 +13,7 @@ interface Contract {
     rentAmount: string;
     billingFrequency: string;
     dueDateRule: number;
+    billingDateRule?: number;
     status: string;
 }
 
@@ -29,6 +30,7 @@ interface EditFormData {
     rentAmount: string;
     billingFrequency: string;
     dueDateRule: string;
+    billingDateRule: string;
 }
 
 export default function ContractDetailClient({
@@ -48,8 +50,10 @@ export default function ContractDetailClient({
         rentAmount: contract.rentAmount,
         billingFrequency: contract.billingFrequency,
         dueDateRule: String(contract.dueDateRule),
+        billingDateRule: contract.billingDateRule != null ? String(contract.billingDateRule) : '',
     });
-    const [paymentForm, setPaymentForm] = useState({ amount: '', date: '' });
+    const [paymentForm, setPaymentForm] = useState({ amount: '', date: new Date().toISOString().split('T')[0] });
+    const [showVoidConfirm, setShowVoidConfirm] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -68,6 +72,9 @@ export default function ContractDetailClient({
             billingFrequency: editForm.billingFrequency,
             dueDateRule: parseInt(editForm.dueDateRule, 10),
         };
+        if (editForm.billingDateRule) {
+            body.billingDateRule = parseInt(editForm.billingDateRule, 10);
+        }
 
         try {
             const res = await fetch(`/api/admin/contracts/${contract.id}`, {
@@ -130,7 +137,29 @@ export default function ContractDetailClient({
                 setError(data.message ?? 'Failed to record payment');
             } else {
                 setShowPaymentModal(false);
-                setPaymentForm({ amount: '', date: '' });
+                setPaymentForm({ amount: '', date: new Date().toISOString().split('T')[0] });
+                router.refresh();
+            }
+        } catch {
+            setError('Unable to reach server');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleVoidContract() {
+        setLoading(true);
+        setError('');
+
+        try {
+            const res = await fetch(`/api/admin/contracts/${contract.id}/void`, {
+                method: 'POST',
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setError(data.message ?? 'Failed to void contract');
+            } else {
+                setShowVoidConfirm(false);
                 router.refresh();
             }
         } catch {
@@ -182,12 +211,20 @@ export default function ContractDetailClient({
                     </>
                 )}
                 {isPosted && (
-                    <button
-                        onClick={() => { setError(''); setPaymentForm({ amount: '', date: '' }); setShowPaymentModal(true); }}
-                        className="px-4 py-2 text-sm bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
-                    >
-                        Record Payment
-                    </button>
+                    <>
+                        <button
+                            onClick={() => { setError(''); setPaymentForm({ amount: '', date: new Date().toISOString().split('T')[0] }); setShowPaymentModal(true); }}
+                            className="px-4 py-2 text-sm bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                        >
+                            Record Payment
+                        </button>
+                        <button
+                            onClick={() => { setError(''); setShowVoidConfirm(true); }}
+                            className="px-4 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                            Void Contract
+                        </button>
+                    </>
                 )}
             </div>
 
@@ -313,6 +350,21 @@ export default function ContractDetailClient({
                                     />
                                 </div>
                             </div>
+                            <div>
+                                <label htmlFor="billing-date-rule" className="block text-sm font-medium text-slate-700 mb-1">
+                                    Billing Date Rule (day 1–31, optional)
+                                </label>
+                                <input
+                                    id="billing-date-rule"
+                                    type="number"
+                                    min="1"
+                                    max="31"
+                                    value={editForm.billingDateRule}
+                                    onChange={(e) => setEditForm({ ...editForm, billingDateRule: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                                    placeholder="Leave blank to use Due Date Rule"
+                                />
+                            </div>
                             {error && <p className="text-red-600 text-sm">{error}</p>}
                             <div className="flex gap-2 justify-end pt-2">
                                 <button
@@ -363,6 +415,39 @@ export default function ContractDetailClient({
                                 className="px-4 py-2 text-sm bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
                             >
                                 {loading ? 'Posting…' : 'Post Contract'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Void Contract Confirmation */}
+            {showVoidConfirm && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div role="dialog" className="bg-white rounded-xl border border-slate-200 shadow-lg w-full max-w-sm mx-4">
+                        <div className="px-6 py-4 border-b border-slate-200">
+                            <h2 className="text-base font-semibold text-slate-800">Void Contract</h2>
+                        </div>
+                        <div className="px-6 py-4">
+                            <p className="text-sm text-slate-600">
+                                Voiding prevents future payments and shows the space as Vacant. This action cannot be undone.
+                            </p>
+                            {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
+                        </div>
+                        <div className="px-6 py-4 border-t border-slate-200 flex gap-2 justify-end">
+                            <button
+                                onClick={() => { setShowVoidConfirm(false); setError(''); }}
+                                disabled={loading}
+                                className="px-4 py-2 text-sm border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleVoidContract}
+                                disabled={loading}
+                                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                            >
+                                {loading ? 'Voiding…' : 'Void Contract'}
                             </button>
                         </div>
                     </div>

@@ -20,6 +20,7 @@ interface Payable {
     periodStart: string;
     periodEnd: string;
     dueDate: string;
+    billingDate?: string;
     amount: string;
 }
 
@@ -117,6 +118,7 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
                             <tr className="border-b border-slate-200 bg-slate-50">
                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Period Start</th>
                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Period End</th>
+                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Billing Date</th>
                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Due Date</th>
                                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-left">Amount</th>
                             </tr>
@@ -126,6 +128,7 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
                                 <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50">
                                     <td className="px-4 py-3 text-slate-600">{p.periodStart}</td>
                                     <td className="px-4 py-3 text-slate-600">{p.periodEnd}</td>
+                                    <td className="px-4 py-3 text-slate-600">{p.billingDate ?? '—'}</td>
                                     <td className="px-4 py-3 text-slate-600">{p.dueDate}</td>
                                     <td className="px-4 py-3 font-mono text-slate-800">₱{p.amount}</td>
                                 </tr>
@@ -134,14 +137,6 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
                     </table>
                 </div>
             )}
-
-            {/* Payments (read-only; interactive version rendered in ContractDetailClient) */}
-            <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3 mt-6">
-                Payments
-            </h2>
-            {!ledger || ledger.payments.length === 0 ? (
-                <p className="text-slate-500 text-sm mb-6">No payments.</p>
-            ) : null}
 
             {/* Fund */}
             <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3 mt-6">
