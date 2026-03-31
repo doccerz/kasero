@@ -65,6 +65,31 @@ The database connection fix ensures API and Web Jest tests pass consistently whe
 
 ## Next Steps
 
-1. Commit database URL fix to staging branch
-2. Open PR to staging
+1. ✅ Commit database URL fix to staging branch - DONE (commit ede2e8d)
+2. ⏳ Open PR to staging - Pending
 3. Investigate Playwright e2e failures separately (not caused by this fix)
+
+## Current Session Summary
+
+**Issue Fixed:** API tests failing with `getaddrinfo EAI_AGAIN db`
+
+**Root Cause:** Test files used `process.env.DATABASE_URL` which points to Docker hostname `db` that doesn't resolve from host machine.
+
+**Solution:** Added `DATABASE_URL_LOCAL` fallback to database connection configuration.
+
+**Files Changed:**
+- `apps/api/src/database/database.ts`
+- `apps/api/src/database/schema.spec.ts`
+- `apps/api/src/database/seed.integration.spec.ts`
+
+**Test Results:**
+- API Tests (Jest): ✅ 35/35 suites, 272/272 tests PASSED
+- Web Tests (Jest): ✅ 7/7 suites, 8/8 tests PASSED
+- Playwright e2e: ⚠️ 58 failed (pre-existing), 84 passed, 13 skipped
+
+**Git Status:**
+- Branch: staging
+- Commit: ede2e8d
+- Ready for PR to staging
+
+<promise>COMPLETE</promise>
