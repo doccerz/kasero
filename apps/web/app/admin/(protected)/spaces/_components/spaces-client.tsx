@@ -80,11 +80,19 @@ export default function SpacesClient({
         setLoading(true);
         setError('');
 
+        // Trim whitespace from name and validate
+        const trimmedName = form.name.trim();
+        if (!trimmedName) {
+            setError('Space name cannot be empty or contain only whitespace');
+            setLoading(false);
+            return;
+        }
+
         const isEdit = modal?.mode === 'edit';
         const url = isEdit ? `/api/admin/spaces/${modal.space!.id}` : '/api/admin/spaces';
         const method = isEdit ? 'PATCH' : 'POST';
 
-        const body: Record<string, unknown> = { name: form.name };
+        const body: Record<string, unknown> = { name: trimmedName };
         if (form.description) body.description = form.description;
 
         try {

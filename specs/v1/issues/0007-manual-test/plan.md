@@ -258,3 +258,5 @@ npx playwright test
 - After voiding, space shows Vacant
 - Profile page loads and saves without error
 - Mobile: login works without HTTPS cookie restriction
+
+<promise>COMPLETE</promise>

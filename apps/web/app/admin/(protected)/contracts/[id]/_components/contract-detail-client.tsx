@@ -123,6 +123,28 @@ export default function ContractDetailClient({
         setLoading(true);
         setError('');
 
+        const amount = parseFloat(paymentForm.amount);
+        if (isNaN(amount) || amount <= 0) {
+            setError('Payment amount must be greater than zero');
+            setLoading(false);
+            return;
+        }
+
+        // Validate payment date is not before contract start date
+        if (paymentForm.date < contract.startDate) {
+            setError(`Payment date cannot be before contract start date (${contract.startDate})`);
+            setLoading(false);
+            return;
+        }
+
+        // Validate payment date is not in the future
+        const today = new Date().toISOString().split('T')[0];
+        if (paymentForm.date > today) {
+            setError('Payment date cannot be in the future');
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch(`/api/admin/contracts/${contract.id}/payments`, {
                 method: 'POST',
@@ -470,7 +492,7 @@ export default function ContractDetailClient({
                                     id="payment-amount"
                                     type="number"
                                     required
-                                    min="0"
+                                    min="0.01"
                                     step="0.01"
                                     value={paymentForm.amount}
                                     onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}

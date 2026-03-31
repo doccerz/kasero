@@ -43,7 +43,24 @@ export class LedgersService {
         if (!contract) throw new NotFoundException('Contract not found');
         if (contract.status === 'voided') throw new BadRequestException('Cannot record payment on a voided contract');
 
+        const amount = parseFloat(data.amount);
+        if (isNaN(amount) || amount <= 0) {
+            throw new BadRequestException('Payment amount must be greater than zero');
+        }
+
         const date = data.date ?? new Date().toISOString().split('T')[0];
+
+        // Validate payment date is not before contract start date
+        if (date < contract.startDate) {
+            throw new BadRequestException(`Payment date cannot be before contract start date (${contract.startDate})`);
+        }
+
+        // Validate payment date is not in the future
+        const today = new Date().toISOString().split('T')[0];
+        if (date > today) {
+            throw new BadRequestException('Payment date cannot be in the future');
+        }
+
         const [row] = await this.db
             .insert(payments)
             .values({ contractId, amount: data.amount, date })

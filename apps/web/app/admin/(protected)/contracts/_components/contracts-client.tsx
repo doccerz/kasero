@@ -81,6 +81,33 @@ export default function ContractsClient({
         setLoading(true);
         setError('');
 
+        // Validate rent amount is greater than zero
+        if (!form.rentAmount || parseFloat(form.rentAmount) <= 0) {
+            setError('Rent amount must be greater than zero');
+            setLoading(false);
+            return;
+        }
+
+        // Validate end date is not before start date
+        if (form.startDate && form.endDate && form.endDate < form.startDate) {
+            setError('End date must be on or after start date');
+            setLoading(false);
+            return;
+        }
+
+        // Validate contract duration does not exceed 10 years
+        if (form.startDate && form.endDate) {
+            const start = new Date(form.startDate);
+            const end = new Date(form.endDate);
+            const maxEndDate = new Date(start);
+            maxEndDate.setFullYear(start.getFullYear() + 10);
+            if (end > maxEndDate) {
+                setError('Contract duration cannot exceed 10 years');
+                setLoading(false);
+                return;
+            }
+        }
+
         const body: Record<string, unknown> = {
             tenantId: form.tenantId,
             spaceId: form.spaceId,

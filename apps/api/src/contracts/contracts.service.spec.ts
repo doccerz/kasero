@@ -126,6 +126,31 @@ describe('generatePayables', () => {
         expect(rows[1]).toMatchObject({ periodStart: '2025-01-01', periodEnd: '2025-12-31' });
     });
 
+    it('annually from Feb 29 (leap year) → non-leap year clamped to Feb 28', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-02-29',
+            endDate: '2028-02-28',
+            rentAmount: '12000.00',
+            billingFrequency: 'annually',
+            dueDateRule: 29,
+        });
+
+        expect(rows).toHaveLength(5);
+        // 2024: leap year, starts Feb 29
+        // Next period starts Feb 28, 2025 (clamped), so periodEnd = Feb 27, 2025
+        expect(rows[0]).toMatchObject({ periodStart: '2024-02-29', periodEnd: '2025-02-27', dueDate: '2024-02-29' });
+        // 2025: non-leap year, starts Feb 28
+        // Next period starts Feb 28, 2026, so periodEnd = Feb 27, 2026
+        expect(rows[1]).toMatchObject({ periodStart: '2025-02-28', periodEnd: '2026-02-27', dueDate: '2025-02-28' });
+        // 2026: non-leap year
+        expect(rows[2]).toMatchObject({ periodStart: '2026-02-28', periodEnd: '2027-02-27', dueDate: '2026-02-28' });
+        // 2027: non-leap year
+        expect(rows[3]).toMatchObject({ periodStart: '2027-02-28', periodEnd: '2028-02-27', dueDate: '2027-02-28' });
+        // 2028: leap year, periodEnd clamped to endDate (2028-02-28)
+        expect(rows[4]).toMatchObject({ periodStart: '2028-02-28', periodEnd: '2028-02-28', dueDate: '2028-02-28' });
+    });
+
     it('startDate > endDate → empty array', () => {
         const rows = generatePayables({
             contractId,
