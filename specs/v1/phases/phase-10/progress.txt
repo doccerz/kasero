@@ -1,0 +1,27 @@
+## Phase 10 Progress
+
+### Group 1: Backend DashboardModule (Tasks 1-3) — COMPLETE
+
+- Created `apps/api/src/dashboard/dashboard.service.spec.ts` with 10 failing tests covering all dashboard scenarios (vacant, occupied, nearing, overdue, sort order, voided payments, etc.)
+- Implemented `DashboardService.getDashboard(referenceDate?)` using 3-round-trip strategy: spaces, posted contracts (leftJoin tenants), then bulk payables+payments via inArray (skipped when no posted contracts)
+- Created `DashboardController` at `GET /admin/dashboard` (JWT-guarded)
+- Created `DashboardModule` and registered it in `AppModule`
+- All 10 dashboard tests pass; full API suite: 29 suites passed, 1 skipped (integration), 180 tests passed
+
+Commits:
+- test(phase-10): add failing tests for DashboardService (10 cases)
+- feat(phase-10): implement DashboardModule (service, controller, module)
+
+### Group 2: Frontend Admin Pages (Tasks 4-7) — COMPLETE
+
+- Implemented `apps/web/app/admin/dashboard/page.tsx`: async server component fetching GET /admin/dashboard, renders space table with status badges (overdue/nearing/occupied/vacant), each space links to /admin/spaces/:id
+- Implemented `apps/web/app/admin/spaces/[id]/page.tsx`: async server component with `await params`, parallel fetch of space + all contracts, filters by spaceId in component, posted contract highlighted in bold/green
+- Implemented `apps/web/app/admin/contracts/[id]/page.tsx`: async server component with `await params`, parallel fetch of contract + ledger, shows contract summary, amount due section, payables table, payments table (voided rows struck-through), fund table
+- All pages use `await cookies()`, `fetch(url, { cache: 'no-store' })`, and `INTERNAL_API_URL` env var per Next.js 16.2.1 patterns
+- Full test suite passes: API 180 tests (29 suites + 1 skipped integration), web 8 tests (7 suites)
+
+Commits:
+- feat(phase-10): implement dashboard page with status badges and space links
+- feat(phase-10): implement space detail page with contract history
+- feat(phase-10): implement contract ledger page with payables, payments, fund
+- test(phase-10): verify full test suite passes (API: 180, web: 8)

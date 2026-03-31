@@ -1,0 +1,43 @@
+## Phase 03 Progress
+
+### Group 1 — Fix DatabaseModule + Install @nestjs/jwt [COMPLETE]
+
+- Created branch: feat/phase-03-authentication-admin-access
+- Installed @nestjs/jwt inside apps/api (added 50 packages)
+- Added DatabaseModule to AppModule imports (fixes @Global() provider not available bug)
+- Updated AuthModule to import JwtModule.register() with jwtSecret/jwtExpiresIn from appConfig, and exports JwtModule so JwtService is available to guards in other modules
+- Updated auth.module.spec.ts to verify JwtService is resolvable from AuthModule
+- All 14 API test suites pass (34 skipped DB tests, 30 pass)
+
+### Group 2 — Auth Service + Login Endpoint (TDD) [COMPLETE]
+
+- Wrote failing tests in auth.controller.spec.ts: 6 tests covering controller delegation and service logic (user not found, wrong password, valid credentials)
+- Implemented AuthService.login(): queries admin_users by username, bcryptjs compare, throws UnauthorizedException on mismatch, returns { access_token } via JwtService.sign()
+- Implemented AuthController.login(): POST /auth/login delegates to AuthService
+- Fixed auth.module.spec.ts: tests now provide DB_TOKEN mock directly (overrideProvider doesn't work for providers not declared in the tested module — must use providers array)
+- All 15 API test suites pass (34 skipped DB tests, 36 pass)
+
+### Group 3 — JwtAuthGuard + Route Protection (TDD) [COMPLETE]
+
+- Wrote failing tests in jwt-auth.guard.spec.ts: 4 tests covering no auth header, invalid Bearer format, expired/invalid token, and valid token (attaches payload to request.user)
+- Wrote failing e2e-style guard tests in spaces.controller.spec.ts: uses inline TestSpacesController with a @Get() route to verify 401 without token and not-401 with valid token
+- Implemented JwtAuthGuard in auth/jwt-auth.guard.ts: extracts Bearer token, verifies with JwtService, throws UnauthorizedException on failure, attaches payload to request.user
+- Applied @UseGuards(JwtAuthGuard) to all 6 admin controllers and updated paths to admin/* (admin/spaces, admin/tenants, admin/contracts, admin/ledgers, admin/settings, admin/audit)
+- Added AuthModule import to all 6 admin feature modules so JwtService is available via the exported JwtModule
+- Updated all 6 feature module specs to import DatabaseModule + override DB_TOKEN mock (overrideProvider only works for providers in the module tree — @Global() DatabaseModule must be included in test imports)
+- All 17 API test suites pass (34 skipped DB tests, 42 pass)
+
+### Group 3.1 — Fix GitHub Action Build Error [COMPLETE]
+
+- Fixed TS2322: Type 'string' is not assignable to type 'number | StringValue | undefined' in auth.module.ts
+- Root cause: appConfig.jwtExpiresIn is typed as string but jsonwebtoken's signOptions.expiresIn requires ms.StringValue | number
+- Fix: import type { StringValue } from 'ms' and cast appConfig.jwtExpiresIn as StringValue
+- Build now passes (nest build succeeds); all 17 API + 4 web test suites still pass
+
+### Group 4 — Integration Verification + PR [COMPLETE]
+
+- Ran full test suite: 17 API test suites pass (34 skipped DB tests, 42 pass) + 4 web test suites pass
+- All DB tests self-skip without DATABASE_URL as expected (CI-safe)
+- No new service-workflows.md patterns needed — all auth patterns were already captured in Groups 1–3
+- README.md already reflects the auth endpoints and JWT flow from earlier groups
+- Created PR: feat/phase-03-authentication-admin-access → staging

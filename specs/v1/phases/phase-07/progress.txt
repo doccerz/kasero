@@ -1,0 +1,40 @@
+## Phase 7 Progress
+
+### Step 1 — COMPLETE (commit a88efa2)
+Created `ledgers.service.spec.ts` with:
+- getLedger unit tests: standard owed/paid, future payables excluded, overpaid clamped to 0, voided payments excluded, custom referenceDate, fund isolation
+- recordPayment tests: provided date, default to today
+- voidPayment tests: sets voidedAt, NotFoundException, BadRequestException
+- Integration test stubs (skipped without DATABASE_URL)
+
+### Step 2 — COMPLETE (commit 73efb0d)
+Created `ledgers.controller.spec.ts`:
+- Guard integration: GET /admin/contracts/:id/ledger without token → 401, with token → not 401
+- Endpoints: GET ledger → 200, GET ledger with referenceDate query, POST payments → 201
+
+Created `payments.controller.spec.ts`:
+- Guard integration: POST /admin/payments/:id/void without token → 401, with token → not 401
+- Endpoints: POST void → 200, NotFoundException → 404, BadRequestException → 400
+
+All tests fail as expected (controllers/service not yet implemented).
+
+### Step 3 — COMPLETE (commit 05bc607)
+Implemented `LedgersService`:
+- `getLedger`: parallel Promise.all for payables/payments/fund, JS-side referenceDate filter, amount_due clamped with Math.max(0, ...).toFixed(2), fund rows returned but excluded from amount_due
+- `recordPayment`: inserts with provided date or defaults to today
+- `voidPayment`: checks exists (NotFoundException), checks not already voided (BadRequestException), sets voidedAt = new Date()
+
+### Step 4 — COMPLETE (commit 9072ed0)
+Repurposed `ledgers.controller.ts` as `ContractLedgerController`:
+- `@Controller('admin/contracts/:id')` path prefix
+- `GET ledger` → calls `getLedger(id, referenceDate?)`
+- `POST payments` → calls `recordPayment(id, body)`
+
+### Step 5 — COMPLETE (commit 3ed46a1)
+Created `payments.controller.ts` as `PaymentsController`:
+- `@Controller('admin/payments/:id')` path prefix
+- `POST void` with `@HttpCode(200)` → calls `voidPayment(id)`
+Updated `ledgers.module.ts` to register both controllers.
+
+### Step 6 — COMPLETE
+All 187 tests pass (45 skipped = integration stubs without DATABASE_URL).

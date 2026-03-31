@@ -1,0 +1,104 @@
+2026-03-31 TC-AUTH-006: FAIL
+- Created e2e/sit-cycle2-auth.spec.ts with Playwright test
+- Set an expired JWT (signed with correct secret, exp=-3600) in auth_token cookie
+- Navigated to /admin/spaces — page loaded with empty data, no redirect to login
+- Root cause: proxy.ts only checks cookie presence; SpacesPage silently falls back to [] on non-ok API response
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-AUTH-007: FAIL
+- Added TC-AUTH-007 test to e2e/sit-cycle2-auth.spec.ts
+- Set a malformed (non-JWT) string 'this-is-not-a-valid-jwt-token' in auth_token cookie
+- Navigated to /admin/spaces — page stayed at /admin/spaces, no redirect to login
+- Root cause: same as TC-AUTH-006; proxy.ts only checks cookie presence via request.cookies.get('auth_token'); any non-empty value passes the guard
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-AUTH-009: PASS
+- Added TC-AUTH-009 test to e2e/sit-cycle2-auth.spec.ts
+- Entered SQL injection string `' OR 1=1 --` in username field with any password
+- Page stayed on /admin/login (URL did not advance to any /admin/* protected route)
+- No SQL error, stack trace, or DB error text visible in page body
+- Playwright test passed in 215ms against live Docker stack
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-AUTH-010: PASS
+- Added TC-AUTH-010 test to e2e/sit-cycle2-auth.spec.ts
+- Entered `<script>alert('xss')</script>` in username field with any password, submitted form
+- Tracked dialog events via page.on('dialog') — no alert fired (alertFired remained false)
+- Page stayed on /admin/login (URL did not advance to any /admin/* protected route)
+- Body text did not contain unescaped alert('xss') string
+- Playwright test passed in 710ms against live Docker stack
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-DASH-004: BLOCKED
+- Navigated to dashboard via Playwright against live Docker stack
+- Queried DB to verify current space/contract state (2026-03-31)
+- Space "121": overdue (3 payables due, 3000 total due, 1000 paid → balance 2000)
+- Space "3115": future contract starts 2026-04-01; 0 payables due as of today → not overdue
+- Space "ROOM 106": future contract starts 2026-04-08; 0 payables due → not overdue
+- Space "XXX": 2 payables due, 2000 total; 2000 paid → fully paid, not overdue
+- Precondition "All spaces have posted contracts with overdue balances" cannot be met; only 1/4 spaces is overdue
+- Created e2e/sit-cycle2-dashboard.spec.ts with skipped test and block notes
+
+2026-03-31 TC-DASH-005: BLOCKED
+- Queried DB to verify current space/contract state (2026-03-31)
+- All 4 spaces have posted contracts:
+    Space "121":     posted, 2026-01-01 → 2026-12-31
+    Space "XXX":     posted, 2026-02-01 → 2027-01-31
+    Space "3115":    posted, 2026-04-01 → 2027-03-31
+    Space "ROOM 106": posted, 2026-04-08 → 2026-04-30
+- Precondition "No posted contracts exist" cannot be met; hard-delete is blocked by DB trigger
+- Added skipped test to e2e/sit-cycle2-dashboard.spec.ts with block notes
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-AUTH-008: PASS
+- Ran Playwright test against real Docker stack (kasero-web-1 on port 3000)
+- Attempted login with wrong password 6 consecutive times — each attempt returned error and stayed on /admin/login
+- No rate limiting message detected (no 'rate limit', 'too many attempts', 'blocked', or 'locked' text)
+- After 6 failed attempts, correct credentials (admin / replace-with-a-strong-password) successfully logged in
+- Result satisfies expected: "Either rate limiting message shown OR correct login succeeds after failed attempts"
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-DASH-007: BLOCKED
+- Checked DB state: only 4 spaces exist (spaces: "121", "XXX", "3115", "ROOM 106")
+- Precondition "50+ spaces exist" cannot be met without mass-creating spaces outside the SIT scope
+- Dashboard loads correctly and without crashes with 4 spaces (Overdue/Nearing/Occupied rows display normally)
+- Added skipped test to e2e/sit-cycle2-dashboard.spec.ts with block notes
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-SPACE-007: PASS
+- Created e2e/sit-cycle2-spaces.spec.ts with Playwright test
+- Clicked "New Space" button on /admin/spaces page
+- Filled space name "Unit 101-B (Ground Floor) <test> !@#$%^&*()" in the inline create form
+- Submitted the form; space appeared in the table with all special characters intact
+- No escaping issues, no crashes, no data truncation
+- Playwright test passed in 595ms against live Docker stack
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-DASH-006: PASS
+- Verified DB state: Space "XXX" has contract 2026-02-01→2027-01-31, monthly, due_date_rule=1
+- Payables due as of today (2026-03-31): Feb 1 (1000) + Mar 1 (1000) = 2000 total
+- Payments: 2x 1000 = 2000 → amount_due = 0; next due date = Apr 1, 2026 (1 day away, within 7-day nearing window)
+- Fetched /admin/dashboard with auth cookie against live Docker stack
+- Dashboard HTML confirms: Space "XXX" shows Nearing badge (yellow, bg-yellow-100 text-yellow-800), Amount Due ₱0.00, Next Due Date 2026-04-01
+- Space "ROOM 106" also shows Nearing (contract starts Apr 8, first payable Apr 1 is within 7 days)
+- Sort order confirmed: Overdue (121) → Nearing (ROOM 106, XXX) → Occupied (3115)
+- Added TC-DASH-006 test to e2e/sit-cycle2-dashboard.spec.ts
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-SPACE-008: PASS
+- Added TC-SPACE-008 test to e2e/sit-cycle2-spaces.spec.ts
+- Created space with name "Piso Uno — Áéíóú Ñ" via UI
+- Space saved successfully; Unicode characters preserved in database
+- Verified space name displays correctly in the spaces list with all accented characters (Áéíóú Ñ) and em-dash (—)
+- Playwright test passed in 1.8s against live Docker stack
+- Finding documented in plan.md summary table
+
+2026-03-31 TC-SPACE-009: PASS
+- Added TC-SPACE-009 test to e2e/sit-cycle2-spaces.spec.ts
+- Generated 255-character name (all 'A's) and 1000-character description (all 'B's)
+- Filled space name field with 255-char string via UI
+- Description field not present in form (only name input exists)
+- Form submitted successfully; space created without validation errors
+- Verified space appears in the spaces list with the long name preserved
+- Playwright test passed in 1.8s against live Docker stack
+- Finding documented in plan.md summary table

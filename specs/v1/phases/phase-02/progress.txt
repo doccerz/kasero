@@ -1,0 +1,43 @@
+Group 1 — COMPLETE
+- Generated 0000_lively_electro.sql via `npm run db:generate` (11 tables, 5 enums)
+- Verified migration applies cleanly against kasero_test DB
+- Extended schema.spec.ts with DB-backed tests for all 11 tables + 5 enums (self-skip without DATABASE_URL)
+- All 45 tests pass with DATABASE_URL; 16 skip without
+
+Group 2 — COMPLETE
+- Added failing tests: UPDATE on protected fields (start_date, end_date, rent_amount, billing_frequency, due_date_rule) of posted contract raises exception
+- Created 0002_contract_immutability.sql: prevent_posted_contract_mutation() + trg_contract_immutability BEFORE UPDATE trigger
+- All 51 tests pass with DATABASE_URL; 22 skip without
+- Note: manual SQL migrations applied directly via psql (drizzle-kit migrate only tracks journal-generated files; drizzle-orm runtime migrator reads all SQL files)
+
+Group 3 — COMPLETE
+- Refactored contract immutability test to use client+transaction (BEGIN/ROLLBACK) instead of DELETE cleanup — required because no-hard-delete triggers would block the old cleanup DELETEs
+- Added failing tests: DELETE on tenants, contracts, payments, fund, payables, public_access_codes, audit all expected to raise exception
+- SAVEPOINT pattern used in tests to recover transaction state after each blocked DELETE
+- Created 0003_no_hard_delete.sql: prevent_hard_delete() function + 7 BEFORE DELETE triggers (one per protected table); spaces excluded
+- Migration applied via psql pipe to Docker container (docker exec -i postgres psql ...)
+- All 58 tests pass with DATABASE_URL
+
+Group 4 — COMPLETE
+- Added failing tests: UPDATE payments SET voided_at → audit row inserted with entity_type='payment', action='void', metadata with amount and contract_id
+- Added test: double-void does NOT insert a second audit row (trigger guards OLD.voided_at IS NULL)
+- Created 0004_payment_void_audit.sql: record_payment_void() AFTER UPDATE trigger on payments
+- Migration applied via psql pipe to Docker container (docker exec -i postgres psql -U admin -d kasero_test)
+- All 60 tests pass with DATABASE_URL
+
+Group 5 — COMPLETE
+- Added failing tests: tenant with past contract end_date → status becomes 'inactive' and expiration_date is set; future contract → not affected; count return value is accurate
+- Created 0005_expire_contract_tenants.sql: expire_contract_tenants() PL/pgSQL function using UPDATE...FROM JOIN with end_date < CURRENT_DATE and status = 'active' guard; returns ROW_COUNT via GET DIAGNOSTICS
+- The existing trg_tenant_expiration BEFORE UPDATE trigger fires automatically on the status transition, setting expiration_date = CURRENT_DATE + 10 years
+- Migration applied via psql pipe to Docker container
+- All 63 tests pass with DATABASE_URL
+
+Group 6 — COMPLETE
+- Full test suite passes: 63 tests with DATABASE_URL, 34 skip without (CI-safe)
+- Discovered gap: migrations 0001-0005 were missing from _journal.json — drizzle-kit migrate and runtime migrator both use the journal, so fresh DBs only got 0000 (tables, no triggers/functions)
+- Made SQL migrations idempotent: added `IF NOT EXISTS` to CREATE UNIQUE INDEX; added `DROP TRIGGER IF EXISTS` before each CREATE TRIGGER; CREATE OR REPLACE FUNCTION was already idempotent
+- Added entries for 0001-0005 to _journal.json with sequential idx/when values
+- Verified kasero_scratch (fresh DB): all 11 tables, 10 triggers, 5 functions created via db:migrate
+- Verified kasero_test (existing DB): db:migrate re-applied 0001-0005 idempotently, all 63 tests still pass
+- Verified seed idempotency: ran db:seed twice, no duplicate admin/settings/app_version rows
+- Created PR to staging
