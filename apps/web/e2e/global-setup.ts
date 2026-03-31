@@ -123,6 +123,24 @@ const FIXTURES: Record<string, object | object[]> = {
             status: 'voided',
         },
     ],
+    '/admin/contracts/contract-2': {
+        id: 'contract-2',
+        spaceId: 'space-2',
+        tenantId: 'tenant-2',
+        tenantName: 'Jose Rizal',
+        startDate: '2025-03-01',
+        endDate: '2026-02-28',
+        rentAmount: '6000.00',
+        billingFrequency: 'monthly',
+        dueDateRule: 5,
+        status: 'draft',
+    },
+    '/admin/contracts/contract-2/ledger': {
+        amountDue: '0.00',
+        payables: [],
+        payments: [],
+        fund: [],
+    },
     '/admin/contracts/contract-1': {
         id: 'contract-1',
         spaceId: 'space-1',
@@ -138,8 +156,8 @@ const FIXTURES: Record<string, object | object[]> = {
     '/admin/contracts/contract-1/ledger': {
         amountDue: '16000.00',
         payables: [
-            { id: 'pay1', periodStart: '2025-01-01', periodEnd: '2025-01-31', dueDate: '2025-01-05', amount: '8000.00' },
-            { id: 'pay2', periodStart: '2025-02-01', periodEnd: '2025-02-28', dueDate: '2025-02-05', amount: '8000.00' },
+            { id: 'pay1', periodStart: '2025-01-01', periodEnd: '2025-01-31', dueDate: '2025-01-05', billingDate: '2025-01-01', amount: '8000.00' },
+            { id: 'pay2', periodStart: '2025-02-01', periodEnd: '2025-02-28', dueDate: '2025-02-05', billingDate: '2025-02-01', amount: '8000.00' },
         ],
         payments: [
             { id: 'pmt1', date: '2025-01-10', amount: '8000.00', voidedAt: null },

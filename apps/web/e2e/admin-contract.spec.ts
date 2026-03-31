@@ -42,4 +42,39 @@ test.describe('Admin contract detail', () => {
         const body = await res.json();
         expect(body).toMatchObject({ id: 'contract-1', status: 'voided' });
     });
+
+    test('shows Billing Date column in payables table', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires mock fixture with billingDate');
+        await page.goto('/admin/contracts/contract-1');
+        await expect(page.getByRole('columnheader', { name: /billing date/i })).toBeVisible();
+    });
+
+    test('Void Contract button visible for posted contract', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires mock fixture contract-1 with posted status');
+        await page.goto('/admin/contracts/contract-1');
+        await expect(page.getByRole('button', { name: /void contract/i })).toBeVisible();
+    });
+
+    test('Void Contract confirmation modal shows warning message', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires mock fixture contract-1 with posted status');
+        await page.goto('/admin/contracts/contract-1');
+        await page.getByRole('button', { name: /void contract/i }).click();
+        await expect(page.getByRole('dialog')).toBeVisible();
+        await expect(page.getByText(/voiding prevents future payments/i)).toBeVisible();
+    });
+
+    test('Record Payment modal date defaults to today', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires mock fixture contract-1 with posted status');
+        await page.goto('/admin/contracts/contract-1');
+        await page.getByRole('button', { name: /record payment/i }).click();
+        const today = new Date().toISOString().split('T')[0];
+        await expect(page.getByLabel(/date/i)).toHaveValue(today);
+    });
+
+    test('billingDateRule field shown in Edit Contract modal', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires mock fixture with draft contract');
+        await page.goto('/admin/contracts/contract-2');
+        await page.getByRole('button', { name: /edit contract/i }).click();
+        await expect(page.getByLabel(/billing date rule/i)).toBeVisible();
+    });
 });
