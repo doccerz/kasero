@@ -36,19 +36,19 @@ export default function LoginForm() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center px-4">
             <div className="w-full max-w-sm">
                 <div className="mb-8 text-center">
-                    <span className="text-2xl font-bold tracking-tight text-slate-800">Kasero</span>
-                    <p className="text-sm text-slate-500 mt-1">Admin Portal</p>
+                    <span className="text-3xl font-bold tracking-tight text-[var(--tertiary)] font-[family-name:var(--font-display)]">Kasero</span>
+                    <p className="text-sm text-[var(--on-surface-variant)] mt-1">Admin Portal</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-                    <h1 className="text-lg font-semibold text-slate-800 mb-6">Sign in</h1>
+                <div className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] p-8">
+                    <h1 className="text-lg font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-6">Sign in</h1>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label
                                 htmlFor="username"
-                                className="block text-sm font-medium text-slate-700 mb-1"
+                                className="block text-sm font-medium text-[var(--on-surface)] mb-1"
                             >
                                 Username
                             </label>
@@ -58,13 +58,13 @@ export default function LoginForm() {
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
-                                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                                className="w-full bg-[var(--surface-container-highest)] border border-[var(--outline-variant)]/15 rounded-md px-4 py-2.5 text-sm text-[var(--on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-fixed-dim)]"
                             />
                         </div>
                         <div>
                             <label
                                 htmlFor="password"
-                                className="block text-sm font-medium text-slate-700 mb-1"
+                                className="block text-sm font-medium text-[var(--on-surface)] mb-1"
                             >
                                 Password
                             </label>
@@ -74,18 +74,18 @@ export default function LoginForm() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                                className="w-full bg-[var(--surface-container-highest)] border border-[var(--outline-variant)]/15 rounded-md px-4 py-2.5 text-sm text-[var(--on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-fixed-dim)]"
                             />
                         </div>
                         {error && (
-                            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+                            <p className="text-sm text-[var(--error)] bg-[var(--error-container)] rounded-md px-4 py-2.5">
                                 {error}
                             </p>
                         )}
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-slate-800 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-[var(--primary-fixed-dim)] text-[var(--on-primary-fixed)] rounded-md px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Signing in…' : 'Log in'}
                         </button>

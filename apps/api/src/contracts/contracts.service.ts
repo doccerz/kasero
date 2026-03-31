@@ -63,7 +63,7 @@ export function generatePayables(params: GeneratePayablesParams) {
         // periodEnd = one day before next cursor, clamped to endDate
         let [pey, pem, ped] = addMonths(cy, cm, cd, step);
         // subtract one day from (pey, pem, nd=nd)
-        let peMinus = new Date(Date.UTC(pey, pem - 1, 1));
+        let peMinus = new Date(Date.UTC(pey, pem - 1, ped));
         peMinus.setUTCDate(peMinus.getUTCDate() - 1);
         pey = peMinus.getUTCFullYear();
         pem = peMinus.getUTCMonth() + 1;
@@ -75,7 +75,9 @@ export function generatePayables(params: GeneratePayablesParams) {
         }
 
         const clampedDue = Math.min(dueDateRule, daysInMonth(cy, cm));
-        const dueDate = toYMD(cy, cm, clampedDue);
+        const dueDateMs = Math.min(Date.UTC(cy, cm - 1, clampedDue), Date.UTC(pey, pem - 1, ped));
+        const dueDateObj = new Date(dueDateMs);
+        const dueDate = toYMD(dueDateObj.getUTCFullYear(), dueDateObj.getUTCMonth() + 1, dueDateObj.getUTCDate());
 
         const billingDate = billingDateRule != null
             ? toYMD(cy, cm, Math.min(billingDateRule, daysInMonth(cy, cm)))
@@ -125,6 +127,25 @@ export class ContractsService {
         advanceMonths?: number;
         metadata?: unknown;
     }) {
+        // Validate rent amount is positive
+        if (!data.rentAmount || parseFloat(data.rentAmount) <= 0) {
+            throw new BadRequestException('Rent amount must be greater than zero');
+        }
+
+        // Validate end date is not before start date
+        if (data.endDate < data.startDate) {
+            throw new BadRequestException('End date must be on or after start date');
+        }
+
+        // Validate contract duration does not exceed 10 years
+        const start = new Date(data.startDate);
+        const end = new Date(data.endDate);
+        const maxEndDate = new Date(start);
+        maxEndDate.setFullYear(start.getFullYear() + 10);
+        if (end > maxEndDate) {
+            throw new BadRequestException('Contract duration cannot exceed 10 years');
+        }
+
         const rows = await this.db.insert(contracts).values(data).returning();
         return rows[0];
     }
@@ -133,6 +154,30 @@ export class ContractsService {
         const existing = await this.findOne(id);
         if (existing.status === 'posted') {
             throw new BadRequestException('Cannot modify a posted contract');
+        }
+
+        // Validate rent amount is positive if being updated
+        if (data.rentAmount !== undefined) {
+            if (!data.rentAmount || parseFloat(data.rentAmount) <= 0) {
+                throw new BadRequestException('Rent amount must be greater than zero');
+            }
+        }
+
+        // Validate end date is not before start date if either is being updated
+        const newStartDate = data.startDate ?? existing.startDate;
+        const newEndDate = data.endDate ?? existing.endDate;
+        if (newEndDate < newStartDate) {
+            throw new BadRequestException('End date must be on or after start date');
+        }
+        // Validate contract duration does not exceed 10 years if dates are being updated
+        if (data.startDate || data.endDate) {
+            const start = new Date(newStartDate);
+            const end = new Date(newEndDate);
+            const maxEndDate = new Date(start);
+            maxEndDate.setFullYear(start.getFullYear() + 10);
+            if (end > maxEndDate) {
+                throw new BadRequestException('Contract duration cannot exceed 10 years');
+            }
         }
         const rows = await this.db
             .update(contracts)
@@ -144,6 +189,24 @@ export class ContractsService {
 
     async post(id: string) {
         const existing = await this.findOne(id);
+
+        // Validate rent amount is positive
+        if (!existing.rentAmount || parseFloat(existing.rentAmount) <= 0) {
+            throw new BadRequestException('Rent amount must be greater than zero');
+        }
+
+        // Validate end date is not before start date
+        if (existing.endDate < existing.startDate) {
+            throw new BadRequestException('End date must be on or after start date');
+        }
+        // Validate contract duration does not exceed 10 years
+        const start = new Date(existing.startDate);
+        const end = new Date(existing.endDate);
+        const maxEndDate = new Date(start);
+        maxEndDate.setFullYear(start.getFullYear() + 10);
+        if (end > maxEndDate) {
+            throw new BadRequestException('Contract duration cannot exceed 10 years');
+        }
         const payableRows = generatePayables({
             contractId: id,
             startDate: existing.startDate,

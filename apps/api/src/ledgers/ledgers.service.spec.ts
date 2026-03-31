@@ -276,6 +276,84 @@ describe('LedgersService.recordPayment', () => {
             .rejects.toThrow(BadRequestException);
         expect(mockDb.insert).not.toHaveBeenCalled();
     });
+
+    it('throws BadRequestException when payment amount is zero', async () => {
+        const activeContract = { id: contractId, status: 'posted' };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: '0' }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when payment amount is negative', async () => {
+        const activeContract = { id: contractId, status: 'posted' };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: '-100' }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when payment amount is NaN', async () => {
+        const activeContract = { id: contractId, status: 'posted' };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: 'abc' }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when payment date is before contract start date', async () => {
+        const activeContract = { id: contractId, status: 'posted', startDate: '2024-06-01' };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: '500.00', date: '2024-05-15' }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
+    });
+
+    it('allows payment when date equals contract start date', async () => {
+        const activeContract = { id: contractId, status: 'posted', startDate: '2024-06-01' };
+        const newPayment = { id: 'pm-new', contractId, amount: '500.00', date: '2024-06-01', voidedAt: null };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract, mutationRows: [newPayment] });
+        const service = await createService(mockDb);
+
+        const result = await service.recordPayment(contractId, { amount: '500.00', date: '2024-06-01' });
+
+        expect(result).toEqual(newPayment);
+        const [insertedValues] = mockDb.insert().values.mock.calls;
+        expect(insertedValues[0]).toMatchObject({ contractId, amount: '500.00', date: '2024-06-01' });
+    });
+
+    it('throws BadRequestException when payment date is in the future', async () => {
+        const activeContract = { id: contractId, status: 'posted', startDate: '2024-01-01' };
+        const futureDate = '2099-12-31';
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: '500.00', date: futureDate }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
+    });
+
+    it('allows payment when date is today', async () => {
+        const today = new Date().toISOString().split('T')[0];
+        const activeContract = { id: contractId, status: 'posted', startDate: '2024-01-01' };
+        const newPayment = { id: 'pm-new', contractId, amount: '500.00', date: today, voidedAt: null };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract, mutationRows: [newPayment] });
+        const service = await createService(mockDb);
+
+        const result = await service.recordPayment(contractId, { amount: '500.00', date: today });
+
+        expect(result).toEqual(newPayment);
+        const [insertedValues] = mockDb.insert().values.mock.calls;
+        expect(insertedValues[0]).toMatchObject({ contractId, amount: '500.00', date: today });
+    });
 });
 
 // ────────────────────────────────────────────────────────────────────

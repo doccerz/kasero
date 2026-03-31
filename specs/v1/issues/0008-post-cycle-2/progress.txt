@@ -1,0 +1,105 @@
+# Issue 0008 — Post Cycle 2 Progress
+
+## Completed Phases
+
+### Phase 1: Fix Auth Token Validation (TC-AUTH-006, TC-AUTH-007)
+**Status:** COMPLETE (already done before this session)
+- `apps/web/proxy.ts` — `isJwtValid()` helper already implemented
+- `apps/web/app/admin/(protected)/layout.tsx` — redirect logic already in place
+
+### Phase 2: Design Foundation — Colors & Typography
+**Status:** COMPLETE
+- `apps/web/app/globals.css` — Replaced CSS vars with new "Precision Architect" token palette (emerald primary, slate secondary, navy tertiary, blue-tinted surfaces)
+- `apps/web/app/layout.tsx` — Added Manrope (700, 800) and Inter (400, 500, 600) fonts via `next/font/google`
+
+### Phase 3: Layout & Navigation
+**Status:** COMPLETE
+- `apps/web/app/admin/(protected)/layout.tsx` — Sidebar updated with tonal surfaces, removed borders, navy text
+- `apps/web/app/admin/_components/admin-nav.tsx` — Nav links updated with new color tokens
+
+### Phase 4: Interactive Components — Buttons, Inputs, Modals
+**Status:** COMPLETE
+Updated all component files:
+- `apps/web/app/admin/(protected)/spaces/_components/spaces-client.tsx`
+- `apps/web/app/admin/(protected)/tenants/_components/tenants-client.tsx`
+- `apps/web/app/admin/(protected)/contracts/_components/contracts-client.tsx`
+- `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx`
+
+Changes:
+- Primary buttons: `bg-[var(--primary-fixed-dim)] text-[var(--on-primary-fixed)]`
+- Secondary buttons: `bg-[var(--secondary-container)] text-[var(--on-secondary-container)]`
+- Ghost buttons: `bg-transparent text-[var(--on-surface-variant)]`
+- Danger buttons: `bg-[var(--error-container)] text-[var(--error)]` or `bg-[var(--error)] text-white`
+- Inputs: `bg-[var(--surface-container-highest)] border border-[var(--outline-variant)]/15`
+- Modals: `bg-[var(--surface-container-lowest)] shadow-[0_10px_40px_rgba(13,28,46,0.06)]` (no borders)
+
+### Phase 5: Tables & Status Indicators
+**Status:** COMPLETE (done as part of Phase 4 updates)
+- Removed `border border-slate-200` wrappers and `border-b` row dividers
+- Even rows: `bg-[var(--surface-container-lowest)]`; odd/hover: `bg-[var(--surface-container-low)]`
+- Headers: `bg-[var(--surface-container)]` with Manrope uppercase labels
+- Cell padding increased to `px-5 py-4`
+- Status pills replaced with vertical status bars (spaces-client.tsx):
+  - `overdue` → `var(--error)` (red)
+  - `nearing` → `#b45309` (amber)
+  - `occupied` → `var(--primary-fixed-dim)` (emerald)
+  - `vacant` → `var(--outline-variant)` (gray)
+
+### Phase 6: Login Page & Final Polish
+**Status:** COMPLETE
+- `apps/web/app/admin/login/login-form.tsx` — Updated with new design (navy headline, tonal card, emerald button)
+- `apps/web/app/admin/(protected)/profile/page.tsx` — Section cards with tonal surfaces, Manrope headers
+- `apps/web/app/admin/(protected)/contracts/[id]/page.tsx` — Amount Due card with ambient shadow, no border; overdue color → `var(--error)`, paid → `var(--primary-fixed-dim)`
+
+### Phase 7: Unblock Blocked Tests
+**Status:** COMPLETE
+
+#### TC-DASH-004: All Spaces Overdue
+- **Before:** `test.skip()` — static fixture only had 1 overdue space
+- **After:** Added `/admin/dashboard-all-overdue` fixture with 4 overdue spaces; test navigates with `?scenario=all-overdue` query param
+
+#### TC-DASH-005: All Spaces Vacant
+- **Status:** ACCEPTED BLOCKED (v1) — DB constraint prevents hard-delete of contracts; updated comment
+
+#### TC-DASH-007: Dashboard with 50+ Spaces
+- **Before:** `test.skip()` — static fixture only had 4 spaces
+- **After:** Added `/admin/dashboard-large` fixture with 55 dynamically generated spaces; test navigates with `?scenario=large` query param
+
+#### TC-PUBLIC-007: Rapid Repeated Access
+- **Before:** `test.skip(isDockerMode, ...)`
+- **After:** Removed skip; fixture `/internal/contracts/public/VALIDCODE` already exists; test passes in mock mode
+
+#### TC-PUBLIC-009: Tenant Self-Entry Duplicate Submission
+- **Before:** `test.skip(isDockerMode, ...)`
+- **After:** Removed skip; mock server handles `VALIDTOKEN` and `USEDTOKEN` correctly
+
+#### TC-PUBLIC-010: Self-Entry with Incomplete Data
+- **Before:** `test.skip(isDockerMode, ...)`
+- **After:** Removed skip; validates client-side form validation only; `VALIDTOKEN` fixture exists
+
+## Files Modified
+
+### Core Files
+- `apps/web/app/globals.css`
+- `apps/web/app/layout.tsx`
+- `apps/web/app/admin/(protected)/layout.tsx`
+- `apps/web/app/admin/_components/admin-nav.tsx`
+
+### Component Files
+- `apps/web/app/admin/(protected)/spaces/_components/spaces-client.tsx`
+- `apps/web/app/admin/(protected)/tenants/_components/tenants-client.tsx`
+- `apps/web/app/admin/(protected)/contracts/_components/contracts-client.tsx`
+- `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx`
+- `apps/web/app/admin/(protected)/contracts/[id]/page.tsx`
+- `apps/web/app/admin/(protected)/profile/page.tsx`
+- `apps/web/app/admin/login/login-form.tsx`
+
+### Test Files
+- `apps/web/e2e/global-setup.ts` — Added fixtures for all-overdue and large dashboard scenarios
+- `apps/web/e2e/sit-cycle2-dashboard.spec.ts` — Unblocked TC-DASH-004, TC-DASH-007; updated TC-DASH-005 as accepted blocked
+- `apps/web/e2e/sit-public.spec.ts` — Unblocked TC-PUBLIC-007, TC-PUBLIC-009, TC-PUBLIC-010
+
+## Next Steps
+1. Run full test suite to verify all changes
+2. Update memory md files with new patterns
+3. Open PR to staging
