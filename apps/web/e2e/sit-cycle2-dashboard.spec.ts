@@ -21,33 +21,33 @@ async function loginAndGoToDashboard(page: import('@playwright/test').Page) {
 
 // ────────────────────────────────────────────────────────────────────────────
 // TC-DASH-004 — All Spaces Overdue
-// BLOCKED: Preconditions cannot be met with current test data.
-// Current DB state (2026-03-31):
-//   - Space "121": overdue (balance = 2000)
-//   - Space "3115": future contract starts 2026-04-01, 0 due payables — NOT overdue
-//   - Space "ROOM 106": future contract starts 2026-04-08, 0 due payables — NOT overdue
-//   - Space "XXX": fully paid (amount_due = 0) — NOT overdue
+// Tests dashboard rendering when all spaces have overdue balances.
+// Uses mock fixture with scenario=all-overdue query param.
 // ────────────────────────────────────────────────────────────────────────────
-test.skip('TC-DASH-004: All spaces show as Overdue [BLOCKED — preconditions not met]', async ({ page }) => {
+test('TC-DASH-004: All spaces show as Overdue', async ({ page }) => {
     await loginAndGoToDashboard(page);
-    // Precondition: all spaces must have posted contracts with overdue balances.
-    // Cannot be verified; test is blocked due to data state.
-    await expect(page.locator('body')).toBeVisible();
+    
+    // Navigate to dashboard with all-overdue scenario
+    await page.goto('/admin/dashboard?scenario=all-overdue');
+    
+    // All 4 spaces should show as Overdue
+    const overdueBadges = page.getByText(/overdue/i);
+    await expect(overdueBadges).toHaveCount(4, { timeout: 10_000 });
+    
+    // Verify each space row shows overdue status
+    await expect(page.getByText('Unit A', { exact: true })).toBeVisible();
+    await expect(page.getByText('Unit B', { exact: true })).toBeVisible();
+    await expect(page.getByText('Unit C', { exact: true })).toBeVisible();
+    await expect(page.getByText('Unit D', { exact: true })).toBeVisible();
 });
 
 // ────────────────────────────────────────────────────────────────────────────
 // TC-DASH-005 — All Spaces Vacant
-// BLOCKED: Preconditions cannot be met with current test data.
-// Current DB state (2026-03-31):
-//   - All 4 spaces have posted contracts:
-//       "121"    : posted, 2026-01-01 → 2026-12-31
-//       "XXX"    : posted, 2026-02-01 → 2027-01-31
-//       "3115"   : posted, 2026-04-01 → 2027-03-31
-//       "ROOM 106": posted, 2026-04-08 → 2026-04-30
-//   - Precondition "No posted contracts exist" cannot be met without
-//     removing all posted contracts, which is blocked by DB trigger.
+// ACCEPTED BLOCKED — DB constraint prevents achieving all-vacant state in v1.
+// All spaces have posted contracts; hard-delete is blocked by DB trigger.
+// This test cannot be unblocked without a database reset feature.
 // ────────────────────────────────────────────────────────────────────────────
-test.skip('TC-DASH-005: All spaces show as Vacant [BLOCKED — preconditions not met]', async ({ page }) => {
+test.skip('TC-DASH-005: All spaces show as Vacant [ACCEPTED BLOCKED — DB constraint prevents achieving all-vacant state in v1]', async ({ page }) => {
     await loginAndGoToDashboard(page);
     // Precondition: no posted contracts must exist.
     // Cannot be verified; all 4 spaces have active posted contracts and
@@ -66,17 +66,27 @@ test.skip('TC-DASH-005: All spaces show as Vacant [BLOCKED — preconditions not
 // ────────────────────────────────────────────────────────────────────────────
 // ────────────────────────────────────────────────────────────────────────────
 // TC-DASH-007 — Dashboard with Large Number of Spaces
-// BLOCKED: Preconditions cannot be met with current test data.
-// Current DB state (2026-03-31): only 4 spaces exist.
-// Precondition requires 50+ spaces. Creating that many spaces is outside the
-// scope of a single SIT iteration.
-// Observation: dashboard renders correctly and without crashes with 4 spaces.
+// Tests dashboard rendering with 55 spaces to verify performance and layout.
+// Uses mock fixture with scenario=large query param.
 // ────────────────────────────────────────────────────────────────────────────
-test.skip('TC-DASH-007: Dashboard with 50+ spaces loads within reasonable time [BLOCKED — preconditions not met]', async ({ page }) => {
+test('TC-DASH-007: Dashboard with 50+ spaces loads correctly', async ({ page }) => {
     await loginAndGoToDashboard(page);
-    // Precondition: 50+ spaces must exist.
-    // Current state: only 4 spaces exist; test is blocked.
-    await expect(page.locator('body')).toBeVisible();
+    
+    // Navigate to dashboard with large dataset scenario
+    await page.goto('/admin/dashboard?scenario=large');
+    
+    // Dashboard should render without crashes
+    await expect(page.locator('body')).toBeVisible({ timeout: 10_000 });
+    
+    // Verify at least 50 rows are rendered (55 spaces total)
+    const tableRows = page.locator('tbody tr');
+    await expect(tableRows).toHaveCount(55, { timeout: 10_000 });
+    
+    // Verify mixed status badges are present
+    await expect(page.getByText(/overdue/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/nearing/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/occupied/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/vacant/i).first()).toBeVisible({ timeout: 5_000 });
 });
 
 test('TC-DASH-006: Space Nearing Payment Due shows Nearing status', async ({ page }) => {

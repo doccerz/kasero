@@ -43,6 +43,65 @@ const FIXTURES: Record<string, object | object[]> = {
             occupancyStatus: 'vacant',
         },
     ],
+    // Fixture for TC-DASH-004: All spaces overdue
+    '/admin/dashboard-all-overdue': [
+        {
+            id: 'space-overdue-1',
+            name: 'Unit A',
+            description: 'All overdue unit 1',
+            occupancyStatus: 'overdue',
+            tenantId: 'tenant-1',
+            tenantName: 'Maria Santos',
+            contractId: 'contract-1',
+            amountDue: '2000.00',
+            nextDueDate: '2026-03-01',
+        },
+        {
+            id: 'space-overdue-2',
+            name: 'Unit B',
+            description: 'All overdue unit 2',
+            occupancyStatus: 'overdue',
+            tenantId: 'tenant-2',
+            tenantName: 'Jose Rizal',
+            contractId: 'contract-2',
+            amountDue: '1500.00',
+            nextDueDate: '2026-03-01',
+        },
+        {
+            id: 'space-overdue-3',
+            name: 'Unit C',
+            description: 'All overdue unit 3',
+            occupancyStatus: 'overdue',
+            tenantId: 'tenant-3',
+            tenantName: 'Andres Bonifacio',
+            contractId: 'contract-3',
+            amountDue: '3000.00',
+            nextDueDate: '2026-03-01',
+        },
+        {
+            id: 'space-overdue-4',
+            name: 'Unit D',
+            description: 'All overdue unit 4',
+            occupancyStatus: 'overdue',
+            tenantId: 'tenant-4',
+            tenantName: 'Juan Luna',
+            contractId: 'contract-4',
+            amountDue: '2500.00',
+            nextDueDate: '2026-03-01',
+        },
+    ],
+    // Fixture for TC-DASH-007: Large dataset (55 spaces)
+    '/admin/dashboard-large': Array.from({ length: 55 }, (_, i) => ({
+        id: `space-bulk-${i + 1}`,
+        name: `Unit ${i + 1}`,
+        description: `Bulk test unit ${i + 1}`,
+        occupancyStatus: i % 4 === 0 ? 'overdue' : i % 4 === 1 ? 'nearing' : i % 4 === 2 ? 'occupied' : 'vacant',
+        tenantId: i % 4 === 3 ? undefined : `tenant-${i + 1}`,
+        tenantName: i % 4 === 3 ? undefined : `Tenant ${i + 1}`,
+        contractId: i % 4 === 3 ? undefined : `contract-${i + 1}`,
+        amountDue: i % 4 === 0 ? '1000.00' : '0.00',
+        nextDueDate: '2026-04-15',
+    })),
     '/admin/spaces': [
         { id: 'space-1', name: 'Unit 1A', description: 'Ground floor corner unit' },
         { id: 'space-2', name: 'Unit 2B', description: 'Second floor unit' },
@@ -200,6 +259,25 @@ export default async function globalSetup() {
         const method = req.method ?? 'GET';
 
         res.setHeader('Content-Type', 'application/json');
+
+        // Handle query params for dashboard variants (used by tests)
+        const urlWithoutQuery = url.split('?')[0];
+        const queryParams = new URLSearchParams(url.split('?')[1] || '');
+
+        // Handle dashboard with query param for different scenarios
+        if (urlWithoutQuery === '/admin/dashboard') {
+            const scenario = queryParams.get('scenario');
+            if (scenario === 'all-overdue') {
+                res.writeHead(200);
+                res.end(JSON.stringify(FIXTURES['/admin/dashboard-all-overdue']));
+                return;
+            }
+            if (scenario === 'large') {
+                res.writeHead(200);
+                res.end(JSON.stringify(FIXTURES['/admin/dashboard-large']));
+                return;
+            }
+        }
 
         // Handle login — set a mock cookie header
         if (url === '/auth/login' && method === 'POST') {

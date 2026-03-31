@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 
 const INPUT_CLASS =
-    'w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent';
+    'w-full bg-[var(--surface-container-highest)] border border-[var(--outline-variant)]/15 rounded-md px-4 py-2.5 text-sm text-[var(--on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-fixed-dim)]';
 const BUTTON_CLASS =
-    'bg-slate-800 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+    'bg-[var(--primary-fixed-dim)] text-[var(--on-primary-fixed)] rounded-md px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed';
 
 export default function ProfilePage() {
     const [name, setName] = useState('');
@@ -92,14 +92,14 @@ export default function ProfilePage() {
 
     return (
         <div className="p-6 max-w-lg space-y-8">
-            <h1 className="text-2xl font-bold text-slate-800">Profile</h1>
+            <h1 className="text-2xl font-bold text-[var(--on-surface)] font-[family-name:var(--font-display)]">Profile</h1>
 
             {/* Profile Details */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-                <h2 className="text-lg font-semibold text-slate-800 mb-6">Profile Details</h2>
+            <div className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] p-8">
+                <h2 className="text-lg font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-6">Profile Details</h2>
                 <form onSubmit={handleProfileSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="name" className="block text-sm font-medium text-[var(--on-surface)] mb-1">
                             Name
                         </label>
                         <input
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="email" className="block text-sm font-medium text-[var(--on-surface)] mb-1">
                             Email
                         </label>
                         <input
@@ -123,12 +123,12 @@ export default function ProfilePage() {
                         />
                     </div>
                     {profileStatus === 'success' && (
-                        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
+                        <p className="text-sm text-[var(--primary)] bg-[var(--primary-fixed-dim)]/20 rounded-md px-4 py-2.5">
                             Profile updated successfully.
                         </p>
                     )}
                     {profileError && (
-                        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+                        <p className="text-sm text-[var(--error)] bg-[var(--error-container)] rounded-md px-4 py-2.5">
                             {profileError}
                         </p>
                     )}
@@ -143,11 +143,11 @@ export default function ProfilePage() {
             </div>
 
             {/* Change Password */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-                <h2 className="text-lg font-semibold text-slate-800 mb-6">Change Password</h2>
+            <div className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] p-8">
+                <h2 className="text-lg font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-6">Change Password</h2>
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="currentPassword" className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="currentPassword" className="block text-sm font-medium text-[var(--on-surface)] mb-1">
                             Current Password
                         </label>
                         <input
@@ -160,7 +160,7 @@ export default function ProfilePage() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="newPassword" className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="newPassword" className="block text-sm font-medium text-[var(--on-surface)] mb-1">
                             New Password
                         </label>
                         <input
@@ -173,7 +173,7 @@ export default function ProfilePage() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--on-surface)] mb-1">
                             Confirm New Password
                         </label>
                         <input
@@ -186,12 +186,12 @@ export default function ProfilePage() {
                         />
                     </div>
                     {passwordStatus === 'success' && (
-                        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
+                        <p className="text-sm text-[var(--primary)] bg-[var(--primary-fixed-dim)]/20 rounded-md px-4 py-2.5">
                             Password updated successfully.
                         </p>
                     )}
                     {passwordError && (
-                        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+                        <p className="text-sm text-[var(--error)] bg-[var(--error-container)] rounded-md px-4 py-2.5">
                             {passwordError}
                         </p>
                     )}

@@ -20,8 +20,8 @@ export default function AdminNav() {
                         href={item.href}
                         className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             active
-                                ? 'bg-slate-800 text-white'
-                                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                ? 'bg-[var(--surface-container)] text-[var(--on-surface)]'
+                                : 'text-[var(--on-surface)] hover:bg-[var(--surface-container)]'
                         }`}
                     >
                         {item.label}

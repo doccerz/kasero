@@ -154,10 +154,6 @@ test.describe('SIT Cycle 1 — Tenant Status (Public View)', () => {
     //   1. Rapidly refresh the public status page 10+ times in 1 second.
     // Expected: Page loads correctly each time; no rate limit crash; consistent data.
     test('TC-PUBLIC-007: Rapid repeated access to same code', async ({ page }) => {
-        // Precondition: A valid public access code must exist — requires a posted contract.
-        // In Docker mode no contracts have been posted — skip (BLOCKED).
-        test.skip(isDockerMode, 'BLOCKED: No valid public access code exists — contract creation/posting UI not yet implemented; cannot test rapid repeated access without a valid code');
-
         // Non-Docker (mock): use the VALIDCODE fixture
         // Rapidly access the same public code 10+ times
         const accessPromises = [];
@@ -240,12 +236,7 @@ test.describe('SIT Cycle 1 — Tenant Status (Public View)', () => {
     //   3. Try third time with different data.
     // Expected: First submission succeeds; subsequent submissions fail OR token is consumed after first use.
     test('TC-PUBLIC-009: Tenant self-entry duplicate submission', async ({ page }) => {
-        // Precondition: A valid entry token must exist — requires a posted contract with entry token.
-        // Entry tokens are only generated when a contract is posted.
-        // In Docker mode no entry tokens have been issued — skip (BLOCKED).
-        test.skip(isDockerMode, 'BLOCKED: No valid entry token exists — contract creation/posting UI not yet implemented; entry tokens only issued when contracts are posted; cannot test duplicate submission without valid token');
-
-        // Non-Docker (mock): use the VALIDTOKEN fixture
+        // Non-Docker (mock): use the VALIDTOKEN and USEDTOKEN fixtures
         // Navigate to entry form
         await page.goto('/entry/VALIDTOKEN');
 
@@ -275,10 +266,6 @@ test.describe('SIT Cycle 1 — Tenant Status (Public View)', () => {
     //   2. Submit without filling required fields.
     // Expected: Validation blocks submission; required field errors shown.
     test('TC-PUBLIC-010: Self-entry with incomplete data', async ({ page }) => {
-        // Precondition: A valid entry token must exist — requires a posted contract.
-        // In Docker mode no entry tokens have been issued — skip (BLOCKED).
-        test.skip(isDockerMode, 'BLOCKED: No valid entry token exists — contract creation/posting UI not yet implemented; cannot test incomplete data submission without valid token');
-
         // Non-Docker (mock): use the VALIDTOKEN fixture
         await page.goto('/entry/VALIDTOKEN');
 
