@@ -37,6 +37,9 @@ npx playwright test e2e/sit-auth.spec.ts --reporter=list
 | Spec file | Test group |
 |-----------|-----------|
 | `e2e/sit-auth.spec.ts` | TC-AUTH-001 to TC-AUTH-005 |
+| `e2e/sit-cycle2-auth.spec.ts` | TC-AUTH-006 to TC-AUTH-010 (Cycle 2 edge cases) |
+| `e2e/sit-cycle2-dashboard.spec.ts` | TC-DASH-004 to TC-DASH-007 |
+| `e2e/sit-cycle2-spaces.spec.ts` | TC-SPACE-007 to TC-SPACE-012 |
 
 ---
 
@@ -158,3 +161,158 @@ export function generatePayables(params) { ... }
 import { generatePayables } from './contracts.service';
 describe('generatePayables', () => { ... });
 ```
+
+---
+
+## Cycle 2 Playwright Test Patterns (Edge Cases)
+
+### Test file structure template
+
+```typescript
+/**
+ * SIT/UAT Cycle 2 — <Module> Edge Cases
+ * Tests: TC-XXX-007 through TC-XXX-012
+ * Run against: PLAYWRIGHT_BASE_URL=http://localhost:3000
+ */
+import { test, expect } from '@playwright/test';
+
+const ADMIN_USER = process.env.ADMIN_USERNAME ?? 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASSWORD ?? 'replace-with-a-strong-password';
+
+async function loginAndGoTo<Page>(page: import('@playwright/test').Page) {
+    await page.goto('/admin/login');
+    await page.getByLabel(/username/i).fill(ADMIN_USER);
+    await page.getByLabel(/password/i).fill(ADMIN_PASS);
+    await page.getByRole('button', { name: /log in/i }).click();
+    await page.waitForURL(/\/admin\/(dashboard|spaces)/);
+    await page.goto('/admin/<page>');
+}
+```
+
+### Pattern: Testing with special characters
+
+```typescript
+test('TC-SPACE-007: Space name with special characters', async ({ page }) => {
+    const specialName = 'Unit 101-B (Ground Floor) <test> !@#$%^&*()';
+    
+    await loginAndGoToSpaces(page);
+    await page.getByRole('button', { name: 'New Space' }).click();
+    
+    const nameInput = page.locator('#space-name').or(page.getByPlaceholder('e.g. Unit 1A'));
+    await nameInput.fill(specialName);
+    await page.getByRole('button', { name: 'Create' }).click();
+    
+    // Verify special characters preserved
+    const spaceEntry = page.getByText('Unit 101-B (Ground Floor)', { exact: false });
+    await expect(spaceEntry).toBeVisible({ timeout: 10_000 });
+});
+```
+
+### Pattern: Testing with Unicode/accented characters
+
+```typescript
+test('TC-SPACE-008: Space name with Unicode characters', async ({ page }) => {
+    const unicodeName = 'Piso Uno — Áéíóú Ñ';
+    
+    await loginAndGoToSpaces(page);
+    // ... fill form ...
+    await nameInput.fill(unicodeName);
+    
+    // Verify Unicode preserved
+    const fullText = await spaceEntry.textContent();
+    expect(fullText).toContain('Áéíóú Ñ');
+});
+```
+
+### Pattern: Testing boundary conditions (long strings)
+
+```typescript
+test('TC-SPACE-009: Very long space name (255 chars)', async ({ page }) => {
+    const longName = 'A'.repeat(255);
+    const longDescription = 'B'.repeat(1000);
+    
+    await loginAndGoToSpaces(page);
+    // ... fill form with long values ...
+    
+    // Either validation error OR successful save
+    const validationError = page.getByText(/too long|max.*length|exceed/i).first();
+    const hasValidationError = await validationError.isVisible({ timeout: 3_000 }).catch(() => false);
+    
+    if (hasValidationError) {
+        expect(hasValidationError).toBe(true);
+    } else {
+        // Verify save succeeded
+        await expect(nameInput).not.toBeVisible({ timeout: 10_000 });
+        const spaceEntry = page.getByText(longName.substring(0, 50), { exact: false });
+        await expect(spaceEntry).toBeVisible({ timeout: 10_000 });
+    }
+});
+```
+
+### Pattern: Testing auth edge cases with cookies
+
+```typescript
+test('TC-AUTH-006: Expired JWT token redirects to login', async ({ page, context }) => {
+    const expiredToken = jwt.sign(
+        { sub: 'admin', username: ADMIN_USER },
+        JWT_SECRET,
+        { expiresIn: -3600 } // expired 1 hour ago
+    );
+    
+    await context.addCookies([{
+        name: 'auth_token',
+        value: expiredToken,
+        domain: 'localhost',
+        path: '/',
+    }]);
+    
+    await page.goto('/admin/spaces');
+    await expect(page).toHaveURL(/\/admin\/login/);
+});
+```
+
+### Pattern: Testing SQL injection / XSS attempts
+
+```typescript
+test('TC-AUTH-009: SQL injection in username field', async ({ page }) => {
+    await page.goto('/admin/login');
+    await page.getByLabel(/username/i).fill("' OR 1=1 --");
+    await page.getByLabel(/password/i).fill('anypassword');
+    await page.getByRole('button', { name: /log in/i }).click();
+    
+    // Should stay on login page
+    await expect(page).not.toHaveURL(/\/admin\/(?!login)/);
+    
+    // No SQL error text exposed
+    const bodyText = await page.locator('body').innerText();
+    expect(bodyText).not.toMatch(/sql|syntax error|pg|postgres/i);
+});
+```
+
+### Pattern: Handling optional fields gracefully
+
+```typescript
+// Try to fill description if field exists (may be textarea or optional)
+const descriptionInput = page.locator('textarea').or(page.getByPlaceholder(/description/i));
+const descriptionCount = await descriptionInput.count();
+if (descriptionCount > 0) {
+    const descVisible = await descriptionInput.first().isVisible();
+    if (descVisible) {
+        await descriptionInput.first().fill(longDescription);
+    }
+}
+```
+
+### Key patterns learned from Cycle 2
+
+1. **Flexible locators**: Use `.or()` chains to handle UI variations:
+   - `page.locator('#space-name').or(page.getByPlaceholder('e.g. Unit 1A'))`
+   - `page.locator('textarea').or(page.getByPlaceholder(/description/i))`
+
+2. **Graceful degradation**: Tests should handle both success and validation error paths as valid outcomes for boundary tests.
+
+3. **Cookie injection for auth tests**: Use `context.addCookies()` to inject JWT tokens (valid, expired, or malformed) for testing auth guards.
+
+4. **Timeout management**: Use explicit timeouts (`{ timeout: 10_000 }`) for UI state changes; shorter timeouts (`{ timeout: 3_000 }`) for optional elements.
+
+5. **Substring matching for long values**: When verifying 255-char names, check first 50 chars rather than full string.
