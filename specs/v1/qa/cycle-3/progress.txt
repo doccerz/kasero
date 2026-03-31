@@ -28,13 +28,24 @@ Locator: getByRole('heading', { name: /payments/i })
 
 - **API Tests (Jest):** 35 suites, 272 tests - ALL PASSED
 - **Web Tests (Jest):** 7 suites, 8 tests - ALL PASSED
-- **Playwright Tests:** First failing test now passes (admin-contract.spec.ts:9)
+- **Playwright Tests:** First failing test (admin-contract.spec.ts:9) now PASSES
+
+### Verification
+Ran `e2e/admin-contract.spec.ts` after fix:
+- ✓ Test #5: "shows contract summary, amount due, and all ledger tables" - NOW PASSES
+- Other failures (tests #6, #7) are pre-existing issues, not caused by this fix
 
 ## Files Modified
 
 1. `docker-compose.yml` - Added port mapping `30035:5432` for database
 2. `apps/web/playwright.config.ts` - Changed `reuseExistingServer` to `false`
 3. `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx` - Added "Payments" heading
+4. `specs/v1/qa/cycle-3/progress.txt` - Progress documentation
+
+## Git Status
+
+- Committed to staging branch: `3443d8b`
+- Commit message: "fix: add Payments heading and update Playwright config for mock server"
 
 ## Next Steps
 
