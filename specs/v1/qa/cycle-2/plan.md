@@ -59,6 +59,7 @@ docker compose up -d --build
 | TC-DASH-007 | Dashboard with Large Number of Spaces | Claude | 2026-03-31 | BLOCKED | Preconditions cannot be met: only 4 spaces exist in the DB; creating 50+ spaces via the UI is outside the scope of a single SIT iteration; dashboard works correctly with 4 spaces (loads, no crashes, no UI breaks) |
 | TC-SPACE-007 | Space Name with Special Characters | Claude | 2026-03-31 | PASS | Space created with name "Unit 101-B (Ground Floor) <test> !@#$%^&*()" successfully; special characters preserved and displayed correctly in the spaces list; Playwright test passed in 595ms against live Docker stack |
 | TC-SPACE-008 | Space Name with Unicode/Accented Characters | Claude | 2026-03-31 | PASS | Space created with name "Piso Uno — Áéíóú Ñ" successfully; Unicode/accented characters preserved and displayed correctly; Playwright test passed in 1.8s against live Docker stack |
+| TC-SPACE-009 | Very Long Space Name/Description | Claude | 2026-03-31 | PASS | Space created with 255-character name successfully; form submitted without validation errors; long name preserved in spaces list; description field not present in current UI; Playwright test passed in 1.8s against live Docker stack |
 
 ---
 

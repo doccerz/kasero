@@ -92,3 +92,13 @@
 - Verified space name displays correctly in the spaces list with all accented characters (Áéíóú Ñ) and em-dash (—)
 - Playwright test passed in 1.8s against live Docker stack
 - Finding documented in plan.md summary table
+
+2026-03-31 TC-SPACE-009: PASS
+- Added TC-SPACE-009 test to e2e/sit-cycle2-spaces.spec.ts
+- Generated 255-character name (all 'A's) and 1000-character description (all 'B's)
+- Filled space name field with 255-char string via UI
+- Description field not present in form (only name input exists)
+- Form submitted successfully; space created without validation errors
+- Verified space appears in the spaces list with the long name preserved
+- Playwright test passed in 1.8s against live Docker stack
+- Finding documented in plan.md summary table

@@ -97,3 +97,67 @@ test('TC-SPACE-008: Space name with Unicode/accented characters is saved and dis
     const fullText = await spaceEntry.textContent();
     expect(fullText).toContain('Áéíóú Ñ');
 });
+
+// ────────────────────────────────────────────────────────────────────────────
+// TC-SPACE-009 — Very Long Space Name/Description
+// Priority: P2
+// Preconditions: Admin is logged in.
+// Steps:
+//   1. Create a space with name: 255 characters long.
+//   2. Create a space with description: 1000+ characters.
+//   3. Save.
+// Expected: Either saved successfully (if supported) OR validation error shown indicating max length.
+// ────────────────────────────────────────────────────────────────────────────
+test('TC-SPACE-009: Very long space name (255 chars) and description (1000+ chars) handled correctly', async ({ page }) => {
+    // Generate a 255-character name
+    const longName = 'A'.repeat(255);
+    
+    // Generate a 1000+ character description
+    const longDescription = 'B'.repeat(1000);
+
+    await loginAndGoToSpaces(page);
+
+    // Open the Create Space form
+    const createBtn = page.getByRole('button', { name: 'New Space' });
+    await expect(createBtn).toBeVisible({ timeout: 10_000 });
+    await createBtn.click();
+
+    // Wait for the space name input to appear
+    const nameInput = page.locator('#space-name').or(page.getByPlaceholder('e.g. Unit 1A'));
+    await expect(nameInput).toBeVisible({ timeout: 5_000 });
+
+    // Fill in the long space name
+    await nameInput.fill(longName);
+
+    // Try to fill description if field exists (may be textarea or optional)
+    const descriptionInput = page.locator('textarea').or(page.getByPlaceholder(/description/i));
+    const descriptionCount = await descriptionInput.count();
+    if (descriptionCount > 0) {
+        const descVisible = await descriptionInput.first().isVisible();
+        if (descVisible) {
+            await descriptionInput.first().fill(longDescription);
+        }
+    }
+
+    // Submit the form
+    await page.getByRole('button', { name: 'Create' }).click();
+
+    // Either: form saves successfully OR validation error appears
+    // Check for validation error first
+    const validationError = page.getByText(/too long|max.*length|exceed|character limit/i).first();
+    const hasValidationError = await validationError.isVisible({ timeout: 3_000 }).catch(() => false);
+
+    if (hasValidationError) {
+        // Validation error shown - this is acceptable behavior
+        expect(hasValidationError).toBe(true);
+    } else {
+        // No validation error - expect successful save
+        // Wait for the name input to disappear (form closed after successful save)
+        await expect(nameInput).not.toBeVisible({ timeout: 10_000 });
+
+        // Verify the space was created - check for truncated name or full name in the list
+        // Since 255 chars is long, we check for the beginning of the name
+        const spaceEntry = page.getByText(longName.substring(0, 50), { exact: false });
+        await expect(spaceEntry).toBeVisible({ timeout: 10_000 });
+    }
+});
