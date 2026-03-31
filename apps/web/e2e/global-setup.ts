@@ -255,17 +255,23 @@ function readBody(req: http.IncomingMessage): Promise<string> {
 
 export default async function globalSetup() {
     server = http.createServer(async (req, res) => {
-        const url = req.url ?? '/';
+        let url = req.url ?? '/';
         const method = req.method ?? 'GET';
+
+        // Strip query params first
+        const urlWithoutQuery = url.split('?')[0];
+        
+        // Strip /api prefix (used by Next.js proxy for all API calls)
+        url = urlWithoutQuery.replace(/^\/api/, '');
 
         res.setHeader('Content-Type', 'application/json');
 
         // Handle query params for dashboard variants (used by tests)
-        const urlWithoutQuery = url.split('?')[0];
-        const queryParams = new URLSearchParams(url.split('?')[1] || '');
+        const originalUrl = req.url ?? '/';
+        const queryParams = new URLSearchParams(originalUrl.split('?')[1] || '');
 
         // Handle dashboard with query param for different scenarios
-        if (urlWithoutQuery === '/admin/dashboard') {
+        if (url === '/admin/dashboard') {
             const scenario = queryParams.get('scenario');
             if (scenario === 'all-overdue') {
                 res.writeHead(200);

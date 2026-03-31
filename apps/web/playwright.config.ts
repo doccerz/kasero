@@ -28,6 +28,8 @@ export default defineConfig({
               url: 'http://localhost:3000',
               reuseExistingServer: false,
               timeout: 120_000,
+              stdout: 'pipe',
+              stderr: 'pipe',
               env: {
                   INTERNAL_API_URL: 'http://localhost:3099',
               },

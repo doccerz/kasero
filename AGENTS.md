@@ -2,7 +2,7 @@
 
 ## Memory files
 
-<!-- Detailed rules are split into focused files under ./docs/ -->
+## Qwen Added Memories
 
 - [@./docs/coding-guidelines.md](./docs/coding-guidelines.md) - Coding guidelines, standards, and patterns
 - [@./docs/testing-patterns.md](./docs/testing-patterns.md) - Testing patterns
