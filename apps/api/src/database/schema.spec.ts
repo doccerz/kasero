@@ -13,7 +13,10 @@ import {
     audit,
 } from './schema';
 
-const hasDatabaseUrl = !!process.env.DATABASE_URL;
+// Use DATABASE_URL_LOCAL for local testing (host → db container via exposed port)
+// Fall back to DATABASE_URL for Docker Compose networking
+const databaseUrl = process.env.DATABASE_URL_LOCAL || process.env.DATABASE_URL;
+const hasDatabaseUrl = !!databaseUrl;
 
 describe('Schema exports', () => {
     it('should export spaces table', () => {
@@ -66,7 +69,7 @@ describe('DB migration — all tables exist', () => {
 
     beforeAll(() => {
         if (!hasDatabaseUrl) return;
-        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        pool = new Pool({ connectionString: databaseUrl });
     });
 
     afterAll(async () => {
@@ -116,7 +119,7 @@ describe('DB invariant — contract immutability trigger', () => {
 
     beforeAll(async () => {
         if (!hasDatabaseUrl) return;
-        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        pool = new Pool({ connectionString: databaseUrl });
         client = await pool.connect();
         await client.query('BEGIN');
 
@@ -178,7 +181,7 @@ describe('DB invariant — payment void audit trigger', () => {
 
     beforeAll(async () => {
         if (!hasDatabaseUrl) return;
-        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        pool = new Pool({ connectionString: databaseUrl });
         client = await pool.connect();
         await client.query('BEGIN');
 
@@ -262,7 +265,7 @@ describe('DB function — expire_contract_tenants()', () => {
 
     beforeAll(async () => {
         if (!hasDatabaseUrl) return;
-        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        pool = new Pool({ connectionString: databaseUrl });
         client = await pool.connect();
         await client.query('BEGIN');
     });
@@ -372,7 +375,7 @@ describe('DB invariant — no hard delete triggers', () => {
 
     beforeAll(async () => {
         if (!hasDatabaseUrl) return;
-        pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        pool = new Pool({ connectionString: databaseUrl });
         client = await pool.connect();
         await client.query('BEGIN');
 
