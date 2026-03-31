@@ -86,7 +86,7 @@ export class DashboardService {
             const contractPayables = payablesByContractId.get(contract.id) ?? [];
             const contractPayments = paymentsByContractId.get(contract.id) ?? [];
 
-            const pastDuePayables = contractPayables.filter((p: any) => p.dueDate <= refDate);
+            const pastDuePayables = contractPayables.filter((p: any) => (p.billingDate ?? p.dueDate) <= refDate);
             const futurePayables = contractPayables.filter((p: any) => p.dueDate > refDate);
 
             const totalOwed = pastDuePayables.reduce((sum: number, p: any) => sum + parseFloat(p.amount), 0);

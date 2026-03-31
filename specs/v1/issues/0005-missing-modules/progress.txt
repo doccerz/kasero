@@ -1,0 +1,22 @@
+● Now run the tests again:
+
+● Bash(PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test --project=chromium 2>&1 | tail -60)
+  ⎿          2) <input type="email" value="maria@example.com" placeholder="maria@example.com" class="w-full px-3 py-2 b
+     order border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"/> aka getByRole('t
+     extbox', { name: 'maria@example.com' })
+     … +35 lines (ctrl+o to expand)
+  ⎿  (timeout 5m)
+
+● Let me see the full error for the failing tests:
+
+● Bash(PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test --project=chromium -g "opens delete confirmation|opens
+      create modal|submits create form|opens edit…)
+  ⎿  Running…
+
+  6 tasks (5 done, 1 in progress, 0 open)
+  ✔ Create Next.js API routes for spaces and tenants CRUD
+  ✔ Build SpacesClient component and update spaces pages
+  ✔ Fix tenants data model and build TenantsClient component
+  ✔ Implement contracts list page and add Contracts to nav
+  ✔ Update mock server and write E2E tests
+  ◼ Run Docker + Playwright and fix all failures

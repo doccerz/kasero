@@ -5,7 +5,7 @@ import { DB_TOKEN } from '../database/database.module';
 
 const hasDatabaseUrl = !!process.env.DATABASE_URL;
 
-function buildMockDb({ selectRows = [], mutationRows = [] } = {}) {
+function buildMockDb({ selectRows = [] as any[], mutationRows = [] as any[] } = {}) {
     const returning = jest.fn().mockResolvedValue(mutationRows);
     const whereForMutation = jest.fn().mockReturnValue({ returning });
     const set = jest.fn().mockReturnValue({ where: whereForMutation });

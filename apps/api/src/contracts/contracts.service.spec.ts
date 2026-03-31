@@ -153,6 +153,47 @@ describe('generatePayables', () => {
         // Second period starts Feb 28/29, not March 3
         expect(rows[1].periodStart).toMatch(/^2024-02-/);
     });
+
+    it('billingDateRule provided → billingDate field set per billing period', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-01-01',
+            endDate: '2024-03-31',
+            rentAmount: '1000.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+            billingDateRule: 20,
+        });
+        expect(rows).toHaveLength(3);
+        expect(rows[0].billingDate).toBe('2024-01-20');
+        expect(rows[1].billingDate).toBe('2024-02-20');
+        expect(rows[2].billingDate).toBe('2024-03-20');
+    });
+
+    it('billingDateRule absent → billingDate equals dueDate', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-01-01',
+            endDate: '2024-01-31',
+            rentAmount: '1000.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+        });
+        expect(rows[0].billingDate).toBe(rows[0].dueDate);
+    });
+
+    it('billingDateRule clamped in February (leap year) when billingDateRule=31', () => {
+        const rows = generatePayables({
+            contractId,
+            startDate: '2024-02-01',
+            endDate: '2024-02-29',
+            rentAmount: '500.00',
+            billingFrequency: 'monthly',
+            dueDateRule: 5,
+            billingDateRule: 31,
+        });
+        expect(rows[0].billingDate).toBe('2024-02-29');
+    });
 });
 
 // ────────────────────────────────────────────────────────────────────
@@ -402,6 +443,55 @@ describe('ContractsService', () => {
             const tableCalls = tx.insert.mock.calls.map((c: any) => c[0]);
             expect(tableCalls).not.toContain(fund);
             expect(tableCalls).not.toContain(payments);
+        });
+    });
+
+    describe('void', () => {
+        function buildVoidTxMock(contractRow: any) {
+            return {
+                update: jest.fn().mockReturnValue({
+                    set: jest.fn().mockReturnValue({
+                        where: jest.fn().mockReturnValue({
+                            returning: jest.fn().mockResolvedValue([contractRow]),
+                        }),
+                    }),
+                }),
+                insert: jest.fn().mockReturnValue({
+                    values: jest.fn().mockReturnValue({
+                        returning: jest.fn().mockResolvedValue([]),
+                    }),
+                }),
+            };
+        }
+
+        it('throws NotFoundException when contract not found', async () => {
+            const mockDb = buildMockDb({ selectRows: [] });
+            const service = await createService(mockDb);
+            await expect(service.void('missing')).rejects.toThrow(NotFoundException);
+            expect(mockDb.transaction).not.toHaveBeenCalled();
+        });
+
+        it('throws BadRequestException when contract status is draft', async () => {
+            const mockDb = buildMockDb();
+            mockDb.select.mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([draftContract]), leftJoin: jest.fn() }) });
+            const service = await createService(mockDb);
+            await expect(service.void('contract-1')).rejects.toThrow(BadRequestException);
+            expect(mockDb.transaction).not.toHaveBeenCalled();
+        });
+
+        it('executes transaction: updates status to voided and inserts audit row', async () => {
+            const voidedContract = { ...postedContract, status: 'voided' };
+            const mockDb = buildMockDb();
+            mockDb.select.mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([postedContract]), leftJoin: jest.fn() }) });
+            const tx = buildVoidTxMock(voidedContract);
+            mockDb.transaction.mockImplementation(async (fn: any) => fn(tx));
+            const service = await createService(mockDb);
+
+            const result = await service.void('contract-1');
+
+            expect(result).toEqual(voidedContract);
+            expect(tx.update).toHaveBeenCalled();
+            expect(tx.insert).toHaveBeenCalledTimes(1);
         });
     });
 

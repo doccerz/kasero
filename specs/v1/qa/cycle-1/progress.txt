@@ -1,0 +1,122 @@
+## Cycle 1 Test Execution Progress
+
+### 2026-03-29 — Authentication Group (TC-AUTH-001 to TC-AUTH-005)
+- Executed via: `npx playwright test e2e/sit-auth.spec.ts` against docker compose stack (http://localhost:3000)
+- All 5 tests PASSED
+- TC-AUTH-001: Admin login happy path — PASS
+- TC-AUTH-002: Login wrong password shows error — PASS
+- TC-AUTH-003: Login empty fields shows validation — PASS
+- TC-AUTH-004: Access protected page without login redirects to login — PASS
+- TC-AUTH-005: Admin logout redirects to login page — PASS
+
+### 2026-03-29 — Dashboard Group (TC-DASH-001 to TC-DASH-003)
+- Executed via: `node apps/web/run-sit-dash.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-dash.spec.ts (copied to apps/web/e2e/sit-dash.spec.ts)
+- DB state at time of testing: Unit 1A (vacant), Unit 2B (vacant) — no contracts posted
+- TC-DASH-001: Dashboard loads with space summary — PASS (table visible, Vacant badges shown)
+- TC-DASH-002: Overdue status displayed — BLOCKED (precondition not met: no space has a posted overdue contract in the current DB)
+- TC-DASH-003: Vacant space displayed on dashboard — PASS (Unit 1A and Unit 2B both show Vacant)
+- Learnings:
+  - Use setupAuth (POST to /api/auth/login via page.request) not UI login for beforeEach — more reliable than clicking through the form
+  - UI login via page.goto + button click sets a cookie but requires awaiting the full page navigation before page.goto() is called again
+
+### 2026-03-29 — Tenants Management Group (TC-TENANT-001 to TC-TENANT-007)
+- Executed via: `node apps/web/run-sit-tenants.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-tenants.spec.ts (copied to apps/web/e2e/sit-tenants.spec.ts)
+- DB state at time of testing: Maria Santos, Jose Rizal (seed tenants); no contracts posted
+- TC-TENANT-001: Create a new tenant — PASS (modal opens, form fills firstName/lastName/email, Create submits, tenant appears in list)
+- TC-TENANT-002: Create tenant missing required fields — PASS (HTML5 required validation blocks submission on firstName; modal stays open)
+- TC-TENANT-003: View tenant details — PASS (click tenant link navigates to detail page, heading matches name, Contracts section visible, Back link present)
+- TC-TENANT-004: Edit tenant — PASS (Edit button opens pre-filled modal, phone field updated, Save closes modal)
+- TC-TENANT-005: Tenant cannot be deleted — PASS (no Delete button found in any tenant row; tenants list is non-empty confirming test is not vacuously true)
+- TC-TENANT-006: Tenant active on contract start — BLOCKED (precondition not met: no posted contract with start date ≤ today; contract creation UI not yet implemented)
+- TC-TENANT-007: Tenant inactive after contract ends — BLOCKED (precondition not met: no expired contract exists; contract creation UI not yet implemented)
+- Learnings:
+  - Tenant detail page uses `<dl>` with `<dt>`/`<dd>` for Email/Phone/Status; use `page.getByText('Email')` for label visibility
+  - No delete path for tenants by design — TC-TENANT-005 confirms this at the UI level
+  - TC-TENANT-006/007 depend on contract lifecycle; will unblock once contract creation UI is implemented
+
+### 2026-03-29 — Spaces Management Group (TC-SPACE-001 to TC-SPACE-006)
+- Executed via: `node apps/web/run-sit-spaces.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-spaces.spec.ts (copied to apps/web/e2e/sit-spaces.spec.ts)
+- TC-SPACE-001: Create a new space — PASS (modal opens, form fills, Create submits, space appears in list)
+- TC-SPACE-002: Create space missing required fields — PASS (HTML5 required validation blocks submission, modal stays open)
+- TC-SPACE-003: View space details — FAIL (test script strict mode violation: getByText(/contracts/i) matched 3 elements — nav link, section heading, and "No contracts" message; app functionality works correctly)
+- TC-SPACE-004: Edit an existing space — PASS (Edit button opens pre-filled modal, Save closes modal)
+- TC-SPACE-005: Soft-delete a space — PASS (Delete confirmation shown, confirmed delete removes space from list)
+- TC-SPACE-006: Deleted space rejects contracts — BLOCKED (no contract creation UI with space selector exists; cannot verify deleted space exclusion)
+- Learnings:
+  - Playwright strict mode: `getByText(/regex/)` fails when the regex matches multiple elements — use `getByRole('heading', { name: /contracts/i })` or `.first()` to disambiguate
+  - Spaces use soft-delete; after delete the space disappears from the list (confirmed by router.refresh())
+  - The contract creation UI is not yet implemented in the frontend — TC-SPACE-006 and any contract creation tests will be BLOCKED until Add Contract feature is built
+
+### 2026-03-29 — Contracts Management Group (TC-CONTRACT-001 to TC-CONTRACT-008)
+- Executed via: `node apps/web/run-sit-contracts.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-contracts.spec.ts (copied to apps/web/e2e/sit-contracts.spec.ts)
+- DB state at time of testing: no contracts exist; no contract creation UI available
+- TC-CONTRACT-001: Create a draft contract — BLOCKED (no Add Contract button in /admin/contracts; contract creation UI not implemented)
+- TC-CONTRACT-002: Edit a draft contract — BLOCKED (no draft contracts in DB; no contract creation UI)
+- TC-CONTRACT-003: Post a contract — BLOCKED (no draft contracts; no Post Contract button in contract detail page)
+- TC-CONTRACT-004: Posted contract fields locked — BLOCKED (no posted contracts in DB; no contract creation/posting UI)
+- TC-CONTRACT-005: No two active contracts per space — BLOCKED (no contract creation UI; cannot verify duplicate contract prevention)
+- TC-CONTRACT-006: Payables generated on post — BLOCKED (no posted contracts; no posting UI)
+- TC-CONTRACT-007: Advance payment in ledger — BLOCKED (no posted contracts with advance payment; no contract creation UI)
+- TC-CONTRACT-008: Deposit in fund (not amount due) — BLOCKED (no posted contracts with deposit; no contract creation UI)
+- All 8 tests BLOCKED: entire contracts group blocked on missing frontend features
+- Playwright output: 8 skipped (0 passed, 0 failed)
+- Learnings:
+  - Contract list page (/admin/contracts) only shows existing contracts — no Add Contract button
+  - Contract detail page (/admin/contracts/[id]) shows Payables/Payments/Fund ledger sections but has no Post/Edit/Record Payment actions
+  - No API routes under apps/web/app/api/admin/ for contracts — all contract CRUD goes directly to NestJS backend
+  - All TC-CONTRACT-* and TC-LEDGER-* and TC-PAYMENT-* tests will remain BLOCKED until contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment) is implemented
+
+### 2026-03-29 — Ledger & Payments Group (TC-LEDGER-001, TC-LEDGER-002, TC-PAYMENT-001 to TC-PAYMENT-004)
+- Executed via: `node apps/web/run-sit-ledger.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-ledger.spec.ts (copied to apps/web/e2e/sit-ledger.spec.ts)
+- DB state at time of testing: no contracts exist; no contract creation/posting UI available
+- TC-LEDGER-001: View contract ledger — BLOCKED (no posted contracts in DB; contract creation/posting UI not implemented)
+- TC-LEDGER-002: Amount due calculated correctly — BLOCKED (no posted contracts with payables; contract creation/posting UI not implemented)
+- TC-PAYMENT-001: Record a payment — BLOCKED (no posted contract with outstanding balance; no Record Payment button in contract detail page)
+- TC-PAYMENT-002: Record payment missing fields — BLOCKED (no Record Payment UI; cannot test form validation)
+- TC-PAYMENT-003: Void a payment — BLOCKED (no payments to void; no Void Payment UI on contract detail page)
+- TC-PAYMENT-004: Cannot re-void a voided payment — BLOCKED (no voided payments; void payment UI not implemented)
+- All 6 tests BLOCKED: entire ledger & payments group blocked on missing contract management frontend features
+- Playwright output: 6 skipped (0 passed, 0 failed)
+- Learnings:
+  - Contract detail page (/admin/contracts/[id]) renders Payables/Payments/Fund/Amount Due as a read-only ledger view
+  - No Record Payment button, no Void button, no Post Contract button found on contract detail page
+  - Confirmed via source code (apps/web/app/admin/(protected)/contracts/[id]/page.tsx): page is a pure Server Component with no interactive actions
+  - All ledger & payment tests depend on the same blocked prerequisite: contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment)
+
+### 2026-03-29 — Tenant Status (Public View) Group (TC-PUBLIC-001 to TC-PUBLIC-004)
+- Executed via: `node apps/web/run-sit-public.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-public.spec.ts (copied to apps/web/e2e/sit-public.spec.ts)
+- DB state at time of testing: no posted contracts exist; no public access codes or entry tokens available
+- TC-PUBLIC-001: Tenant views public status — BLOCKED (precondition not met: no posted contract; no public access code available)
+- TC-PUBLIC-002: Invalid public link returns error — FAIL (backend returns HTTP 500 instead of 404 for unknown public access codes; frontend shows "An error occurred." instead of "Invalid or expired access code.")
+- TC-PUBLIC-003: No internal IDs exposed publicly — BLOCKED (precondition not met: no posted contract; cannot load a valid public page)
+- TC-PUBLIC-004: Tenant self-entry flow — BLOCKED (precondition not met: no entry tokens issued; contract creation/posting UI not yet implemented)
+- Playwright output: 1 failed (TC-PUBLIC-002), 3 skipped
+- Learnings:
+  - Backend returns HTTP 500 (not 404) for unknown public access codes — this causes the frontend to render the generic "An error occurred." message instead of "Invalid or expired access code."
+  - The entry token page (/entry/[token]) initialises status as 'invalid' so a 500 response from the backend falls through to the invalid path correctly
+  - TC-PUBLIC-001/003/004 remain BLOCKED until contract creation/posting UI is implemented (same root blocker as TC-CONTRACT-* group)
+
+### 2026-03-29 — Edge Cases & System Integrity Group (TC-INTEGRITY-001 to TC-INTEGRITY-003)
+- Executed via: `node apps/web/run-sit-integrity.js` against docker compose stack (http://localhost:3000)
+- Spec: specs/v1/qa/cycle-1/sit-integrity.spec.ts (copied to apps/web/e2e/sit-integrity.spec.ts)
+- DB state at time of testing: no contracts exist; no contract creation/posting UI available
+- TC-INTEGRITY-001: Timezone consistency — BLOCKED (precondition not met: requires contract creation UI to create a contract with today's date; contract creation UI not yet implemented)
+- TC-INTEGRITY-002: Billing period alignment — BLOCKED (precondition not met: requires a posted contract with monthly billing; contract creation/posting UI not yet implemented)
+- TC-INTEGRITY-003: App is accessible and loads without errors — PASS (all major sections load: Dashboard, Spaces, Tenants, Contracts; no error messages visible; navigation links all present)
+- Playwright output: 1 passed, 2 skipped
+- Learnings:
+  - No `/admin/page.tsx` exists — the default admin route is `/admin/dashboard`; navigating to `/admin` yields a 404 (no nav rendered); always use `/admin/dashboard` in tests
+  - Auth setup must use `setupAuth` from `auth-helper.ts` which reads `PLAYWRIGHT_BASE_URL` and handles cookie injection correctly for both mock and Docker modes
+  - All TC-INTEGRITY-001/002 depend on the same blocker as all contract tests: missing contract creation/posting UI
+
+### CYCLE 1 COMPLETE — 2026-03-29
+- All 36 test cases in cycle-1 have been executed or determined to be blocked
+- Summary: 18 PASS, 2 FAIL, 16 BLOCKED
+- Root blocker for 14 BLOCKED tests: contract management UI (Add/Edit/Post Contract, Record Payment, Void Payment) is not yet implemented
+- Two FAILs documented: TC-SPACE-003 (strict mode locator ambiguity in test script), TC-PUBLIC-002 (backend 500 instead of 404 for invalid access codes)

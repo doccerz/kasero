@@ -12,6 +12,9 @@ export class PublicAccessService {
     ) {}
 
     async getPublicStatus(code: string, referenceDate?: string) {
+        const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!UUID_RE.test(code)) throw new NotFoundException('Invalid or expired access code');
+
         const rows = await this.db
             .select({ contractId: publicAccessCodes.contractId })
             .from(publicAccessCodes)

@@ -72,6 +72,19 @@ function buildMockDbForInsert({ mutationRows = [] as any[] } = {}) {
     };
 }
 
+function buildMockDbForRecordPayment({ contractRow = null as any, mutationRows = [] as any[] } = {}) {
+    const contractWhere = jest.fn().mockResolvedValue(contractRow ? [contractRow] : []);
+    const contractFrom = jest.fn().mockReturnValue({ where: contractWhere });
+
+    const returning = jest.fn().mockResolvedValue(mutationRows);
+    const values = jest.fn().mockReturnValue({ returning });
+
+    return {
+        select: jest.fn().mockReturnValue({ from: contractFrom }),
+        insert: jest.fn().mockReturnValue({ values }),
+    };
+}
+
 async function createService(mockDb: any): Promise<LedgersService> {
     const module = await Test.createTestingModule({
         providers: [
@@ -197,6 +210,28 @@ describe('LedgersService.getLedger', () => {
         const result = await service.getLedger(contractId);
         expect(result.amount_due).toBe('0.00');
     });
+
+    it('payable with future billingDate but past dueDate → excluded from amount_due', async () => {
+        const payableRows = [
+            { id: 'p1', contractId, dueDate: '2024-01-01', billingDate: '2099-12-31', amount: '1000.00', periodStart: '2024-01-01', periodEnd: '2024-01-31' },
+        ];
+        const mockDb = buildMockDbForLedger({ payableRows });
+        const service = await createService(mockDb);
+
+        const result = await service.getLedger(contractId, '2024-06-01');
+        expect(result.amount_due).toBe('0.00');
+    });
+
+    it('payable with past billingDate and future dueDate → included in amount_due', async () => {
+        const payableRows = [
+            { id: 'p1', contractId, dueDate: '2099-12-31', billingDate: '2024-01-01', amount: '1000.00', periodStart: '2024-01-01', periodEnd: '2024-01-31' },
+        ];
+        const mockDb = buildMockDbForLedger({ payableRows });
+        const service = await createService(mockDb);
+
+        const result = await service.getLedger(contractId, '2024-06-01');
+        expect(result.amount_due).toBe('1000.00');
+    });
 });
 
 // ────────────────────────────────────────────────────────────────────
@@ -207,8 +242,9 @@ describe('LedgersService.recordPayment', () => {
     const contractId = 'contract-uuid';
 
     it('inserts payment with provided date', async () => {
+        const activeContract = { id: contractId, status: 'posted' };
         const newPayment = { id: 'pm-new', contractId, amount: '500.00', date: '2024-06-01', voidedAt: null };
-        const mockDb = buildMockDbForInsert({ mutationRows: [newPayment] });
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract, mutationRows: [newPayment] });
         const service = await createService(mockDb);
 
         const result = await service.recordPayment(contractId, { amount: '500.00', date: '2024-06-01' });
@@ -220,14 +256,25 @@ describe('LedgersService.recordPayment', () => {
 
     it('defaults date to today when not provided', async () => {
         const today = new Date().toISOString().split('T')[0];
+        const activeContract = { id: contractId, status: 'posted' };
         const newPayment = { id: 'pm-new', contractId, amount: '200.00', date: today, voidedAt: null };
-        const mockDb = buildMockDbForInsert({ mutationRows: [newPayment] });
+        const mockDb = buildMockDbForRecordPayment({ contractRow: activeContract, mutationRows: [newPayment] });
         const service = await createService(mockDb);
 
         await service.recordPayment(contractId, { amount: '200.00' });
 
         const [insertedValues] = mockDb.insert().values.mock.calls;
         expect(insertedValues[0].date).toBe(today);
+    });
+
+    it('throws BadRequestException when contract is voided', async () => {
+        const voidedContract = { id: contractId, status: 'voided' };
+        const mockDb = buildMockDbForRecordPayment({ contractRow: voidedContract });
+        const service = await createService(mockDb);
+
+        await expect(service.recordPayment(contractId, { amount: '500.00' }))
+            .rejects.toThrow(BadRequestException);
+        expect(mockDb.insert).not.toHaveBeenCalled();
     });
 });
 

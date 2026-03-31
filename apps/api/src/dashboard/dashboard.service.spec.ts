@@ -155,4 +155,28 @@ describe('DashboardService', () => {
         const [entry] = await service.getDashboard(REF_DATE);
         expect(entry.amountDue).toBeUndefined();
     });
+
+    it('11 · payable with future billingDate but past dueDate → not counted for amountDue', async () => {
+        const service = makeService([
+            [space1],
+            [contract1],
+            [{ contractId: 'c1', dueDate: '2024-01-05', billingDate: '2099-12-31', amount: '1000.00' }],
+            [],
+        ]);
+        const [entry] = await service.getDashboard(REF_DATE);
+        expect(entry.amountDue).toBe('0.00');
+        expect(entry.occupancyStatus).not.toBe('overdue');
+    });
+
+    it('12 · payable with past billingDate and future dueDate → counted for amountDue', async () => {
+        const service = makeService([
+            [space1],
+            [contract1],
+            [{ contractId: 'c1', dueDate: '2099-12-31', billingDate: '2024-01-05', amount: '1000.00' }],
+            [],
+        ]);
+        const [entry] = await service.getDashboard(REF_DATE);
+        expect(entry.amountDue).toBe('1000.00');
+        expect(entry.occupancyStatus).toBe('overdue');
+    });
 });

@@ -24,11 +24,19 @@ export default async function EntryPage({
     }
 
     if (status === 'invalid') {
-        return <main><p>Invalid or expired link</p></main>;
+        return (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
+                <p className="text-slate-600 text-sm">Invalid or expired link. Please request a new one.</p>
+            </div>
+        );
     }
 
     if (status === 'used') {
-        return <main><p>Entry already submitted</p></main>;
+        return (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
+                <p className="text-slate-600 text-sm">Your details have already been submitted. Thank you.</p>
+            </div>
+        );
     }
 
     return <EntryForm token={token} />;

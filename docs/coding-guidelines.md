@@ -11,24 +11,28 @@
 
 - You must not pull or download packages that we don't need yet
 
-### Use test driven development
-> **IMPORTANT**: MUST follow strictly — applies unconditionally, even when Claude is invoked non-interactively via a prompt parameter
+### ⚠️ Use test-driven development (TDD) 
+> ⚠️ MANDATORY TASK WORKFLOW
+> **MUST follow for EVERY task — no exceptions, no shortcuts**
+> **CRITICAL — applies unconditionally, even in non-interactive/automated runs**
 
 ```mermaid
 graph TD
-    A[Write failing tests]
-    A --> B[Git commit]
-    B --> C[Execute plan]
-    C --> D[Git commit]
-    D --> E[Pass the tests for the task]
-    E --> F[Git commit]
-    F --> G[Pass all tests]
-    G --> H[Mark task done]
-    H --> I[Git commit]
-    I --> J[Update CLAUDE.md]
-    J --> K[Git commit]
-    K --> L[Create PR to staging]
+    A0[Create branch: feat/fix/issue-XXXX]
+    A0 --> A[Write failing tests]
+    A --> B[Git commit: test: add failing tests]
+    B --> C[Implement — minimum code to pass]
+    C --> D[Git commit: feat/fix: description]
+    D --> E[Run full test suite]
+    E --> F[Git commit if fixes needed]
+    F --> G[STOP — update CLAUDE.md with learnings]
+    G --> H[Git commit: docs: update CLAUDE.md]
+    H --> I[STOP — open PR to staging NOW]
+    I --> J[Phase COMPLETE]
 ```
+
+> **STOP nodes are hard gates** — reach one, do that step before reading further.
+> Tests passing is not task completion. The open PR is the deliverable.
 
 ## Coding Standards
 

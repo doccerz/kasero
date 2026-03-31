@@ -16,6 +16,7 @@ Kasero is a private, internal application for managing apartment spaces, tenants
 - Admin dashboard showing all spaces sorted by urgency (overdue → nearing → occupied → vacant)
 - Space detail view with full contract history; contract ledger view with payables, payments, and fund
 - Admin-only access for all write operations
+- Full contract management UI: create contracts, edit drafts, post contracts, record payments, and void payments from the admin panel
 
 ---
 
@@ -259,6 +260,8 @@ See `.claude/rules/ci-cd-workflows.md` for the full pipeline diagram.
 |----------|----------|
 | v1 Project Specification | `specs/v1/kasero-v1-project-specs.md` |
 | Implementation Phases | `specs/v1/phases/` |
+| SIT/UAT Test Cases — Cycle 1 | `specs/v1/qa/cycle-1/plan.md` |
+| SIT Cycle 1 Execution Progress | `specs/v1/qa/cycle-1/progress.txt` |
 | Project Overview (internal) | `.claude/rules/project-overview.md` |
 | Coding Guidelines | `.claude/rules/coding-guidelines.md` |
 | Testing Patterns | `.claude/rules/testing-patterns.md` |

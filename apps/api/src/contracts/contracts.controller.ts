@@ -46,6 +46,12 @@ export class ContractsController {
         return this.contractsService.post(id);
     }
 
+    @Post(':id/void')
+    @HttpCode(200)
+    voidContract(@Param('id') id: string) {
+        return this.contractsService.void(id);
+    }
+
     @Post(':id/revoke-code')
     @HttpCode(200)
     revokeCode(@Param('id') id: string) {

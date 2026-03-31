@@ -62,6 +62,7 @@ describe('ContractsController — endpoints', () => {
         create: jest.fn(),
         update: jest.fn(),
         post: jest.fn(),
+        void: jest.fn(),
         revokeAccessCode: jest.fn(),
     };
 
@@ -179,6 +180,26 @@ describe('ContractsController — endpoints', () => {
         const res = await request(app.getHttpServer()).delete('/admin/contracts/uuid-1');
 
         expect(res.status).toBe(404);
+    });
+
+    it('POST /admin/contracts/:id/void → 200', async () => {
+        const voided = { id: 'uuid-1', status: 'voided' };
+        mockContractsService.void.mockResolvedValue(voided);
+
+        const res = await request(app.getHttpServer())
+            .post('/admin/contracts/uuid-1/void');
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(voided);
+    });
+
+    it('POST /admin/contracts/:id/void when BadRequestException → 400', async () => {
+        mockContractsService.void.mockRejectedValue(new BadRequestException('Only posted contracts can be voided'));
+
+        const res = await request(app.getHttpServer())
+            .post('/admin/contracts/uuid-1/void');
+
+        expect(res.status).toBe(400);
     });
 
     it('POST /admin/contracts/:id/revoke-code → 200 with revoked record', async () => {
