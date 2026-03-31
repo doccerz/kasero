@@ -239,7 +239,7 @@ const FIXTURES: Record<string, object | object[]> = {
         },
     },
     '/internal/tenants/entry/VALIDTOKEN': { status: 'valid' },
-    '/auth/login': { access_token: 'mock-jwt-token' },
+    '/auth/login': { access_token: 'eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock' },
     '/admin/profile': { id: '1', username: 'admin', name: null, email: null },
 };
 
@@ -281,9 +281,9 @@ export default async function globalSetup() {
 
         // Handle login — set a mock cookie header
         if (url === '/auth/login' && method === 'POST') {
-            res.setHeader('Set-Cookie', 'auth_token=mock-jwt-token; Path=/; HttpOnly');
+            res.setHeader('Set-Cookie', 'auth_token=eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock; Path=/; HttpOnly');
             res.writeHead(200);
-            res.end(JSON.stringify({ access_token: 'mock-jwt-token' }));
+            res.end(JSON.stringify({ access_token: 'eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock' }));
             return;
         }
 

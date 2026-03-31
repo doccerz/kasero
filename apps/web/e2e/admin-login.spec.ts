@@ -31,7 +31,7 @@ test.describe('Admin login page', () => {
                 status: 200,
                 contentType: 'application/json',
                 body: JSON.stringify({ ok: true }),
-                headers: { 'Set-Cookie': 'auth_token=mock-jwt-token; Path=/; HttpOnly' },
+                headers: { 'Set-Cookie': 'auth_token=eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock; Path=/; HttpOnly' },
             });
         });
         await page.goto('/admin/login');

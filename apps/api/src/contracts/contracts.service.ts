@@ -63,7 +63,7 @@ export function generatePayables(params: GeneratePayablesParams) {
         // periodEnd = one day before next cursor, clamped to endDate
         let [pey, pem, ped] = addMonths(cy, cm, cd, step);
         // subtract one day from (pey, pem, nd=nd)
-        let peMinus = new Date(Date.UTC(pey, pem - 1, 1));
+        let peMinus = new Date(Date.UTC(pey, pem - 1, ped));
         peMinus.setUTCDate(peMinus.getUTCDate() - 1);
         pey = peMinus.getUTCFullYear();
         pem = peMinus.getUTCMonth() + 1;
@@ -75,7 +75,9 @@ export function generatePayables(params: GeneratePayablesParams) {
         }
 
         const clampedDue = Math.min(dueDateRule, daysInMonth(cy, cm));
-        const dueDate = toYMD(cy, cm, clampedDue);
+        const dueDateMs = Math.min(Date.UTC(cy, cm - 1, clampedDue), Date.UTC(pey, pem - 1, ped));
+        const dueDateObj = new Date(dueDateMs);
+        const dueDate = toYMD(dueDateObj.getUTCFullYear(), dueDateObj.getUTCMonth() + 1, dueDateObj.getUTCDate());
 
         const billingDate = billingDateRule != null
             ? toYMD(cy, cm, Math.min(billingDateRule, daysInMonth(cy, cm)))

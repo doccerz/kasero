@@ -14,7 +14,7 @@ export async function setupAuth(page: Page) {
         });
     } else {
         await page.context().addCookies([
-            { name: 'auth_token', value: 'mock-jwt-token', domain: 'localhost', path: '/' },
+            { name: 'auth_token', value: 'eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock', domain: 'localhost', path: '/' },
         ]);
     }
 }
