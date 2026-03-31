@@ -301,7 +301,7 @@ export default function ContractDetailClient({
             {/* Edit Modal */}
             {showEditModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div role="dialog" className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+                    <div role="dialog" aria-label="Edit Contract" className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="px-6 py-4">
                             <h2 className="text-base font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)]">Edit Contract</h2>
                         </div>
