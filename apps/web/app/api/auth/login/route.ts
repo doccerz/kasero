@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         httpOnly: true,
         path: '/',
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.COOKIE_SECURE === 'true',
     });
     return response;
 }
