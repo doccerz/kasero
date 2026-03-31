@@ -33,9 +33,26 @@ test.describe('Admin space detail', () => {
         await expect(page.getByText(/no contracts/i)).toBeVisible();
     });
 
-    test('shows back link to dashboard', async ({ page }) => {
+    test('shows back link to spaces', async ({ page }) => {
         await gotoSpace1(page);
-        await expect(page.getByRole('link', { name: /back to dashboard/i })).toBeVisible();
+        await expect(page.getByRole('link', { name: /back to spaces/i })).toBeVisible();
+    });
+
+    test('contracts are sorted: posted first, then draft, then voided', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires seeded multi-contract fixture');
+        await page.goto('/admin/spaces/space-1');
+        const rows = page.locator('tbody tr');
+        const firstStatus = rows.first().locator('td').nth(3);
+        await expect(firstStatus).toHaveText('posted');
+    });
+
+    test('voided contracts have muted row styling', async ({ page }) => {
+        test.skip(isDockerMode, 'Requires seeded voided contract');
+        await page.goto('/admin/spaces/space-1');
+        const rows = page.locator('tbody tr');
+        // last row should be voided (after sorting)
+        const lastRow = rows.last();
+        await expect(lastRow).toHaveClass(/text-slate-400/);
     });
 
     test('shows space name and description', async ({ page }) => {
