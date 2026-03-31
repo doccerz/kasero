@@ -281,9 +281,19 @@ export default async function globalSetup() {
 
         // Handle login — set a mock cookie header
         if (url === '/auth/login' && method === 'POST') {
-            res.setHeader('Set-Cookie', 'auth_token=eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock; Path=/; HttpOnly');
-            res.writeHead(200);
-            res.end(JSON.stringify({ access_token: 'eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock' }));
+            const raw = await readBody(req);
+            const body = JSON.parse(raw || '{}');
+            const expectedUser = process.env.ADMIN_USERNAME ?? 'admin';
+            const expectedPass = process.env.ADMIN_PASSWORD ?? 'replace-with-a-strong-password';
+            
+            if (body.username === expectedUser && body.password === expectedPass) {
+                res.setHeader('Set-Cookie', 'auth_token=eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock; Path=/; HttpOnly');
+                res.writeHead(200);
+                res.end(JSON.stringify({ access_token: 'eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock' }));
+            } else {
+                res.writeHead(401);
+                res.end(JSON.stringify({ message: 'Unauthorized' }));
+            }
             return;
         }
 

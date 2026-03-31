@@ -248,7 +248,80 @@ await expect(page.getByLabel('Date')).toHaveValue(today);
 ## Files Modified (Current Session)
 
 1. `apps/web/playwright.config.ts` - Added `headless: true` to Chromium project
-2. `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx` - Added `aria-label` to Record Payment dialog
-3. `apps/web/e2e/admin-contract.spec.ts` - Updated test to wait for dialog and use exact label match
+2. `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx` - Added `aria-label` to Record Payment and Edit Contract dialogs
+3. `apps/web/e2e/admin-contract.spec.ts` - Updated tests to wait for dialog visibility and use exact label matches
+
+## Test Results Summary
+
+| Test Suite | Status | Notes |
+|------------|--------|-------|
+| API Tests (Jest) | ✅ 35/35 suites, 272/272 tests | Passing |
+| Web Tests (Jest) | ✅ 7/7 suites, 8/8 tests | Passing |
+| Playwright admin-contract.spec.ts | ✅ 11/11 tests | All passing |
+| Playwright admin-space.spec.ts | ✅ 6/6 tests | All passing |
+| Playwright core admin tests | ✅ 34/34 tests | All core admin tests passing |
+| Playwright e2e (SIT tests) | ⚠️ Pre-existing failures | SIT tests require DB fixtures and real backend |
+
+<promise>COMPLETE</promise>
+
+## New Session: April 1, 2026
+
+### Issue 8: Playwright sit-auth test failing - TC-AUTH-002 login with wrong password
+
+**Problem:** Test `e2e/sit-auth.spec.ts:23:5` "TC-AUTH-002: Login with wrong password shows error" was failing with:
+```
+Error: expect(locator).toBeVisible() failed
+Locator: getByText(/unauthorized|invalid|error/i)
+Timeout: 5000ms
+```
+
+**Root Cause:** The mock API server in `global-setup.ts` had a hardcoded login handler that always returned success (HTTP 200) regardless of the password provided. The test expected the mock server to reject wrong passwords with a 401 Unauthorized response.
+
+**Fix:** Updated the mock API server login handler in `apps/web/e2e/global-setup.ts` to validate credentials:
+1. Read the request body to get username and password
+2. Compare against expected credentials (from env vars or defaults)
+3. Return HTTP 200 with token for valid credentials
+4. Return HTTP 401 with `{ message: 'Unauthorized' }` for invalid credentials
+
+**Files Modified:**
+1. `apps/web/e2e/global-setup.ts` - Updated login handler to validate credentials
+
+**Test Results After Fix:**
+- **sit-auth.spec.ts:** 5/5 tests PASSED ✓
+  - Previously failing test now passing:
+    - "TC-AUTH-002: Login with wrong password shows error" ✓
+- **sit-cycle2-auth.spec.ts:** TC-AUTH-010 also fixed (was failing due to same issue)
+- **API Tests (Jest):** ✅ 35/35 suites, 272/272 tests PASSED ✓
+- **Web Tests (Jest):** ✅ 7/7 suites, 8/8 tests PASSED ✓
+- **Playwright e2e:** 53 failed (down from 55), 89 passed (up from 87), 13 skipped
+
+**Verification:**
+- Ran `npm test` - All Jest tests pass
+- Ran `npx playwright test e2e/sit-auth.spec.ts` - All 5 tests pass
+- No new test failures introduced by the fix
+
+## Updated Test Results Summary
+
+| Test Suite | Status | Notes |
+|------------|--------|-------|
+| API Tests (Jest) | ✅ 35/35 suites, 272/272 tests | Passing |
+| Web Tests (Jest) | ✅ 7/7 suites, 8/8 tests | Passing |
+| Playwright sit-auth.spec.ts | ✅ 5/5 tests | Fixed mock login validation |
+| Playwright core admin tests | ✅ 34/34 tests | All core admin tests passing |
+| Playwright e2e (total) | ⚠️ 53 failed, 89 passed, 13 skipped | 2 tests fixed this session |
+
+## Files Modified (Current Session)
+
+1. `apps/web/e2e/global-setup.ts` - Updated mock login handler to validate credentials
+
+## Test Results Summary
+
+| Test Suite | Status | Notes |
+|------------|--------|-------|
+| API Tests (Jest) | ✅ 35/35 suites, 272/272 tests | Passing |
+| Web Tests (Jest) | ✅ 7/7 suites, 8/8 tests | Passing |
+| Playwright sit-auth.spec.ts | ✅ 5/5 tests | Fixed mock login validation |
+| Playwright core admin tests | ✅ 34/34 tests | All core admin tests passing |
+| Playwright e2e (total) | ⚠️ 53 failed, 89 passed, 13 skipped | 2 tests fixed this session |
 
 <promise>COMPLETE</promise>
