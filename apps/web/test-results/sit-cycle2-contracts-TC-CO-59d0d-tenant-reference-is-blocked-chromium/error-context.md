@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "admin Admin" [ref=e5] [cursor=pointer]:
+        - /url: /admin/profile
+        - text: admin
+        - generic [ref=e6]: Admin
+      - navigation [ref=e7]:
+        - link "Spaces" [ref=e8] [cursor=pointer]:
+          - /url: /admin/spaces
+        - link "Tenants" [ref=e9] [cursor=pointer]:
+          - /url: /admin/tenants
+      - button "Logout" [ref=e12]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Spaces" [level=1] [ref=e16]
+        - button "New Space" [active] [ref=e17]
+      - table [ref=e19]:
+        - rowgroup [ref=e20]:
+          - row "Space Name Status Tenant Amount Due Next Due Date Actions" [ref=e21]:
+            - columnheader "Space Name" [ref=e22]
+            - columnheader "Status" [ref=e23]
+            - columnheader "Tenant" [ref=e24]
+            - columnheader "Amount Due" [ref=e25]
+            - columnheader "Next Due Date" [ref=e26]
+            - columnheader "Actions" [ref=e27]
+        - rowgroup [ref=e28]:
+          - row "Unit 1A Overdue Maria Santos ₱12000.00 2026-03-01 Edit Delete" [ref=e29]:
+            - cell "Unit 1A" [ref=e30]:
+              - link "Unit 1A" [ref=e33] [cursor=pointer]:
+                - /url: /admin/spaces/space-1
+            - cell "Overdue" [ref=e34]
+            - cell "Maria Santos" [ref=e35]
+            - cell "₱12000.00" [ref=e36]
+            - cell "2026-03-01" [ref=e37]
+            - cell "Edit Delete" [ref=e38]:
+              - button "Edit" [ref=e39]
+              - button "Delete" [ref=e40]
+          - row "Unit 2B Nearing Jose Rizal ₱8000.00 2026-04-01 Edit Delete" [ref=e41]:
+            - cell "Unit 2B" [ref=e42]:
+              - link "Unit 2B" [ref=e45] [cursor=pointer]:
+                - /url: /admin/spaces/space-2
+            - cell "Nearing" [ref=e46]
+            - cell "Jose Rizal" [ref=e47]
+            - cell "₱8000.00" [ref=e48]
+            - cell "2026-04-01" [ref=e49]
+            - cell "Edit Delete" [ref=e50]:
+              - button "Edit" [ref=e51]
+              - button "Delete" [ref=e52]
+          - row "Unit 3C Occupied Andres Bonifacio ₱0.00 2026-05-01 Edit Delete" [ref=e53]:
+            - cell "Unit 3C" [ref=e54]:
+              - link "Unit 3C" [ref=e57] [cursor=pointer]:
+                - /url: /admin/spaces/space-3
+            - cell "Occupied" [ref=e58]
+            - cell "Andres Bonifacio" [ref=e59]
+            - cell "₱0.00" [ref=e60]
+            - cell "2026-05-01" [ref=e61]
+            - cell "Edit Delete" [ref=e62]:
+              - button "Edit" [ref=e63]
+              - button "Delete" [ref=e64]
+          - row "Unit 4D Vacant — — — Edit Delete" [ref=e65]:
+            - cell "Unit 4D" [ref=e66]:
+              - link "Unit 4D" [ref=e69] [cursor=pointer]:
+                - /url: /admin/spaces/space-4
+            - cell "Vacant" [ref=e70]
+            - cell "—" [ref=e71]
+            - cell "—" [ref=e72]
+            - cell "—" [ref=e73]
+            - cell "Edit Delete" [ref=e74]:
+              - button "Edit" [ref=e75]
+              - button "Delete" [ref=e76]
+      - dialog [ref=e78]:
+        - heading "New Space" [level=2] [ref=e80]
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]: Name *
+            - textbox "Name *" [ref=e84]:
+              - /placeholder: e.g. Unit 1A
+          - generic [ref=e85]:
+            - generic [ref=e86]: Description
+            - textbox "Description" [ref=e87]:
+              - /placeholder: Optional description
+          - generic [ref=e88]:
+            - button "Cancel" [ref=e89]
+            - button "Create" [ref=e90]
+  - button "Open Next.js Dev Tools" [ref=e96] [cursor=pointer]:
+    - img [ref=e97]
+  - alert [ref=e100]
+```

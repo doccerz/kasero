@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - link "admin Admin" [ref=e5] [cursor=pointer]:
+      - /url: /admin/profile
+      - text: admin
+      - generic [ref=e6]: Admin
+    - navigation [ref=e7]:
+      - link "Spaces" [ref=e8] [cursor=pointer]:
+        - /url: /admin/spaces
+      - link "Tenants" [ref=e9] [cursor=pointer]:
+        - /url: /admin/tenants
+    - button "Logout" [ref=e12]
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - heading "Tenants" [level=1] [ref=e16]
+      - button "New Tenant" [active] [ref=e17]
+    - table [ref=e19]:
+      - rowgroup [ref=e20]:
+        - row "Name Email Phone Actions" [ref=e21]:
+          - columnheader "Name" [ref=e22]
+          - columnheader "Email" [ref=e23]
+          - columnheader "Phone" [ref=e24]
+          - columnheader "Actions" [ref=e25]
+      - rowgroup [ref=e26]:
+        - row "Maria Santos maria@example.com +63 912 000 0001 Edit" [ref=e27]:
+          - cell "Maria Santos" [ref=e28]:
+            - link "Maria Santos" [ref=e29] [cursor=pointer]:
+              - /url: /admin/tenants/tenant-1
+          - cell "maria@example.com" [ref=e30]
+          - cell "+63 912 000 0001" [ref=e31]
+          - cell "Edit" [ref=e32]:
+            - button "Edit" [ref=e33]
+        - row "Jose Rizal jose@example.com +63 912 000 0002 Edit" [ref=e34]:
+          - cell "Jose Rizal" [ref=e35]:
+            - link "Jose Rizal" [ref=e36] [cursor=pointer]:
+              - /url: /admin/tenants/tenant-2
+          - cell "jose@example.com" [ref=e37]
+          - cell "+63 912 000 0002" [ref=e38]
+          - cell "Edit" [ref=e39]:
+            - button "Edit" [ref=e40]
+```
