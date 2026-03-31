@@ -78,3 +78,11 @@ test.describe('Admin contract detail', () => {
         await expect(page.getByLabel(/billing date rule/i)).toBeVisible();
     });
 });
+
+test.describe('Admin contracts index page', () => {
+    test('/admin/contracts redirects to /admin/spaces', async ({ page }) => {
+        await setupAuth(page);
+        await page.goto('/admin/contracts');
+        await expect(page).toHaveURL(/\/admin\/spaces/);
+    });
+});
