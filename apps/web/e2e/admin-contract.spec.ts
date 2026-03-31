@@ -19,14 +19,18 @@ test.describe('Admin contract detail', () => {
     test('shows payables table data', async ({ page }) => {
         test.skip(isDockerMode, 'Requires mock fixture contract-1 with ledger data');
         await page.goto('/admin/contracts/contract-1');
-        await expect(page.getByRole('cell', { name: '2025-01-01' })).toBeVisible();
-        await expect(page.getByRole('cell', { name: '2025-02-01' })).toBeVisible();
+        // Verify payables table exists and has expected data
+        // Use unique due dates that only appear in payables table
+        await expect(page.getByRole('cell', { name: '2025-01-05' })).toBeVisible();
+        await expect(page.getByRole('cell', { name: '2025-02-05' })).toBeVisible();
     });
 
     test('shows voided payment with strikethrough styling', async ({ page }) => {
         test.skip(isDockerMode, 'Requires mock fixture contract-1 with voided payment');
         await page.goto('/admin/contracts/contract-1');
-        const voidedRow = page.locator('tr', { hasText: '2025-02-12' });
+        // Scope to payments table by finding the table with "Voided" header
+        const paymentsTable = page.getByRole('table', { has: page.getByRole('columnheader', { name: /voided/i }) });
+        const voidedRow = paymentsTable.locator('tr', { hasText: '2025-02-12' });
         await expect(voidedRow).toBeVisible();
         await expect(voidedRow).toHaveClass(/line-through/);
     });
@@ -67,8 +71,9 @@ test.describe('Admin contract detail', () => {
         test.skip(isDockerMode, 'Requires mock fixture contract-1 with posted status');
         await page.goto('/admin/contracts/contract-1');
         await page.getByRole('button', { name: /record payment/i }).click();
+        await expect(page.getByRole('dialog', { name: /record payment/i })).toBeVisible();
         const today = new Date().toISOString().split('T')[0];
-        await expect(page.getByLabel(/date/i)).toHaveValue(today);
+        await expect(page.getByLabel('Date')).toHaveValue(today);
     });
 
     test('billingDateRule field shown in Edit Contract modal', async ({ page }) => {

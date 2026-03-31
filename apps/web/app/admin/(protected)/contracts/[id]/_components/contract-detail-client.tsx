@@ -273,7 +273,7 @@ export default function ContractDetailClient({
                                 <tr
                                     key={p.id}
                                     className={`transition-colors ${
-                                        p.voidedAt ? 'text-[var(--on-surface-variant)]' : 'hover:bg-[var(--surface-container-low)] text-[var(--on-surface)]'
+                                        p.voidedAt ? 'line-through text-[var(--on-surface-variant)]' : 'hover:bg-[var(--surface-container-low)] text-[var(--on-surface)]'
                                     }`}
                                 >
                                     <td className="px-5 py-4">{p.date}</td>
@@ -484,7 +484,7 @@ export default function ContractDetailClient({
             {/* Record Payment Modal */}
             {showPaymentModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div role="dialog" className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] w-full max-w-md mx-4">
+                    <div role="dialog" aria-label="Record Payment" className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] w-full max-w-md mx-4">
                         <div className="px-6 py-4">
                             <h2 className="text-base font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)]">Record Payment</h2>
                         </div>
