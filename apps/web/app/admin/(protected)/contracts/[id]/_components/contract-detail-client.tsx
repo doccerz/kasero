@@ -252,9 +252,13 @@ export default function ContractDetailClient({
 
             {error && <p className="text-[var(--error)] text-sm mb-4">{error}</p>}
 
-            {/* Payments table with Void buttons (posted only) */}
+            {/* Payments */}
             {isPosted && payments.length > 0 && (
-                <div className="bg-[var(--surface-container-lowest)] rounded-lg overflow-hidden shadow-[0_10px_40px_rgba(13,28,46,0.06)] mb-6">
+                <>
+                    <h2 className="text-sm font-semibold text-[var(--on-surface)] uppercase tracking-wide mb-3 mt-6 font-[family-name:var(--font-display)]">
+                        Payments
+                    </h2>
+                    <div className="bg-[var(--surface-container-lowest)] rounded-lg overflow-hidden shadow-[0_10px_40px_rgba(13,28,46,0.06)] mb-6">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-[var(--surface-container)]">
@@ -291,6 +295,7 @@ export default function ContractDetailClient({
                         </tbody>
                     </table>
                 </div>
+                </>
             )}
 
             {/* Edit Modal */}

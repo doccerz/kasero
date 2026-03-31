@@ -26,7 +26,7 @@ export default defineConfig({
         : {
               command: 'npm run dev',
               url: 'http://localhost:3000',
-              reuseExistingServer: !process.env.CI,
+              reuseExistingServer: false,
               timeout: 120_000,
               env: {
                   INTERNAL_API_URL: 'http://localhost:3099',

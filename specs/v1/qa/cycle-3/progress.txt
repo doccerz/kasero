@@ -1,0 +1,41 @@
+# Cycle 3 Test Progress
+
+## Issues Fixed
+
+### Issue 1: Playwright tests failing due to Docker container conflict
+
+**Problem:** Playwright tests were failing because `reuseExistingServer: !process.env.CI` in `playwright.config.ts` caused Playwright to reuse the existing Docker web container (running on port 3000), which was configured to use the real backend API instead of the mock API server on port 3099.
+
+**Root Cause:** The Next.js app running in Docker had `INTERNAL_API_URL=http://app:3001` (pointing to the real backend), while the mock API server was running on `localhost:3099` (only accessible from the host machine).
+
+**Fix:** Changed `reuseExistingServer: !process.env.CI` to `reuseExistingServer: false` in `apps/web/playwright.config.ts`. This forces Playwright to start a fresh local Next.js dev server that can reach the mock API server.
+
+**Additional fix:** Also updated `docker-compose.yml` to expose the database port (`30035:5432`) so local tests can connect to the database container.
+
+### Issue 2: Missing "Payments" heading in contract detail page
+
+**Problem:** Test `e2e/admin-contract.spec.ts:9` was failing with:
+```
+Error: expect(locator).toBeVisible() failed
+Locator: getByRole('heading', { name: /payments/i })
+```
+
+**Root Cause:** The contract detail page rendered the payments table in the client component but didn't have a "Payments" heading above it. The page had headings for "Payables" and "Fund" sections, but not for "Payments".
+
+**Fix:** Added a "Payments" heading (`<h2>`) in `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx` before the payments table, matching the styling of other section headings.
+
+## Test Results After Fixes
+
+- **API Tests (Jest):** 35 suites, 272 tests - ALL PASSED
+- **Web Tests (Jest):** 7 suites, 8 tests - ALL PASSED
+- **Playwright Tests:** First failing test now passes (admin-contract.spec.ts:9)
+
+## Files Modified
+
+1. `docker-compose.yml` - Added port mapping `30035:5432` for database
+2. `apps/web/playwright.config.ts` - Changed `reuseExistingServer` to `false`
+3. `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx` - Added "Payments" heading
+
+## Next Steps
+
+Continue running remaining Playwright tests and fix issues one at a time as they appear.

@@ -6,6 +6,8 @@ services:
             POSTGRES_USER: ${DATABASE_USER:-postgres}
             POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-changeme}
             POSTGRES_DB: ${DATABASE_NAME:-kasero}
+        ports:
+            - "30035:5432"
         volumes:
             - db_data:/var/lib/postgresql/data
         healthcheck:
