@@ -23,8 +23,9 @@ test.describe('Admin space detail', () => {
         await expect(page.getByRole('heading', { name: 'Unit 1A' })).toBeVisible();
         await expect(page.getByText('Ground floor corner unit')).toBeVisible();
         await expect(page.getByRole('table')).toBeVisible();
-        await expect(page.getByText('Maria Santos')).toBeVisible();
-        await expect(page.getByRole('link', { name: /view/i })).toBeVisible();
+        // Use first() to avoid strict mode violation when multiple cells contain same text
+        await expect(page.getByRole('cell', { name: 'Maria Santos' }).first()).toBeVisible();
+        await expect(page.getByRole('link', { name: /view/i }).first()).toBeVisible();
     });
 
     test('shows empty state when no contracts for space', async ({ page }) => {

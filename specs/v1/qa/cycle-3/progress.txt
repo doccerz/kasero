@@ -93,3 +93,80 @@ The database connection fix ensures API and Web Jest tests pass consistently whe
 - Ready for PR to staging
 
 <promise>COMPLETE</promise>
+
+## New Session: March 31, 2026
+
+### Issue 4: Playwright admin-contract tests failing with strict mode violation
+
+**Problem:** Two Playwright tests in `e2e/admin-contract.spec.ts` were failing:
+1. `shows payables table data` (line 19) - Error: `strict mode violation: getByRole('cell', { name: '2025-01-01' }) resolved to 2 elements`
+2. `shows voided payment with strikethrough styling` (line 26) - Error: `Locator: locator('tr').filter({ hasText: '2025-02-12' }) Expected pattern: /line-through/`
+
+**Root Cause Analysis:**
+1. Test #1 was looking for cells containing "2025-01-01" which appeared in multiple tables (both payables and payments tables had date columns), causing Playwright's strict mode to fail.
+2. Test #2 expected voided payments to have a `line-through` CSS class, but the component didn't apply this styling.
+
+**Fix:**
+1. Updated test `shows payables table data` to use unique due dates (`2025-01-05` and `2025-02-05`) that only appear in the payables table, avoiding strict mode violations.
+2. Added `line-through` class to voided payment rows in `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx`:
+   - Changed: `p.voidedAt ? 'text-[var(--on-surface-variant)]'`
+   - To: `p.voidedAt ? 'line-through text-[var(--on-surface-variant)]'`
+
+**Files Modified:**
+1. `apps/web/e2e/admin-contract.spec.ts` - Updated test to use unique due dates
+2. `apps/web/app/admin/(protected)/contracts/[id]/_components/contract-detail-client.tsx` - Added line-through styling for voided payments
+
+**Test Results After Fix:**
+- **admin-contract.spec.ts:** 11/11 tests PASSED ✓
+  - Previously failing tests now passing:
+    - `shows payables table data` ✓
+    - `shows voided payment with strikethrough styling` ✓
+- **API Tests (Jest):** 35/35 suites, 272/272 tests PASSED ✓
+- **Web Tests (Jest):** 7/7 suites, 8/8 tests PASSED ✓
+
+**Verification:**
+- Ran `npm test` - All Jest tests pass
+- Ran `npx playwright test e2e/admin-contract.spec.ts` - All 11 tests pass
+- No new test failures introduced by the fix
+
+### Issue 5: Playwright admin-space test failing with strict mode violation
+
+**Problem:** Test `e2e/admin-space.spec.ts:26` was failing with:
+```
+Error: expect(locator).toBeVisible() failed
+Locator: getByText('Maria Santos')
+Error: strict mode violation: getByText('Maria Santos') resolved to 2 elements
+```
+
+**Root Cause:** The test used `getByText('Maria Santos')` which matched multiple table cells containing the same tenant name in the contracts table.
+
+**Fix:** Updated the test to use more specific locators with `.first()` to avoid strict mode violations:
+1. Changed `getByText('Maria Santos')` to `getByRole('cell', { name: 'Maria Santos' }).first()`
+2. Changed `getByRole('link', { name: /view/i })` to `.first()` as well for consistency
+
+**Files Modified:**
+1. `apps/web/e2e/admin-space.spec.ts` - Updated test to use specific cell role locator with `.first()`
+
+**Test Results After Fix:**
+- **admin-space.spec.ts:** 6/6 tests PASSED ✓
+  - Previously failing test now passing:
+    - `shows space name, description and contracts table` ✓
+- **API Tests (Jest):** 35/35 suites, 272/272 tests PASSED ✓
+- **Web Tests (Jest):** 7/7 suites, 8/8 tests PASSED ✓
+
+**Verification:**
+- Ran `npm test` - All Jest tests pass
+- Ran `npx playwright test e2e/admin-space.spec.ts` - All 6 tests pass
+- No new test failures introduced by the fix
+
+## Updated Test Results Summary
+
+| Test Suite | Status | Notes |
+|------------|--------|-------|
+| API Tests (Jest) | ✅ 35/35 suites, 272/272 tests | Passing |
+| Web Tests (Jest) | ✅ 7/7 suites, 8/8 tests | Passing |
+| Playwright admin-contract.spec.ts | ✅ 11/11 tests | Fixed strict mode + line-through |
+| Playwright admin-space.spec.ts | ✅ 6/6 tests | Fixed strict mode violation |
+| Playwright e2e (total) | ⚠️ Pre-existing failures | SIT tests require DB fixtures |
+
+<promise>COMPLETE</promise>
