@@ -32,7 +32,15 @@ export default async function SpacePage({ params }: { params: Promise<{ id: stri
 
     const space: Space | null = spaceRes.ok ? await spaceRes.json() : null;
     const allContracts: Contract[] = contractsRes.ok ? await contractsRes.json() : [];
-    const contracts = allContracts.filter((c) => c.spaceId === id);
+
+    const STATUS_ORDER: Record<string, number> = { posted: 0, draft: 1, voided: 2 };
+    const contracts = allContracts
+        .filter((c) => c.spaceId === id)
+        .sort((a, b) => {
+            const statusDiff = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+            if (statusDiff !== 0) return statusDiff;
+            return b.startDate.localeCompare(a.startDate);
+        });
 
     if (!space) {
         return (
@@ -46,10 +54,10 @@ export default async function SpacePage({ params }: { params: Promise<{ id: stri
         <div className="p-6">
             <div className="mb-6">
                 <Link
-                    href="/admin/dashboard"
+                    href="/admin/spaces"
                     className="text-sm text-blue-600 hover:underline"
                 >
-                    ← Back to Dashboard
+                    ← Back to Spaces
                 </Link>
             </div>
             <h1 className="text-2xl font-bold text-slate-800 mb-1">{space.name}</h1>
@@ -87,11 +95,16 @@ export default async function SpacePage({ params }: { params: Promise<{ id: stri
                         <tbody>
                             {contracts.map((contract) => {
                                 const isPosted = contract.status === 'posted';
+                                const isVoided = contract.status === 'voided';
                                 return (
                                     <tr
                                         key={contract.id}
                                         className={`border-b border-slate-100 ${
-                                            isPosted ? 'bg-green-50 font-semibold' : 'hover:bg-slate-50'
+                                            isVoided
+                                                ? 'text-slate-400'
+                                                : isPosted
+                                                  ? 'bg-green-50 font-semibold'
+                                                  : 'hover:bg-slate-50'
                                         }`}
                                     >
                                         <td className="px-4 py-3 text-slate-700">
