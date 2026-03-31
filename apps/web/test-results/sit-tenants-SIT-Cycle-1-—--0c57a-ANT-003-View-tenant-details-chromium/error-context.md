@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "admin Admin" [ref=e5] [cursor=pointer]:
+        - /url: /admin/profile
+        - text: admin
+        - generic [ref=e6]: Admin
+      - navigation [ref=e7]:
+        - link "Spaces" [ref=e8] [cursor=pointer]:
+          - /url: /admin/spaces
+        - link "Tenants" [ref=e9] [cursor=pointer]:
+          - /url: /admin/tenants
+      - button "Logout" [ref=e12]
+    - generic [ref=e14]:
+      - link "← Back to Tenants" [ref=e16] [cursor=pointer]:
+        - /url: /admin/tenants
+      - heading "Maria Santos" [level=1] [ref=e17]
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - term [ref=e21]: Email
+          - definition [ref=e22]: maria@example.com
+        - generic [ref=e23]:
+          - term [ref=e24]: Phone
+          - definition [ref=e25]: +63 912 000 0001
+        - generic [ref=e26]:
+          - term [ref=e27]: Status
+          - definition [ref=e28]: active
+      - heading "Contracts" [level=2] [ref=e29]
+      - table [ref=e31]:
+        - rowgroup [ref=e32]:
+          - row "Space Start End Status Link" [ref=e33]:
+            - columnheader "Space" [ref=e34]
+            - columnheader "Start" [ref=e35]
+            - columnheader "End" [ref=e36]
+            - columnheader "Status" [ref=e37]
+            - columnheader "Link" [ref=e38]
+        - rowgroup [ref=e39]:
+          - row "space-1 2025-01-01 2025-12-31 posted View" [ref=e40]:
+            - cell "space-1" [ref=e41]
+            - cell "2025-01-01" [ref=e42]
+            - cell "2025-12-31" [ref=e43]
+            - cell "posted" [ref=e44]
+            - cell "View" [ref=e45]:
+              - link "View" [ref=e46] [cursor=pointer]:
+                - /url: /admin/contracts/contract-1
+          - row "space-1 2023-01-01 2023-12-31 voided View" [ref=e47]:
+            - cell "space-1" [ref=e48]
+            - cell "2023-01-01" [ref=e49]
+            - cell "2023-12-31" [ref=e50]
+            - cell "voided" [ref=e51]
+            - cell "View" [ref=e52]:
+              - link "View" [ref=e53] [cursor=pointer]:
+                - /url: /admin/contracts/contract-4
+  - button "Open Next.js Dev Tools" [ref=e59] [cursor=pointer]:
+    - img [ref=e60]
+  - alert [ref=e63]
+```
