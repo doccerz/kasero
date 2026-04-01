@@ -394,6 +394,19 @@ describe('ContractsService', () => {
             expect(tx.insert).toHaveBeenCalledTimes(3);
         });
 
+        it('throws ConflictException when overlapping non-voided contract exists', async () => {
+            const mockDb = buildMockDb();
+            // First select: findOne returns the draft contract
+            mockDb.select
+                .mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([draftContract]), leftJoin: jest.fn() }) })
+                // Second select: overlap check returns an overlapping contract
+                .mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([{ id: 'other-contract' }]) }) });
+            const service = await createService(mockDb);
+
+            await expect(service.post('contract-1')).rejects.toThrow(ConflictException);
+            expect(mockDb.transaction).not.toHaveBeenCalled();
+        });
+
         it('catches PG error 23505 → ConflictException', async () => {
             const mockDb = buildMockDb();
             mockDb.select

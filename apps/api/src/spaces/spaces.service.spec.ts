@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { SpacesService } from './spaces.service';
 import { DB_TOKEN } from '../database/database.module';
 
@@ -134,6 +134,17 @@ describe('SpacesService', () => {
             const service = await createService(mockDb);
 
             await expect(service.remove('missing')).rejects.toThrow(NotFoundException);
+        });
+
+        it('throws BadRequestException when space has active contracts', async () => {
+            const mockDb = buildMockDb({ mutationRows: [{ id: '1', name: 'Space A', deletedAt: new Date() }] });
+            // Active-contracts check: first select returns one contract row
+            mockDb.select
+                .mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([{ id: 'contract-1' }]) }) });
+            const service = await createService(mockDb);
+
+            await expect(service.remove('1')).rejects.toThrow(BadRequestException);
+            expect(mockDb.update).not.toHaveBeenCalled();
         });
     });
 
