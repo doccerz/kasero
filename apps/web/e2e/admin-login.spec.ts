@@ -1,11 +1,16 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Admin login page', () => {
-    test('renders login form', async ({ page }) => {
-        await page.goto('/admin/login');
+test.describe('Admin login (on home page)', () => {
+    test('renders login form at root', async ({ page }) => {
+        await page.goto('/');
         await expect(page.getByLabel(/username/i)).toBeVisible();
         await expect(page.getByLabel(/password/i)).toBeVisible();
         await expect(page.getByRole('button', { name: /log in/i })).toBeVisible();
+    });
+
+    test('/admin/login redirects to /', async ({ page }) => {
+        await page.goto('/admin/login');
+        await expect(page).toHaveURL('/');
     });
 
     test('shows error on bad credentials', async ({ page }) => {
@@ -17,7 +22,7 @@ test.describe('Admin login page', () => {
                 body: JSON.stringify({ message: 'Invalid credentials' }),
             });
         });
-        await page.goto('/admin/login');
+        await page.goto('/');
         await page.getByLabel(/username/i).fill('admin');
         await page.getByLabel(/password/i).fill('wrongpassword');
         await page.getByRole('button', { name: /log in/i }).click();
@@ -34,7 +39,7 @@ test.describe('Admin login page', () => {
                 headers: { 'Set-Cookie': 'auth_token=eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.mock; Path=/; HttpOnly' },
             });
         });
-        await page.goto('/admin/login');
+        await page.goto('/');
         await page.getByLabel(/username/i).fill('admin');
         await page.getByLabel(/password/i).fill('password');
         await page.getByRole('button', { name: /log in/i }).click();
