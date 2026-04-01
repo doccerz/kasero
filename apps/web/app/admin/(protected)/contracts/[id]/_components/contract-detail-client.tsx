@@ -59,6 +59,7 @@ export default function ContractDetailClient({
 
     const isDraft = contract.status === 'draft';
     const isPosted = contract.status === 'posted';
+    const isVoided = contract.status === 'voided';
 
     async function handleEdit(e: React.FormEvent) {
         e.preventDefault();
@@ -240,13 +241,15 @@ export default function ContractDetailClient({
                         >
                             Record Payment
                         </button>
-                        <button
-                            onClick={() => { setError(''); setShowVoidConfirm(true); }}
-                            className="px-4 py-2 text-sm bg-[var(--error-container)] text-[var(--error)] rounded-md hover:opacity-90 transition-opacity"
-                        >
-                            Void Contract
-                        </button>
                     </>
+                )}
+                {!isVoided && (
+                    <button
+                        onClick={() => { setError(''); setShowVoidConfirm(true); }}
+                        className="px-4 py-2 text-sm bg-[var(--error-container)] text-[var(--error)] rounded-md hover:opacity-90 transition-opacity"
+                    >
+                        Void Contract
+                    </button>
                 )}
             </div>
 

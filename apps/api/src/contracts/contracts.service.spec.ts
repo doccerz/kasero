@@ -509,9 +509,25 @@ describe('ContractsService', () => {
             expect(mockDb.transaction).not.toHaveBeenCalled();
         });
 
-        it('throws BadRequestException when contract status is draft', async () => {
+        it('voids draft contract successfully', async () => {
+            const voidedDraft = { ...draftContract, status: 'voided' };
             const mockDb = buildMockDb();
             mockDb.select.mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([draftContract]), leftJoin: jest.fn() }) });
+            const tx = buildVoidTxMock(voidedDraft);
+            mockDb.transaction.mockImplementation(async (fn: any) => fn(tx));
+            const service = await createService(mockDb);
+
+            const result = await service.void('contract-1');
+
+            expect(result).toEqual(voidedDraft);
+            expect(tx.update).toHaveBeenCalled();
+            expect(tx.insert).toHaveBeenCalledTimes(1);
+        });
+
+        it('throws BadRequestException when contract status is already voided', async () => {
+            const voidedContract = { ...postedContract, status: 'voided' };
+            const mockDb = buildMockDb();
+            mockDb.select.mockReturnValueOnce({ from: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue([voidedContract]), leftJoin: jest.fn() }) });
             const service = await createService(mockDb);
             await expect(service.void('contract-1')).rejects.toThrow(BadRequestException);
             expect(mockDb.transaction).not.toHaveBeenCalled();

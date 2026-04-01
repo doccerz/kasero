@@ -194,7 +194,7 @@ describe('ContractsController — endpoints', () => {
     });
 
     it('POST /admin/contracts/:id/void when BadRequestException → 400', async () => {
-        mockContractsService.void.mockRejectedValue(new BadRequestException('Only posted contracts can be voided'));
+        mockContractsService.void.mockRejectedValue(new BadRequestException('Cannot void an already voided contract'));
 
         const res = await request(app.getHttpServer())
             .post('/admin/contracts/uuid-1/void');
