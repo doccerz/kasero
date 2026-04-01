@@ -107,7 +107,13 @@ const FIXTURES: Record<string, object | object[]> = {
         { id: 'space-2', name: 'Unit 2B', description: 'Second floor unit' },
         { id: 'space-3', name: 'Unit 3C', description: 'Third floor unit' },
         { id: 'space-4', name: 'Unit 4D' },
+        { id: 'space-active', name: 'Unit With Contracts', description: 'Has active contracts' },
     ],
+    '/admin/spaces/space-active': {
+        id: 'space-active',
+        name: 'Unit With Contracts',
+        description: 'Has active contracts',
+    },
     '/admin/spaces/space-1': {
         id: 'space-1',
         name: 'Unit 1A',
@@ -368,8 +374,13 @@ export default async function globalSetup() {
                 return;
             }
             if (method === 'DELETE') {
-                res.writeHead(204);
-                res.end();
+                if (spaceEditMatch[1] === 'space-active') {
+                    res.writeHead(400);
+                    res.end(JSON.stringify({ message: 'Cannot delete a space with active or draft contracts' }));
+                } else {
+                    res.writeHead(204);
+                    res.end();
+                }
                 return;
             }
         }
