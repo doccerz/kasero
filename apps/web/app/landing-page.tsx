@@ -3,25 +3,31 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function LoginForm() {
+export default function LandingPage() {
+    const [code, setCode] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    async function handleSubmit(e: React.FormEvent) {
+    function handleAccessCode(e: React.FormEvent) {
+        e.preventDefault();
+        if (code.trim()) {
+            router.push('/public/' + code.trim());
+        }
+    }
+
+    async function handleLogin(e: React.FormEvent) {
         e.preventDefault();
         setError(null);
         setLoading(true);
-
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
-
             if (res.ok) {
                 router.push('/admin/spaces');
             } else {
@@ -36,15 +42,46 @@ export default function LoginForm() {
     }
 
     return (
-        <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center px-4">
+        <div className="min-h-screen bg-[var(--surface)] flex flex-col items-center justify-center px-4 py-10">
             <div className="w-full max-w-sm">
                 <div className="mb-8 text-center">
                     <span className="text-3xl font-bold tracking-tight text-[var(--tertiary)] font-[family-name:var(--font-display)]">Kasero</span>
-                    <p className="text-sm text-[var(--on-surface-variant)] mt-1">Admin Portal</p>
                 </div>
+
+                {/* Tenant: access code */}
                 <div className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] p-8">
-                    <h1 className="text-lg font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-6">Sign in</h1>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <h2 className="text-base font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-1">View your rental status</h2>
+                    <p className="text-sm text-[var(--on-surface-variant)] mb-5">
+                        Enter the access code provided by your landlord.
+                    </p>
+                    <form onSubmit={handleAccessCode} className="space-y-3">
+                        <input
+                            type="text"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            placeholder="Access code"
+                            className="w-full bg-[var(--surface-container-highest)] border border-[var(--outline-variant)]/15 rounded-md px-4 py-2.5 text-sm text-[var(--on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-fixed-dim)]"
+                        />
+                        <button
+                            type="submit"
+                            className="w-full bg-[var(--primary-fixed-dim)] text-[var(--on-primary-fixed)] rounded-md px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
+                        >
+                            View Status
+                        </button>
+                    </form>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3 my-6">
+                    <div className="flex-1 h-px bg-[var(--outline-variant)]/30" />
+                    <span className="text-xs text-[var(--on-surface-variant)]">or</span>
+                    <div className="flex-1 h-px bg-[var(--outline-variant)]/30" />
+                </div>
+
+                {/* Admin: login */}
+                <div className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] p-8">
+                    <h2 className="text-base font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-5">Admin sign in</h2>
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div>
                             <label
                                 htmlFor="username"
@@ -85,7 +122,7 @@ export default function LoginForm() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[var(--primary-fixed-dim)] text-[var(--on-primary-fixed)] rounded-md px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-[var(--surface-container-high)] text-[var(--on-surface)] rounded-md px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Signing in…' : 'Log in'}
                         </button>
