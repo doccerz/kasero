@@ -1,7 +1,7 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { and, eq, isNull } from 'drizzle-orm';
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { DB_TOKEN } from '../database/database.module';
-import { spaces } from '../database/schema';
+import { spaces, contracts } from '../database/schema';
 
 @Injectable()
 export class SpacesService {
@@ -33,6 +33,12 @@ export class SpacesService {
     }
 
     async remove(id: string) {
+        const active = await this.db.select({ id: contracts.id })
+            .from(contracts)
+            .where(and(eq(contracts.spaceId, id), inArray(contracts.status, ['posted', 'draft'])));
+        if (active.length > 0) {
+            throw new BadRequestException('Cannot delete a space with active or draft contracts');
+        }
         const rows = await this.db.update(spaces)
             .set({ deletedAt: new Date() })
             .where(and(eq(spaces.id, id), isNull(spaces.deletedAt)))

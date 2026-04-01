@@ -1,5 +1,5 @@
 import { Injectable, Inject, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { eq, sql, getTableColumns } from 'drizzle-orm';
+import { and, eq, ne, notInArray, lte, gte, sql, getTableColumns } from 'drizzle-orm';
 import { DB_TOKEN } from '../database/database.module';
 import { contracts, tenants, payables, payments, fund, publicAccessCodes, audit } from '../database/schema';
 
@@ -207,6 +207,22 @@ export class ContractsService {
         if (end > maxEndDate) {
             throw new BadRequestException('Contract duration cannot exceed 10 years');
         }
+        // Check for overlapping non-voided contracts for the same space (excluding self)
+        const overlapping = await this.db.select({ id: contracts.id })
+            .from(contracts)
+            .where(
+                and(
+                    eq(contracts.spaceId, existing.spaceId),
+                    ne(contracts.id, id),
+                    notInArray(contracts.status, ['voided']),
+                    lte(contracts.startDate, existing.endDate),
+                    gte(contracts.endDate, existing.startDate),
+                )
+            );
+        if (overlapping.length > 0) {
+            throw new ConflictException('Contract dates overlap with an existing non-voided contract for this space');
+        }
+
         const payableRows = generatePayables({
             contractId: id,
             startDate: existing.startDate,
