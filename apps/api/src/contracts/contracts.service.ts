@@ -277,8 +277,8 @@ export class ContractsService {
 
     async void(id: string) {
         const existing = await this.findOne(id);
-        if (existing.status !== 'posted') {
-            throw new BadRequestException('Only posted contracts can be voided');
+        if (existing.status === 'voided') {
+            throw new BadRequestException('Voided contracts cannot be voided');
         }
         return await this.db.transaction(async (tx: any) => {
             const [voided] = await tx
