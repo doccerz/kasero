@@ -534,6 +534,12 @@ export default function SpaceContractsClient({ spaceId, contracts, tenants }: Pr
                                                     >
                                                         Post
                                                     </button>
+                                                    <button
+                                                        onClick={() => setModal({ type: 'void', contractId: contract.id })}
+                                                        className="text-red-600 hover:underline text-sm"
+                                                    >
+                                                        Void
+                                                    </button>
                                                 </>
                                             )}
                                             {isPosted && (

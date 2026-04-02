@@ -230,6 +230,12 @@ export default function ContractDetailClient({
                         >
                             Post Contract
                         </button>
+                        <button
+                            onClick={() => { setError(''); setShowVoidConfirm(true); }}
+                            className="px-4 py-2 text-sm bg-[var(--error-container)] text-[var(--error)] rounded-md hover:opacity-90 transition-opacity"
+                        >
+                            Void Contract
+                        </button>
                     </>
                 )}
                 {isPosted && (
