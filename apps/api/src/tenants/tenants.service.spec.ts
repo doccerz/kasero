@@ -192,6 +192,23 @@ describe('TenantsService', () => {
         });
     });
 
+    describe('remove', () => {
+        it('sets deletedAt on tenant and returns updated row', async () => {
+            const deleted = { id: 'abc', firstName: 'Alice', lastName: 'Smith', deletedAt: new Date() };
+            const mockDb = buildCrudMockDb({ mutationRows: [deleted] });
+            const service = await createCrudService(mockDb);
+            const result = await service.remove('abc');
+            expect(mockDb.update).toHaveBeenCalled();
+            expect(result).toEqual(deleted);
+        });
+
+        it('throws NotFoundException when no rows returned', async () => {
+            const mockDb = buildCrudMockDb({ mutationRows: [] });
+            const service = await createCrudService(mockDb);
+            await expect(service.remove('abc')).rejects.toThrow(NotFoundException);
+        });
+    });
+
     describe('generateEntryLink', () => {
         it('throws NotFoundException when tenant not found', async () => {
             const mockDb = buildCrudMockDb({ selectRows: [] });

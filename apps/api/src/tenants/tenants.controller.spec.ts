@@ -157,8 +157,20 @@ describe('TenantsController — endpoints', () => {
         expect(res.status).toBe(404);
     });
 
-    it('DELETE /admin/tenants/:id → 404 (route does not exist)', async () => {
+    it('DELETE /admin/tenants/:id → 200 with deleted tenant', async () => {
+        const tenant = { id: 'uuid-1', firstName: 'Alice', lastName: 'Smith', deletedAt: new Date().toISOString() };
+        (mockTenantsService as any).remove = jest.fn().mockResolvedValue(tenant);
+
         const res = await request(app.getHttpServer()).delete('/admin/tenants/uuid-1');
+
+        expect(res.status).toBe(200);
+        expect(res.body).toMatchObject({ id: 'uuid-1' });
+    });
+
+    it('DELETE /admin/tenants/:id when NotFoundException → 404', async () => {
+        (mockTenantsService as any).remove = jest.fn().mockRejectedValue(new NotFoundException('Tenant not found'));
+
+        const res = await request(app.getHttpServer()).delete('/admin/tenants/uuid-missing');
 
         expect(res.status).toBe(404);
     });
