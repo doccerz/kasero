@@ -250,7 +250,7 @@ Automated via GitHub Actions:
 - **Merges to `main`**: release-please creates a GitHub release and pushes a Docker image to `ghcr.io`
 - **Feature branches → `staging`**: auto-merged after CI passes
 
-See `.claude/rules/ci-cd-workflows.md` for the full pipeline diagram.
+See `docs/ci-cd-workflows.md` for the full pipeline diagram.
 
 ---
 
@@ -262,12 +262,12 @@ See `.claude/rules/ci-cd-workflows.md` for the full pipeline diagram.
 | Implementation Phases | `specs/v1/phases/` |
 | SIT/UAT Test Cases — Cycle 1 | `specs/v1/qa/cycle-1/plan.md` |
 | SIT Cycle 1 Execution Progress | `specs/v1/qa/cycle-1/progress.txt` |
-| Project Overview (internal) | `.claude/rules/project-overview.md` |
-| Coding Guidelines | `.claude/rules/coding-guidelines.md` |
-| Testing Patterns | `.claude/rules/testing-patterns.md` |
-| Git Workflow | `.claude/rules/git-workflow.md` |
-| CI/CD Workflows | `.claude/rules/ci-cd-workflows.md` |
-| Security Guidelines | `.claude/rules/security-guidelines.md` |
+| Project Overview | `docs/project-overview.md` |
+| Coding Guidelines | `docs/coding-guidelines.md` |
+| Testing Patterns | `docs/testing-patterns.md` |
+| Git Workflow | `docs/git-workflow.md` |
+| CI/CD Workflows | `docs/ci-cd-workflows.md` |
+| Security Guidelines | `docs/security-guidelines.md` |
 
 ---
 
