@@ -37,6 +37,7 @@ export const tenants = pgTable('tenants', {
     entryToken: uuid('entry_token'),
     entryTokenUsedAt: timestamp('entry_token_used_at'),
     metadata: jsonb('metadata'),
+    deletedAt: timestamp('deleted_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

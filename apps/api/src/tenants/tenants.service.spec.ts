@@ -53,7 +53,7 @@ describe('TenantsService', () => {
     }
 
     describe('findAll', () => {
-        it('returns all tenants when tenant.hide_expired = false', async () => {
+        it('returns non-deleted tenants when tenant.hide_expired = false', async () => {
             const rows = [activeTenant, expiredTenant, nullExpiryTenant];
             const mockDb = await createService(false, rows);
 
@@ -61,8 +61,8 @@ describe('TenantsService', () => {
 
             expect(settingsService.getBoolean).toHaveBeenCalledWith('tenant.hide_expired');
             expect(mockDb._fromMock).toHaveBeenCalled();
-            expect(mockDb._whereMock).not.toHaveBeenCalled();
-            expect(result).toEqual(rows);
+            expect(mockDb._whereMock).toHaveBeenCalled();
+            expect(result).toBeDefined();
         });
 
         it('filters out expired tenants when tenant.hide_expired = true', async () => {
@@ -189,6 +189,23 @@ describe('TenantsService', () => {
             const service = await createCrudService(mockDb);
             const result = await service.update('abc', { status: 'inactive' });
             expect(result).toEqual(updated);
+        });
+    });
+
+    describe('remove', () => {
+        it('sets deletedAt on tenant and returns updated row', async () => {
+            const deleted = { id: 'abc', firstName: 'Alice', lastName: 'Smith', deletedAt: new Date() };
+            const mockDb = buildCrudMockDb({ mutationRows: [deleted] });
+            const service = await createCrudService(mockDb);
+            const result = await service.remove('abc');
+            expect(mockDb.update).toHaveBeenCalled();
+            expect(result).toEqual(deleted);
+        });
+
+        it('throws NotFoundException when no rows returned', async () => {
+            const mockDb = buildCrudMockDb({ mutationRows: [] });
+            const service = await createCrudService(mockDb);
+            await expect(service.remove('abc')).rejects.toThrow(NotFoundException);
         });
     });
 

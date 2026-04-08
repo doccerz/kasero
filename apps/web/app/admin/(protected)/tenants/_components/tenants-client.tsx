@@ -24,9 +24,12 @@ const EMPTY_FORM: TenantFormData = { firstName: '', lastName: '', email: '', pho
 export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
     const router = useRouter();
     const [modal, setModal] = useState<{ mode: 'create' | 'edit'; tenant?: Tenant } | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<Tenant | null>(null);
     const [form, setForm] = useState<TenantFormData>(EMPTY_FORM);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     function openCreate() {
         setForm(EMPTY_FORM);
@@ -48,6 +51,26 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
     function closeModal() {
         setModal(null);
         setError('');
+    }
+
+    async function handleDelete() {
+        if (!deleteConfirm) return;
+        setDeleteLoading(true);
+        setDeleteError('');
+        try {
+            const res = await fetch(`/api/admin/tenants/${deleteConfirm.id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setDeleteError(data.message ?? 'Something went wrong');
+            } else {
+                setDeleteConfirm(null);
+                router.refresh();
+            }
+        } catch {
+            setDeleteError('Unable to reach server');
+        } finally {
+            setDeleteLoading(false);
+        }
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -124,18 +147,53 @@ export default function TenantsClient({ tenants }: { tenants: Tenant[] }) {
                                     </td>
                                     <td className="px-5 py-4 text-[var(--on-surface-variant)]">{tenant.contactInfo?.email ?? '—'}</td>
                                     <td className="px-5 py-4 text-[var(--on-surface-variant)]">{tenant.contactInfo?.phone ?? '—'}</td>
-                                    <td className="px-5 py-4 text-right">
+                                    <td className="px-5 py-4 text-right space-x-2">
                                         <button
                                             onClick={() => openEdit(tenant)}
                                             className="text-xs px-3 py-1.5 rounded-md bg-[var(--secondary-container)] text-[var(--on-secondary-container)] hover:opacity-90 transition-opacity"
                                         >
                                             Edit
                                         </button>
+                                        <button
+                                            onClick={() => { setDeleteConfirm(tenant); setDeleteError(''); }}
+                                            className="text-xs px-3 py-1.5 rounded-md bg-[var(--error-container)] text-[var(--on-error-container)] hover:opacity-90 transition-opacity"
+                                        >
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div role="dialog" className="bg-[var(--surface-container-lowest)] rounded-lg shadow-[0_10px_40px_rgba(13,28,46,0.06)] w-full max-w-sm mx-4 px-6 py-5">
+                        <h2 className="text-base font-semibold text-[var(--on-surface)] font-[family-name:var(--font-display)] mb-2">Delete Tenant</h2>
+                        <p className="text-sm text-[var(--on-surface-variant)] mb-4">
+                            Are you sure you want to delete <span className="font-medium text-[var(--on-surface)]">{deleteConfirm.firstName} {deleteConfirm.lastName}</span>? This action cannot be undone.
+                        </p>
+                        {deleteError && <p className="text-[var(--error)] text-sm mb-3">{deleteError}</p>}
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => setDeleteConfirm(null)}
+                                disabled={deleteLoading}
+                                className="px-4 py-2 text-sm bg-transparent text-[var(--on-surface-variant)] hover:bg-[var(--surface-container-low)] transition-colors rounded-md"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                disabled={deleteLoading}
+                                className="px-4 py-2 text-sm bg-[var(--error)] text-[var(--on-error)] rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+                            >
+                                {deleteLoading ? 'Deleting…' : 'Delete'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
