@@ -2,15 +2,22 @@
 
 ## Memory files
 
-## Qwen Added Memories
+- [coding-guidelines.md](./docs/coding-guidelines.md) - Coding guidelines, standards, and patterns
+- [testing-patterns.md](./docs/testing-patterns.md) - Testing patterns
+- [git-workflow.md](./docs/git-workflow.md) - Git recovery procedures reference
+- [service-workflows.md](./docs/service-workflows.md)
+- [ci-cd-workflows.md](./docs/ci-cd-workflows.md) - Github actions documentation
+- [security-guidelines.md](./docs/security-guidelines.md) - Security guidelines
+- [project-overview.md](./docs/project-overview.md) - Project overview, architecture, DB model
 
-- [@./docs/coding-guidelines.md](./docs/coding-guidelines.md) - Coding guidelines, standards, and patterns
-- [@./docs/testing-patterns.md](./docs/testing-patterns.md) - Testing patterns
-- [@./docs/git-workflow.md](./docs/git-workflow.md) - Git workflow — **MUST follow for every task**: new branch per plan, commit after each meaningful change, open PR (never push directly to main/staging)
-- [@./docs/service-workflows.md](./docs/service-workflows.md)
-- [@./docs/ci-cd-workflows.md](./docs/ci-cd-workflows.md) - Github actions documentation
-- [@./docs/security-guidelines.md](./docs/security-guidelines.md) - Security guidelines
-- [@./docs/project-overview.md](./docs/project-overview.md) - Project overview, architecture, DB model, API endpoints
+## **IMPORTANT**: Git Workflow — MUST follow
+
+- Do `git add` and `git commit` after every meaningful change (e.g., after writing tests, after implementing code, after fixing tests). Do NOT batch all work into a single commit at the end.
+- Never push directly to main or staging — only PRs should merge changes to these branches
+- **CRITICAL**: Always create a NEW branch for EACH plan execution (e.g., `feat/task-1.4-seed-script`)
+- Commit messages must be descriptive and follow conventional commit style
+- PRs to `staging`: use `--merge` (not `--squash` or `--rebase`) in `gh pr merge` / CI auto-merge
+- Never checkout the `main` branch directly
 
 ## **IMPORTANT**: Plan Execution Workflow
 - Plans and spec files describe **what** to build — they do NOT override the mandatory TDD workflow
@@ -36,6 +43,24 @@
 
 ## MANDATORY TASK CHECKLIST
 > Every task — no exceptions, no shortcuts, even for small changes
+
+```mermaid
+graph TD
+    A0[Create branch: feat/fix/issue-XXXX]
+    A0 --> A[Write failing tests]
+    A --> B[Git commit: test: add failing tests]
+    B --> C[Implement — minimum code to pass]
+    C --> D[Git commit: feat/fix: description]
+    D --> E[Run full test suite]
+    E --> F[Git commit if fixes needed]
+    F --> G[STOP — update memory md files]
+    G --> H[Git commit: docs: update memory md files]
+    H --> I[STOP — open PR to staging NOW]
+    I --> J[Phase COMPLETE]
+```
+
+> **STOP nodes are hard gates** — reach one, do that step before reading further.
+> Tests passing is not task completion. The open PR is the deliverable.
 
 Before marking any task done, confirm ALL of the following were done **in order**:
 

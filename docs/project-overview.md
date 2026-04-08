@@ -127,67 +127,6 @@ graph TD
     payables --> commit[Commit]
 ```
 
-## Key Commands
-
-### Development
-
-```bash
-## Install all workspace dependencies
-npm install
-
-## Run both apps in development mode
-npm run dev
-
-## Run API only
-npm run dev --workspace=apps/api
-
-## Run web only
-npm run dev --workspace=apps/web
-```
-
-### Database / Drizzle
-
-```bash
-## Generate migration files from schema changes
-npm run db:generate --workspace=apps/api
-
-## Run pending migrations
-npm run db:migrate --workspace=apps/api
-
-## Seed initial data (admin user, settings, app_version)
-npm run db:seed --workspace=apps/api
-```
-
-### Docker
-
-```bash
-## Build image locally (smoke test — no push)
-docker build -t kasero .
-
-## Run with environment file
-docker run --env-file .env -p 3001:3001 kasero
-```
-
-## API Endpoints
-
-### Admin Endpoints (JWT required)
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| `*` | `/admin/spaces` | Space CRUD |
-| `*` | `/admin/tenants` | Tenant CRUD |
-| `*` | `/admin/contracts` | Contract CRUD (draft state) |
-| `POST` | `/admin/contracts/:id/post` | Post (finalize) a contract — irreversible |
-| `GET` | `/admin/contracts/:id/ledger` | View payables, payments, fund for contract |
-| `*` | `/admin/contracts/:id/payments` | Record payments against a contract |
-| `POST` | `/admin/payments/:id/void` | Void a payment (auditable) |
-
-### Internal Frontend-Only Endpoint
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| `GET` | `/internal/contracts/public/:code` | Resolve contract by public code for tenant status view |
-
 ## Important Notes
 
 - **Timezone**: All user-facing date behavior resolves to `Asia/Manila`. Store contract/business dates as date-only values (no time component). Set `TZ=Asia/Manila` in the environment.
@@ -196,7 +135,7 @@ docker run --env-file .env -p 3001:3001 kasero
 - **Public code security**: The public access code must be random, non-guessable, unique, and revocable. Never expose internal contract IDs publicly.
 - **Backend isolation**: The NestJS API must never be reachable directly from the internet. Route all external traffic through Next.js.
 - **v1 scope guardrails**: Online payments, contract cancellation, proration, deposit refunds, PDF generation, RBAC expansion, and reporting are explicitly out of scope for v1. Do not add them.
-- **TDD workflow**: Write failing tests first, commit, then implement, commit, then verify all tests pass. See [coding-guidelines.md](./coding-guidelines.md).
+- **TDD workflow**: Write failing tests first, commit, then implement, commit, then verify all tests pass. See [AGENTS.md](../AGENTS.md).
 
 ## QA / SIT / UAT
 
