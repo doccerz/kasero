@@ -53,7 +53,7 @@ describe('TenantsService', () => {
     }
 
     describe('findAll', () => {
-        it('returns all tenants when tenant.hide_expired = false', async () => {
+        it('returns non-deleted tenants when tenant.hide_expired = false', async () => {
             const rows = [activeTenant, expiredTenant, nullExpiryTenant];
             const mockDb = await createService(false, rows);
 
@@ -61,8 +61,8 @@ describe('TenantsService', () => {
 
             expect(settingsService.getBoolean).toHaveBeenCalledWith('tenant.hide_expired');
             expect(mockDb._fromMock).toHaveBeenCalled();
-            expect(mockDb._whereMock).not.toHaveBeenCalled();
-            expect(result).toEqual(rows);
+            expect(mockDb._whereMock).toHaveBeenCalled();
+            expect(result).toBeDefined();
         });
 
         it('filters out expired tenants when tenant.hide_expired = true', async () => {

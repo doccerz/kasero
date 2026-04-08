@@ -1,5 +1,5 @@
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
-import { or, isNull, gt, sql, eq, and } from 'drizzle-orm';
+import { or, isNull, gt, sql, eq, and, isNotNull } from 'drizzle-orm';
 import { DB_TOKEN } from '../database/database.module';
 import { SettingsService } from '../settings/settings.service';
 import { tenants } from '../database/schema';
@@ -30,17 +30,18 @@ export class TenantsService {
 
     async findAll(): Promise<typeof tenants.$inferSelect[]> {
         const hideExpired = this.settingsService.getBoolean('tenant.hide_expired');
+        const notDeleted = isNull(tenants.deletedAt);
         const query = this.db.select().from(tenants);
         if (hideExpired) {
             return query.where(
-                or(isNull(tenants.expirationDate), gt(tenants.expirationDate, sql`CURRENT_DATE`))
+                and(notDeleted, or(isNull(tenants.expirationDate), gt(tenants.expirationDate, sql`CURRENT_DATE`)))
             );
         }
-        return query;
+        return query.where(notDeleted);
     }
 
     async findOne(id: string): Promise<typeof tenants.$inferSelect> {
-        const rows = await this.db.select().from(tenants).where(eq(tenants.id, id));
+        const rows = await this.db.select().from(tenants).where(and(eq(tenants.id, id), isNull(tenants.deletedAt)));
         if (!rows[0]) throw new NotFoundException('Tenant not found');
         return rows[0];
     }
@@ -65,6 +66,15 @@ export class TenantsService {
         const rows = await this.db.update(tenants)
             .set({ ...data, updatedAt: new Date() })
             .where(eq(tenants.id, id))
+            .returning();
+        if (!rows[0]) throw new NotFoundException('Tenant not found');
+        return rows[0];
+    }
+
+    async remove(id: string): Promise<typeof tenants.$inferSelect> {
+        const rows = await this.db.update(tenants)
+            .set({ deletedAt: new Date(), updatedAt: new Date() })
+            .where(and(eq(tenants.id, id), isNull(tenants.deletedAt)))
             .returning();
         if (!rows[0]) throw new NotFoundException('Tenant not found');
         return rows[0];
