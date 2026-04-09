@@ -1,5 +1,5 @@
 import { AllExceptionsFilter } from './all-exceptions.filter';
-import { ArgumentsHost, HttpException, Logger } from '@nestjs/common';
+import { ArgumentsHost, ConflictException, HttpException, Logger } from '@nestjs/common';
 
 function buildMockHost(statusCode = 200): ArgumentsHost {
     const json = jest.fn();
@@ -72,6 +72,84 @@ describe('AllExceptionsFilter', () => {
         expect(json).toHaveBeenCalledWith(
             expect.objectContaining({ statusCode: 500 }),
         );
+    });
+
+    describe('useful error details', () => {
+        const originalEnv = process.env.NODE_ENV;
+        afterEach(() => {
+            process.env.NODE_ENV = originalEnv;
+        });
+
+        function captureJson(host: ArgumentsHost) {
+            const json = jest.fn();
+            const status = jest.fn().mockReturnValue({ json });
+            (host.switchToHttp as jest.Mock).mockReturnValue({
+                getResponse: () => ({ status }),
+                getRequest: () => ({ url: '/admin/tenants', method: 'POST' }),
+            });
+            return { json, status };
+        }
+
+        it('surfaces Postgres error fields on 500 in non-production', () => {
+            process.env.NODE_ENV = 'development';
+            const host = buildMockHost();
+            const { json } = captureJson(host);
+            const pgError = Object.assign(
+                new Error('column "deleted_at" does not exist'),
+                { code: '42703', table: 'tenants', column: 'deleted_at' },
+            );
+
+            filter.catch(pgError, host);
+
+            expect(json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 500,
+                    message: 'column "deleted_at" does not exist',
+                    error: expect.objectContaining({
+                        code: '42703',
+                        table: 'tenants',
+                        column: 'deleted_at',
+                    }),
+                }),
+            );
+        });
+
+        it('hides internal error details on 500 in production', () => {
+            process.env.NODE_ENV = 'production';
+            const host = buildMockHost();
+            const { json } = captureJson(host);
+            const pgError = Object.assign(new Error('secret db detail'), { code: '42703' });
+
+            filter.catch(pgError, host);
+
+            const body = (json as jest.Mock).mock.calls[0][0];
+            expect(body.statusCode).toBe(500);
+            expect(body.message).toBe('Internal server error');
+            expect(body.error).toBeUndefined();
+            expect(JSON.stringify(body)).not.toContain('secret db detail');
+        });
+
+        it('preserves structured ConflictException payloads in the response body', () => {
+            process.env.NODE_ENV = 'development';
+            const host = buildMockHost();
+            const { json } = captureJson(host);
+            const exception = new ConflictException({
+                duplicate: true,
+                matchingIds: ['tenant-1', 'tenant-2'],
+            });
+
+            filter.catch(exception, host);
+
+            expect(json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    statusCode: 409,
+                    message: expect.objectContaining({
+                        duplicate: true,
+                        matchingIds: ['tenant-1', 'tenant-2'],
+                    }),
+                }),
+            );
+        });
     });
 
     it('returns standard error shape with correct status for HttpException', () => {
